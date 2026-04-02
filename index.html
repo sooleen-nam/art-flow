@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>아트플로우 — AI 마음튜터</title>
+<style>
+/* ============================================================
+   리셋
+   ============================================================ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; -webkit-font-smoothing: antialiased; }
+
+:root {
+  --orange:  #FF8C42;
+  --pink:    #FF6B9D;
+  --yellow:  #FFD166;
+  --purple:  #A78BFA;
+  --teal:    #06D6A0;
+  --bg:      #FFF8F0;
+  --bg2:     #FFFFFF;
+  --surface: #FFF3E8;
+  --border:  #F0D9C8;
+  --text:    #3D2B1F;
+  --text2:   #8B6F5E;
+}
+
+body {
+  font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   화면 전환
+   ============================================================ */
+.screen { display: none; flex-direction: column; min-height: 100vh; }
+.screen.active { display: flex; animation: fadeUp .35s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   버튼
+   ============================================================ */
+.btn {
+  border: none; cursor: pointer; font-weight: 800;
+  border-radius: 50px; transition: transform .15s, box-shadow .15s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: inherit;
+}
+.btn:active { transform: scale(0.96); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--orange), var(--pink));
+  color: #fff; font-size: 1.05rem; padding: 15px 36px;
+  box-shadow: 0 4px 20px rgba(255,107,157,0.38);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,107,157,0.45); }
+.btn-outline {
+  background: #fff; color: var(--text2);
+  border: 2px solid var(--border); font-size: 0.9rem; padding: 9px 20px;
+}
+.btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+.btn:disabled { opacity: .4; pointer-events: none; }
+
+/* ============================================================
+   ① 랜딩
+   ============================================================ */
+#screen-landing {
+  background: linear-gradient(160deg, #FFF0E6 0%, #FFF8F0 40%, #FFF0F8 100%);
+  align-items: center; justify-content: center;
+  text-align: center; padding: 48px 24px 60px;
+  position: relative; overflow: hidden;
+}
+.deco { position: absolute; pointer-events: none; animation: floatDeco 4s ease-in-out infinite; }
+@keyframes floatDeco { 0%,100%{transform:translateY(0) rotate(0deg);} 50%{transform:translateY(-16px) rotate(8deg);} }
+
+.logo-emoji { font-size: 3.5rem; display: block; margin-bottom: 14px; animation: bounce 1.4s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+.logo-text {
+  font-size: clamp(2.6rem, 8vw, 4rem); font-weight: 900; letter-spacing: -2px;
+  background: linear-gradient(135deg, var(--orange), var(--pink), var(--purple));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 18px; line-height: 1;
+}
+.landing-main { font-size: clamp(1rem, 3vw, 1.25rem); font-weight: 800; color: var(--text); line-height: 1.55; margin-bottom: 10px; }
+.landing-sub  { font-size: clamp(0.85rem, 2.5vw, 1rem); color: var(--text2); line-height: 1.75; margin-bottom: 38px; }
+.landing-sub strong { color: var(--orange); }
+
+.emotion-tag-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 36px; }
+.emotion-tag { padding: 6px 16px; border-radius: 30px; font-size: 0.82rem; font-weight: 800; color: #fff; animation: floatDeco 3.5s ease-in-out infinite; }
+
+/* ============================================================
+   공통 헤더
+   ============================================================ */
+.page-header {
+  background: linear-gradient(135deg, var(--orange), var(--pink));
+  padding: 22px 20px 18px; color: #fff; text-align: center; position: relative;
+}
+.page-header h2 { font-size: clamp(1.1rem, 4vw, 1.5rem); font-weight: 900; }
+.page-header p  { font-size: 0.85rem; opacity: .85; margin-top: 4px; }
+.page-back {
+  position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,.25); border: none; border-radius: 50%;
+  width: 36px; height: 36px; font-size: 1rem; color: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ============================================================
+   ② 그림 선택
+   ============================================================ */
+#screen-select { background: var(--bg); }
+
+.artwork-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px; padding: 22px 20px; flex: 1;
+  max-width: 880px; margin: 0 auto; width: 100%;
+}
+.artwork-card {
+  background: #fff; border-radius: 20px; overflow: hidden;
+  cursor: pointer; border: 3px solid transparent;
+  transition: border-color .2s, transform .15s, box-shadow .2s;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.08);
+}
+.artwork-card:hover { transform: translateY(-5px); box-shadow: 0 10px 28px rgba(0,0,0,0.13); }
+.artwork-card.selected { border-color: var(--orange); box-shadow: 0 0 0 4px rgba(255,140,66,0.2); }
+.artwork-img { width: 100%; height: 188px; object-fit: cover; display: block; background: #FFE4CC; }
+.artwork-info { padding: 14px 16px 16px; }
+.artwork-name   { font-size: 1rem; font-weight: 900; color: var(--text); margin-bottom: 2px; }
+.artwork-artist { font-size: 0.78rem; color: var(--text2); margin-bottom: 10px; }
+.artwork-meta   { display: flex; align-items: center; justify-content: space-between; }
+.artwork-palette { display: flex; gap: 5px; }
+.palette-dot { width: 18px; height: 18px; border-radius: 50%; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+.diff-badge { font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; }
+.diff-easy   { background: #D1FAE5; color: #065F46; }
+.diff-normal { background: #FEF3C7; color: #92400E; }
+.diff-hard   { background: #FEE2E2; color: #991B1B; }
+
+/* ============================================================
+   감정 바텀시트
+   ============================================================ */
+.sheet-overlay {
+  position: fixed; inset: 0; background: rgba(61,43,31,0.45); z-index: 50;
+  opacity: 0; pointer-events: none; transition: opacity .3s; backdrop-filter: blur(3px);
+}
+.sheet-overlay.open { opacity: 1; pointer-events: all; }
+
+.emotion-sheet {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #fff; border-radius: 28px 28px 0 0;
+  padding: 6px 0 36px; z-index: 51;
+  transform: translateY(100%); transition: transform .38s cubic-bezier(.32,.72,0,1);
+  max-height: 90vh; overflow-y: auto;
+}
+.emotion-sheet.open { transform: translateY(0); }
+.sheet-handle { width: 40px; height: 5px; border-radius: 5px; background: #E5D5C8; margin: 12px auto 18px; }
+.sheet-title { text-align: center; font-size: 1.15rem; font-weight: 900; color: var(--text); margin-bottom: 5px; padding: 0 24px; }
+.sheet-sub   { text-align: center; font-size: 0.82rem; color: var(--text2); margin-bottom: 20px; padding: 0 24px; }
+
+.emotion-list { display: flex; flex-direction: column; gap: 10px; padding: 0 18px; }
+.emotion-item {
+  border-radius: 16px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer; border: 2.5px solid transparent;
+  transition: border-color .15s, transform .1s;
+}
+.emotion-item:hover { transform: translateX(4px); }
+.emotion-item.selected { border-color: rgba(255,255,255,0.6); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+.e-icon { font-size: 2rem; flex-shrink: 0; width: 42px; text-align: center; }
+.e-text h3 { font-size: 0.97rem; font-weight: 900; color: #fff; margin-bottom: 2px; }
+.e-text p  { font-size: 0.77rem; color: rgba(255,255,255,0.8); }
+.sheet-cta { padding: 18px 18px 0; }
+
+/* ============================================================
+   ③ 드로잉
+   ============================================================ */
+#screen-drawing { background: var(--bg); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+/* AI 마음튜터 바 */
+.tutor-bar {
+  background: linear-gradient(90deg, #7B2FF7, #C2185B);
+  padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+}
+.tutor-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+}
+.tutor-content { flex: 1; min-width: 0; }
+.tutor-label { font-size: 0.67rem; font-weight: 800; color: rgba(255,255,255,.6); letter-spacing: .06em; margin-bottom: 2px; }
+.tutor-msg { font-size: 0.9rem; font-weight: 700; color: #fff; transition: opacity .4s; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tutor-dot { width: 9px; height: 9px; border-radius: 50%; background: #69FFA0; box-shadow: 0 0 8px #69FFA0; flex-shrink: 0; animation: tpulse 2s infinite; }
+@keyframes tpulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+
+/* 드로잉 툴바 */
+.draw-toolbar {
+  background: #fff; border-bottom: 1.5px solid var(--border);
+  padding: 8px 14px; display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.info-chip { padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; color: #fff; }
+.draw-toolbar .spacer { flex: 1; }
+.finish-btn {
+  background: linear-gradient(135deg, var(--orange), var(--pink));
+  color: #fff; border: none; border-radius: 20px;
+  padding: 7px 18px; font-size: 0.82rem; font-weight: 800; cursor: pointer;
+}
+
+/* 드로잉 본문 */
+.draw-body { display: flex; flex: 1; min-height: 0; }
+
+/* 왼쪽 패널: 참고작 + 레이어 */
+.left-panel {
+  width: 130px; flex-shrink: 0; background: #fff;
+  border-right: 1.5px solid var(--border);
+  display: flex; flex-direction: column; overflow-y: auto;
+}
+.ref-block { padding: 10px 10px 6px; flex-shrink: 0; }
+.ref-label { font-size: 0.65rem; font-weight: 800; color: var(--text2); letter-spacing: .05em; margin-bottom: 6px; }
+.ref-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 10px; display: block; border: 1.5px solid var(--border); background: #FFE4CC; }
+
+.layer-section { flex: 1; padding: 8px 8px 12px; }
+.layer-label { font-size: 0.65rem; font-weight: 800; color: var(--text2); letter-spacing: .05em; margin-bottom: 8px; padding: 0 2px; }
+.layer-list { display: flex; flex-direction: column; gap: 5px; }
+.layer-item {
+  border-radius: 10px; padding: 7px 8px;
+  display: flex; align-items: center; gap: 7px;
+  cursor: pointer; border: 1.5px solid transparent;
+  transition: background .15s, border-color .15s; background: var(--surface);
+}
+.layer-item:hover { background: #FFE4CC; }
+.layer-item.active { background: #FFF0E0; border-color: var(--orange); }
+.layer-swatch { width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+.layer-name { font-size: 0.72rem; font-weight: 700; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.layer-eye { font-size: 0.75rem; cursor: pointer; flex-shrink: 0; opacity: .6; }
+.layer-eye:hover { opacity: 1; }
+.layer-eye.off { opacity: .25; }
+
+/* 캔버스 영역 */
+.canvas-area {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 12px; min-width: 0; background: #F5EDE4; overflow: hidden; position: relative;
+}
+.canvas-stack {
+  position: relative; border-radius: 14px; overflow: hidden;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.18); cursor: crosshair; touch-action: none;
+}
+.canvas-stack canvas { position: absolute; top: 0; left: 0; border-radius: 14px; }
+#guide-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; border-radius: 14px; pointer-events: none; z-index: 0;
+  opacity: 0.18;
+}
+#outline-canvas  { z-index: 10; pointer-events: none; }
+#composite-canvas { position: relative; z-index: 1; background: rgba(255,255,255,0.92); border-radius: 14px; }
+#event-canvas    { z-index: 100; background: transparent; border-radius: 14px; }
+
+/* 도구 패널 */
+.tool-panel {
+  width: 58px; flex-shrink: 0; background: #fff;
+  border-left: 1.5px solid var(--border);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; padding: 12px 6px; overflow-y: auto;
+}
+.tool-btn {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: var(--surface); border: 1.5px solid transparent;
+  color: var(--text2); font-size: 1.2rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, border-color .15s;
+}
+.tool-btn:hover { background: #FFE4CC; }
+.tool-btn.active { background: #FFD9B3; border-color: var(--orange); color: var(--orange); }
+.tool-sep { width: 32px; height: 1.5px; background: var(--border); flex-shrink: 0; }
+.brush-btn {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: var(--surface); border: 1.5px solid transparent;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: border-color .15s, background .15s; margin-bottom: 3px;
+}
+.brush-btn:hover { background: #FFE4CC; }
+.brush-btn.active { border-color: var(--orange); background: #FFD9B3; }
+.brush-dot { border-radius: 50%; background: var(--text2); pointer-events: none; }
+
+/* 팔레트 바 */
+.palette-bar {
+  background: #fff; border-top: 1.5px solid var(--border);
+  padding: 10px 14px; display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0; overflow-x: auto; flex-wrap: nowrap;
+}
+.palette-bar::-webkit-scrollbar { height: 3px; }
+.palette-bar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.pal-btn {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  border: 3px solid transparent; cursor: pointer;
+  transition: transform .15s, border-color .15s; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.pal-btn:hover { transform: scale(1.18); }
+.pal-btn.active { border-color: var(--orange); transform: scale(1.1); box-shadow: 0 0 0 2px var(--orange); }
+
+@media (max-width: 600px) {
+  .left-panel { width: 100%; flex-direction: row; max-height: 80px; border-right: none; border-bottom: 1.5px solid var(--border); overflow-x: auto; }
+  .ref-block { display: none; }
+  .layer-section { padding: 8px; }
+  .layer-list { flex-direction: row; gap: 8px; }
+  .draw-body { flex-direction: column; }
+  .tool-panel { width: 100%; flex-direction: row; border-left: none; border-top: 1.5px solid var(--border); justify-content: center; padding: 8px; height: auto; flex-wrap: wrap; }
+  .canvas-area { padding: 8px; }
+}
+
+/* ============================================================
+   ④ 결과
+   ============================================================ */
+#screen-result { background: var(--bg); align-items: center; padding: 0; position: relative; overflow-x: hidden; }
+#anim-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+.result-body {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%; padding: 32px 20px 60px;
+  max-width: 520px; margin: 0 auto;
+}
+.result-title { font-size: 2.2rem; font-weight: 900; margin-bottom: 8px; }
+.result-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 18px; border-radius: 30px; color: #fff;
+  font-weight: 800; font-size: 0.9rem; margin-bottom: 18px;
+}
+.result-img-wrap { width: 100%; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.14); margin-bottom: 18px; }
+#result-canvas { display: block; width: 100%; }
+
+.result-card {
+  background: #fff; border-radius: 18px; padding: 18px 20px; width: 100%; margin-bottom: 14px;
+  border: 1.5px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+.result-card .rc-main   { font-size: 1rem; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.result-card .rc-detail { font-size: 0.85rem; color: var(--text2); line-height: 1.65; }
+.result-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; margin-bottom: 28px; }
+
+/* 갤러리 섹션 */
+.gallery-section { width: 100%; margin-bottom: 28px; }
+.gallery-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; padding: 0 2px; }
+.gallery-header h3 { font-size: 1rem; font-weight: 900; color: var(--text); }
+.gallery-header span { font-size: 0.8rem; color: var(--orange); font-weight: 700; cursor: pointer; }
+
+.gallery-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; }
+.gallery-row::-webkit-scrollbar { height: 3px; }
+.gallery-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.gallery-card {
+  flex-shrink: 0; width: 170px; background: #fff; border-radius: 16px; overflow: hidden;
+  cursor: pointer; border: 1.5px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  transition: transform .15s, box-shadow .15s;
+}
+.gallery-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+.gallery-card img { width: 100%; height: 120px; object-fit: cover; display: block; background: #FFE4CC; }
+.gallery-card-info { padding: 10px 12px 8px; }
+.gallery-card-title   { font-size: 0.82rem; font-weight: 800; color: var(--text); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gallery-card-emotion { font-size: 0.72rem; color: var(--text2); margin-bottom: 8px; }
+.gallery-card-actions { display: flex; align-items: center; gap: 10px; }
+.gallery-action-btn {
+  display: flex; align-items: center; gap: 3px;
+  background: none; border: none; font-size: 0.72rem; color: var(--text2);
+  cursor: pointer; padding: 3px 6px; border-radius: 8px;
+  transition: background .15s, color .15s; font-family: inherit; font-weight: 700;
+}
+.gallery-action-btn:hover { background: #FFF0E0; color: var(--orange); }
+.gallery-action-btn.liked { color: var(--pink); }
+
+/* 댓글 모달 */
+.comment-modal {
+  position: fixed; inset: 0; background: rgba(61,43,31,0.5); z-index: 200;
+  opacity: 0; pointer-events: none; transition: opacity .3s; backdrop-filter: blur(4px);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.comment-modal.open { opacity: 1; pointer-events: all; }
+.comment-box {
+  background: #fff; border-radius: 24px 24px 0 0; width: 100%; max-width: 520px;
+  padding: 12px 0 32px; animation: fadeUp .35s ease; max-height: 75vh; display: flex; flex-direction: column;
+}
+.comment-box-handle { width: 40px; height: 5px; background: var(--border); border-radius: 5px; margin: 10px auto 16px; }
+.comment-box-title  { font-size: 1rem; font-weight: 900; text-align: center; margin-bottom: 16px; padding: 0 20px; }
+.comment-list { flex: 1; overflow-y: auto; padding: 0 20px; display: flex; flex-direction: column; gap: 14px; }
+.comment-item { display: flex; gap: 10px; }
+.comment-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--orange), var(--pink)); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+.comment-bubble { background: var(--surface); border-radius: 0 14px 14px 14px; padding: 10px 14px; flex: 1; }
+.comment-name { font-size: 0.75rem; font-weight: 800; color: var(--orange); margin-bottom: 3px; }
+.comment-text { font-size: 0.85rem; color: var(--text); line-height: 1.5; }
+.comment-time { font-size: 0.68rem; color: var(--text2); margin-top: 4px; }
+.comment-input-row { display: flex; gap: 10px; padding: 14px 20px 0; border-top: 1.5px solid var(--border); margin-top: 14px; }
+.comment-input { flex: 1; border: 1.5px solid var(--border); border-radius: 20px; padding: 9px 16px; font-size: 0.88rem; color: var(--text); outline: none; font-family: inherit; }
+.comment-input:focus { border-color: var(--orange); }
+.comment-send { background: linear-gradient(135deg, var(--orange), var(--pink)); border: none; border-radius: 50%; width: 38px; height: 38px; color: #fff; font-size: 1rem; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+
+/* 공유 모달 */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(61,43,31,0.5); z-index: 300;
+  opacity: 0; pointer-events: none; transition: opacity .3s; backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-box {
+  background: #fff; border-radius: 24px; padding: 28px 22px; width: 100%; max-width: 360px;
+  text-align: center; box-shadow: 0 16px 48px rgba(0,0,0,0.18); animation: fadeUp .3s ease;
+  border: 1.5px solid var(--border);
+}
+.modal-box h3 { font-size: 1.2rem; font-weight: 900; margin-bottom: 6px; color: var(--text); }
+.modal-box p  { color: var(--text2); font-size: 0.88rem; margin-bottom: 16px; }
+.modal-preview { width: 100%; border-radius: 12px; margin-bottom: 18px; border: 1.5px solid var(--border); }
+.modal-actions { display: flex; flex-direction: column; gap: 9px; }
+.modal-close { margin-top: 12px; background: none; border: none; color: var(--text2); font-size: 0.88rem; cursor: pointer; font-family: inherit; }
+.modal-close:hover { color: var(--text); }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- ① 랜딩 -->
+<section id="screen-landing" class="screen active">
+  <div id="landing-decos"></div>
+  <span class="logo-emoji">🎨</span>
+  <div class="logo-text">아트플로우</div>
+  <p class="landing-main">같은 그림도 마음에 따라 다르게 완성돼요!</p>
+  <p class="landing-sub">
+    그리고 싶은 그림을 고르고, 오늘의 마음으로 그려보세요.<br>
+    더 행복한 마음을 느낄 수 있도록<br>
+    <strong>AI 마음튜터</strong>가 도와줄 거예요!
+  </p>
+  <div class="emotion-tag-row" id="tag-row"></div>
+  <button class="btn btn-primary" onclick="goTo('select')">시작하기 ✨</button>
+</section>
+
+<!-- ② 그림 선택 -->
+<section id="screen-select" class="screen">
+  <div class="page-header">
+    <button class="page-back" onclick="goTo('landing')">←</button>
+    <h2>🖼️ 어떤 그림을 그릴까요?</h2>
+    <p>마음에 드는 그림 하나를 골라보세요</p>
+  </div>
+  <div class="artwork-grid" id="artwork-grid"></div>
+</section>
+
+<!-- 감정 바텀시트 -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+<div class="emotion-sheet" id="emotion-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">💭 어떤 마음으로 그리고 싶나요?</div>
+  <div class="sheet-sub">오늘의 마음을 하나 골라보세요. 색깔이 달라져요!</div>
+  <div class="emotion-list" id="emotion-list"></div>
+  <div class="sheet-cta">
+    <button class="btn btn-primary" id="btn-go-draw" style="width:100%;" onclick="startDrawing()" disabled>
+      이 마음으로 그릴래요 →
+    </button>
+  </div>
+</div>
+
+<!-- ③ 드로잉 -->
+<section id="screen-drawing" class="screen">
+  <div class="tutor-bar">
+    <div class="tutor-avatar">🤖</div>
+    <div class="tutor-content">
+      <div class="tutor-label">AI 마음튜터</div>
+      <div class="tutor-msg" id="tutor-msg">마음 가는 대로 그려보세요!</div>
+    </div>
+    <div class="tutor-dot"></div>
+  </div>
+  <div class="draw-toolbar">
+    <span class="info-chip" id="chip-art" style="background:linear-gradient(135deg,#FF8C42,#FF6B9D)">🖼 그림</span>
+    <span class="info-chip" id="chip-emo" style="background:linear-gradient(135deg,#A78BFA,#EC4899)">💜 마음</span>
+    <span class="spacer"></span>
+    <button class="finish-btn" onclick="confirmFinish()">완성하기 ✅</button>
+  </div>
+  <div class="draw-body">
+    <div class="left-panel">
+      <div class="ref-block">
+        <div class="ref-label">참고작 (원본)</div>
+        <img class="ref-img" id="ref-img" src="" alt="원본">
+      </div>
+      <div class="layer-section">
+        <div class="layer-label">레이어</div>
+        <div class="layer-list" id="layer-list"></div>
+      </div>
+    </div>
+    <div class="canvas-area">
+      <div class="canvas-stack" id="canvas-stack">
+        <img id="guide-img" src="" alt="">
+        <canvas id="composite-canvas"></canvas>
+        <canvas id="outline-canvas"></canvas>
+        <canvas id="event-canvas"></canvas>
+      </div>
+    </div>
+    <div class="tool-panel">
+      <div id="brush-btns"></div>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" id="btn-eraser" onclick="toggleEraser()" title="지우개">🧹</button>
+      <button class="tool-btn" onclick="undoStroke()" title="되돌리기">↩</button>
+      <button class="tool-btn" onclick="clearActiveLayer()" title="레이어 지우기">🗑</button>
+      <div class="tool-sep"></div>
+      <button class="tool-btn" id="btn-outline" onclick="toggleOutline()" title="가이드 윤곽선" style="font-size:0.65rem;font-weight:800;line-height:1.2;">가이드<br>ON</button>
+    </div>
+  </div>
+  <div class="palette-bar" id="palette-bar"></div>
+</section>
+
+<!-- ④ 결과 -->
+<section id="screen-result" class="screen">
+  <canvas id="anim-canvas"></canvas>
+  <div class="result-body">
+    <div class="result-title">🎉 완성!</div>
+    <div class="result-badge" id="result-badge">✨ 마음</div>
+    <div class="result-img-wrap">
+      <canvas id="result-canvas"></canvas>
+    </div>
+    <div class="result-card">
+      <div class="rc-main" id="rc-main"></div>
+      <div class="rc-detail" id="rc-detail"></div>
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-primary" onclick="goTo('drawing')">🔄 다시 그리기</button>
+      <button class="btn btn-outline" onclick="openShareModal()">📤 공유하기</button>
+    </div>
+    <!-- 같은 그림 갤러리 -->
+    <div class="gallery-section">
+      <div class="gallery-header">
+        <h3>🖼️ 같은 그림 구경하기</h3>
+        <span onclick="alert('준비 중이에요! 🎨')">전체보기 →</span>
+      </div>
+      <div class="gallery-row" id="gallery-same-art"></div>
+    </div>
+    <!-- 같은 마음 갤러리 -->
+    <div class="gallery-section">
+      <div class="gallery-header">
+        <h3>💜 같은 마음 구경하기</h3>
+        <span onclick="alert('준비 중이에요! 🎨')">전체보기 →</span>
+      </div>
+      <div class="gallery-row" id="gallery-same-emo"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 공유 모달 -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal-box">
+    <h3>📤 내 그림 공유하기</h3>
+    <p>"같은 그림도 내 마음대로 완성했어요 ✨"</p>
+    <img id="share-preview" class="modal-preview" src="" alt="">
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="downloadImg()">💾 PNG 저장하기</button>
+      <button class="btn btn-outline" onclick="copyShareMsg()">🔗 메시지 복사</button>
+    </div>
+    <button class="modal-close" onclick="closeShareModal()">닫기</button>
+  </div>
+</div>
+
+<!-- 댓글 모달 -->
+<div class="comment-modal" id="comment-modal" onclick="closeCommentModal()">
+  <div class="comment-box" onclick="event.stopPropagation()">
+    <div class="comment-box-handle"></div>
+    <div class="comment-box-title" id="comment-title">댓글</div>
+    <div class="comment-list" id="comment-list"></div>
+    <div class="comment-input-row">
+      <input class="comment-input" id="comment-input" placeholder="댓글을 입력하세요..." maxlength="100">
+      <button class="comment-send" onclick="submitComment()">→</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   ■ 데이터
+   ============================================================ */
+const ARTWORKS = [
+  {
+    id: 'pearl',
+    name: '진주 귀고리를 한 소녀',
+    artist: '요하네스 베르메르',
+    difficulty: 'normal',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/500px-1665_Girl_with_a_Pearl_Earring.jpg',
+    layers: [
+      { name: '어두운 배경',  color: '#0d0a07' },
+      { name: '피부 · 얼굴',  color: '#c9956b' },
+      { name: '파란 터번',    color: '#7090c5' },
+      { name: '금빛 옷감',    color: '#d4b054' },
+      { name: '진주 · 흰옷',  color: '#e8ddd0' },
+    ],
+    outlineShapes: [
+      { type: 'ellipse', cx:50, cy:44, rx:22, ry:26 },
+      { type: 'ellipse', cx:50, cy:18, rx:16, ry:12 },
+      { type: 'polygon', pts:[[28,60],[72,60],[78,95],[22,95]] },
+    ]
+  },
+  {
+    id: 'starry',
+    name: '별이 빛나는 밤',
+    artist: '빈센트 반 고흐',
+    difficulty: 'easy',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/800px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg',
+    layers: [
+      { name: '밤하늘',     color: '#1e3a7a' },
+      { name: '소용돌이',   color: '#4a78b8' },
+      { name: '별 · 달',   color: '#f0e870' },
+      { name: '마을',       color: '#c8c890' },
+      { name: '사이프러스', color: '#2a1e0c' },
+    ],
+    outlineShapes: [
+      { type: 'wave', y:62, amp:7, freq:3 },
+      { type: 'circle', cx:82, cy:14, r:9 },
+      { type: 'star',   cx:28, cy:18, r:5 },
+      { type: 'star',   cx:55, cy:10, r:4 },
+      { type: 'star',   cx:14, cy:28, r:3 },
+      { type: 'polygon', pts:[[8,58],[16,18],[24,58]] },
+    ]
+  },
+  {
+    id: 'bedroom',
+    name: '아를의 침실',
+    artist: '빈센트 반 고흐',
+    difficulty: 'hard',
+    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg/800px-Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg',
+    layers: [
+      { name: '파란 벽',   color: '#a0b8cc' },
+      { name: '노란 가구', color: '#d4a020' },
+      { name: '붉은 이불', color: '#c04010' },
+      { name: '초록 창문', color: '#78a030' },
+      { name: '나무 바닥', color: '#c8a868' },
+    ],
+    outlineShapes: [
+      { type: 'rect', x:8,  y:8,  w:28, h:40 },
+      { type: 'rect', x:48, y:28, w:42, h:52 },
+      { type: 'rect', x:4,  y:52, w:26, h:32 },
+      { type: 'line', x1:4, y1:58, x2:96, y2:74 },
+    ]
+  }
+];
+
+const EMOTIONS = [
+  { id:'joy',        name:'즐거움', icon:'😄', desc:'밝고 신나는 느낌 — 채도를 높여요',              gradient:'linear-gradient(135deg,#FFB830,#FF8C42)', transform:(c,i)=>shift(c,{s:+28,l:+12}), defaultBrush:6,  coaching:['밝고 신나게 그려보세요! 🌈','즐거운 느낌이 잘 살아나고 있어요 ✨','더 밝은 색을 써봐요 ☀️'],               resultMain:'밝고 즐거운 느낌이 잘 표현됐어요! 🌟', anim:'stars'  },
+  { id:'calm',       name:'편안함', icon:'😌', desc:'차분하고 부드러운 느낌 — 파스텔로 바꿔요',      gradient:'linear-gradient(135deg,#74B9FF,#a8d8ea)', transform:(c,i)=>shift(c,{s:-22,l:+16}),   defaultBrush:4,  coaching:['천천히 부드럽게 그려보세요 🌿','차분한 분위기가 잘 느껴져요 🍃','여백도 남겨보세요 🌊'],               resultMain:'차분하고 부드러운 분위기가 느껴져요 🌿',   anim:'waves'  },
+  { id:'confidence', name:'자신감', icon:'💪', desc:'힘있고 또렷한 느낌 — 채도·대비를 높여요',      gradient:'linear-gradient(135deg,#6C5CE7,#a29bfe)', transform:(c,i)=>shift(c,{s:+32,l:-9}),    defaultBrush:8,  coaching:['힘차게 표현해봐요! 💥','자신감 넘치는 느낌이 좋아요 ⚡','굵은 선도 써봐요 💪'],                   resultMain:'힘있고 또렷한 느낌이 살아 있어요 💪',     anim:'glow'   },
+  { id:'curiosity',  name:'호기심', icon:'🔍', desc:'자유롭고 다채로운 느낌 — 색을 다양하게 바꿔요', gradient:'linear-gradient(135deg,#00B894,#55efc4)', transform:(c,i)=>shift(c,{h:(i*53)%120-60,s:+12}), defaultBrush:5, coaching:['다양한 색을 자유롭게 써봐요 🌀','호기심이 잘 표현되고 있어요 🔮','다른 영역도 탐험해봐요 🎲'], resultMain:'다양하고 흥미로운 표현이 돋보여요 🔍',     anim:'dots'   },
+  { id:'energy',     name:'활기',   icon:'🔥', desc:'에너지 넘치는 느낌 — 따뜻하고 강한 색으로 바꿔요', gradient:'linear-gradient(135deg,#E17055,#d63031)', transform:(c,i)=>shift(c,{h:-18,s:+36,l:-6}), defaultBrush:9, coaching:['에너지를 담아 그려봐요 🔥','활기찬 분위기가 느껴져요 🌋','더 빠르게, 힘차게! ⚡'],             resultMain:'에너지가 가득한 그림이 완성됐어요 🔥',   anim:'burst'  },
+];
+
+// 갤러리 샘플
+const GALLERY = {
+  byArt: {
+    pearl:   [
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/200px-1665_Girl_with_a_Pearl_Earring.jpg', title:'진주귀고리 × 즐거움', emotion:'😄 즐거움', likes:24, comments:['예쁘다!','색감이 좋아요','밝고 활기차네요'] },
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/200px-1665_Girl_with_a_Pearl_Earring.jpg', title:'진주귀고리 × 편안함', emotion:'😌 편안함', likes:18, comments:['차분해요','파스텔이 예뻐요'] },
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/200px-1665_Girl_with_a_Pearl_Earring.jpg', title:'진주귀고리 × 활기',   emotion:'🔥 활기',   likes:31, comments:['에너지 넘쳐요!','뜨거워요'] },
+    ],
+    starry:  [
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg', title:'별밤 × 호기심', emotion:'🔍 호기심', likes:42, comments:['색이 다채롭다','독특해요!'] },
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg', title:'별밤 × 자신감', emotion:'💪 자신감', likes:29, comments:['힘있어 보여요'] },
+    ],
+    bedroom: [
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg/200px-Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg', title:'침실 × 편안함', emotion:'😌 편안함', likes:15, comments:['따뜻해요','아늑해요'] },
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg/200px-Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg', title:'침실 × 즐거움', emotion:'😄 즐거움', likes:22, comments:['밝고 귀여워요!'] },
+    ],
+  },
+  byEmo: {
+    joy:        [
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg', title:'별밤 × 즐거움',       emotion:'😄 즐거움', likes:38, comments:['신난다!','밝아요'] },
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg/200px-Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg', title:'침실 × 즐거움', emotion:'😄 즐거움', likes:21, comments:['밝아요!','신나게 그렸어요'] },
+    ],
+    calm:       [
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/200px-1665_Girl_with_a_Pearl_Earring.jpg', title:'진주귀고리 × 편안함', emotion:'😌 편안함', likes:17, comments:['차분해요'] },
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg', title:'별밤 × 편안함', emotion:'😌 편안함', likes:25, comments:['부드럽다','아름다워요'] },
+    ],
+    confidence: [
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg/200px-Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg', title:'침실 × 자신감', emotion:'💪 자신감', likes:33, comments:['힘차네요!'] },
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/200px-1665_Girl_with_a_Pearl_Earring.jpg', title:'진주귀고리 × 자신감', emotion:'💪 자신감', likes:19, comments:['또렷해요!'] },
+    ],
+    curiosity:  [
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/200px-1665_Girl_with_a_Pearl_Earring.jpg', title:'진주귀고리 × 호기심', emotion:'🔍 호기심', likes:28, comments:['독특해요!'] },
+    ],
+    energy:     [
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/200px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg', title:'별밤 × 활기', emotion:'🔥 활기', likes:45, comments:['에너지!','뜨거워요🔥'] },
+      { img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg/200px-Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg', title:'침실 × 활기', emotion:'🔥 활기', likes:27, comments:['힘차다!'] },
+    ],
+  }
+};
+
+/* ============================================================
+   ■ 상태
+   ============================================================ */
+const S = {
+  artwork:null, emotion:null, palette:[], color:'#fff',
+  brushSize:6, erasing:false, showOutline:true,
+  activeLayerIdx:0,
+  layerCanvases:[], layerCtxs:[], layerVisible:[], undoStacks:[],
+  stats:{ strokeCount:0, colorChanges:0, usedColors:new Set(), avgSpeed:0, lastCoachAt:0 },
+};
+let drawing=false, lx=0, ly=0, lmt=0;
+let compositeCanvas, compositeCtx, outlineCanvas, outlineCtx, eventCanvas, eventCtx;
+let coachTimer=null;
+
+/* ============================================================
+   ■ 색상 유틸
+   ============================================================ */
+function hexRgb(h){return{r:parseInt(h.slice(1,3),16),g:parseInt(h.slice(3,5),16),b:parseInt(h.slice(5,7),16)};}
+function rgbHsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h,s,l=(mx+mn)/2;if(mx===mn){h=s=0;}else{const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);switch(mx){case r:h=((g-b)/d+(g<b?6:0))/6;break;case g:h=((b-r)/d+2)/6;break;default:h=((r-g)/d+4)/6;}}return{h:h*360,s:s*100,l:l*100};}
+function hslHex(h,s,l){h=((h%360)+360)%360;s=Math.max(0,Math.min(100,s));l=Math.max(0,Math.min(100,l));s/=100;l/=100;const c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;let r=0,g=0,b=0;if(h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}const t=v=>Math.round((v+m)*255).toString(16).padStart(2,'0');return`#${t(r)}${t(g)}${t(b)}`;}
+function shift(hex,d){const{r,g,b}=hexRgb(hex);const h=rgbHsl(r,g,b);return hslHex(h.h+(d.h||0),h.s+(d.s||0),h.l+(d.l||0));}
+
+/* ============================================================
+   ■ 화면 전환
+   ============================================================ */
+function goTo(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+n).classList.add('active');
+  if(n==='select') initSelect();
+  if(n==='drawing') initDrawing();
+  if(n==='result') initResult();
+}
+
+/* ============================================================
+   ■ 랜딩 초기화
+   ============================================================ */
+(function(){
+  const d=document.getElementById('landing-decos');
+  '⭐✨🎨🌈💜🔮🌸💫🎭🖌️'.split('').forEach((ch,i)=>{
+    const el=document.createElement('div');el.className='deco';
+    el.textContent=ch;
+    el.style.cssText=`left:${Math.random()*90}%;top:${Math.random()*90}%;font-size:${1+Math.random()*1.4}rem;animation-delay:${Math.random()*3}s;animation-duration:${3+Math.random()*3}s;opacity:0.22;`;
+    d.appendChild(el);
+  });
+  const row=document.getElementById('tag-row');
+  EMOTIONS.forEach(e=>{
+    const t=document.createElement('span');t.className='emotion-tag';t.style.background=e.gradient;
+    t.textContent=e.icon+' '+e.name;t.style.animationDelay=Math.random()*2+'s';row.appendChild(t);
+  });
+})();
+
+/* ============================================================
+   ■ 그림 선택
+   ============================================================ */
+function initSelect(){
+  const grid=document.getElementById('artwork-grid');grid.innerHTML='';
+  ARTWORKS.forEach(a=>{
+    const card=document.createElement('div');
+    card.className='artwork-card'+(S.artwork?.id===a.id?' selected':'');
+    card.onclick=()=>selectArtwork(a.id);
+    const dc={easy:'diff-easy',normal:'diff-normal',hard:'diff-hard'}[a.difficulty];
+    const dl={easy:'쉬움',normal:'보통',hard:'어려움'}[a.difficulty];
+    const dots=a.layers.map(l=>`<div class="palette-dot" style="background:${l.color}" title="${l.name}"></div>`).join('');
+    card.innerHTML=`
+      <img class="artwork-img" src="${a.imageUrl}" alt="${a.name}" loading="lazy" onerror="this.style.background='#FFE4CC'">
+      <div class="artwork-info">
+        <div class="artwork-name">${a.name}</div>
+        <div class="artwork-artist">${a.artist}</div>
+        <div class="artwork-meta">
+          <div class="artwork-palette">${dots}</div>
+          <span class="diff-badge ${dc}">${dl}</span>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+function selectArtwork(id){
+  S.artwork=ARTWORKS.find(a=>a.id===id);
+  document.querySelectorAll('.artwork-card').forEach((c,i)=>c.classList.toggle('selected',ARTWORKS[i].id===id));
+  openSheet();
+}
+
+/* ============================================================
+   ■ 감정 바텀시트
+   ============================================================ */
+function openSheet(){
+  const list=document.getElementById('emotion-list');list.innerHTML='';
+  EMOTIONS.forEach(e=>{
+    const item=document.createElement('div');
+    item.className='emotion-item'+(S.emotion?.id===e.id?' selected':'');
+    item.style.background=e.gradient;item.onclick=()=>pickEmotion(e.id);
+    item.innerHTML=`<span class="e-icon">${e.icon}</span><div class="e-text"><h3>${e.name}</h3><p>${e.desc}</p></div>`;
+    list.appendChild(item);
+  });
+  document.getElementById('btn-go-draw').disabled=!S.emotion;
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('emotion-sheet').classList.add('open');
+}
+function closeSheet(){document.getElementById('sheet-overlay').classList.remove('open');document.getElementById('emotion-sheet').classList.remove('open');}
+function pickEmotion(id){
+  S.emotion=EMOTIONS.find(e=>e.id===id);
+  document.querySelectorAll('.emotion-item').forEach((el,i)=>el.classList.toggle('selected',EMOTIONS[i].id===id));
+  document.getElementById('btn-go-draw').disabled=false;
+}
+function startDrawing(){if(!S.emotion||!S.artwork)return;closeSheet();goTo('drawing');}
+
+/* ============================================================
+   ■ 드로잉 초기화
+   ============================================================ */
+function initDrawing(){
+  if(!S.artwork||!S.emotion)return;
+  S.palette=S.artwork.layers.map((l,i)=>S.emotion.transform(l.color,i));
+  S.color=S.palette[0];S.brushSize=S.emotion.defaultBrush;
+  S.erasing=false;S.showOutline=true;S.activeLayerIdx=0;
+  S.stats={strokeCount:0,colorChanges:0,usedColors:new Set([S.color]),avgSpeed:0,lastCoachAt:0};
+
+  document.getElementById('chip-art').textContent=S.artwork.name.length>12?S.artwork.name.slice(0,12)+'…':S.artwork.name;
+  document.getElementById('chip-emo').textContent=S.emotion.icon+' '+S.emotion.name;
+  document.getElementById('chip-emo').style.background=S.emotion.gradient;
+  document.getElementById('ref-img').src=S.artwork.imageUrl;
+
+  const area=document.getElementById('canvas-area');
+  const avail=Math.min(area.clientWidth-24, window.innerHeight-180);
+  const SIZE=Math.max(240,Math.min(avail,500));
+
+  const stack=document.getElementById('canvas-stack');
+  stack.style.width=stack.style.height=SIZE+'px';
+  document.getElementById('guide-img').src=S.artwork.imageUrl;
+
+  compositeCanvas=document.getElementById('composite-canvas');
+  compositeCanvas.width=compositeCanvas.height=SIZE;
+  compositeCanvas.style.width=compositeCanvas.style.height=SIZE+'px';
+  compositeCtx=compositeCanvas.getContext('2d');
+
+  outlineCanvas=document.getElementById('outline-canvas');
+  outlineCanvas.width=outlineCanvas.height=SIZE;
+  outlineCanvas.style.width=outlineCanvas.style.height=SIZE+'px';
+  outlineCanvas.style.zIndex=10;
+  outlineCtx=outlineCanvas.getContext('2d');
+
+  stack.querySelectorAll('.layer-canvas').forEach(c=>c.remove());
+  S.layerCanvases=[];S.layerCtxs=[];S.layerVisible=[];S.undoStacks=[];
+  S.artwork.layers.forEach((_,i)=>{
+    const cvs=document.createElement('canvas');
+    cvs.className='layer-canvas';cvs.width=cvs.height=SIZE;
+    cvs.style.cssText=`position:absolute;top:0;left:0;width:${SIZE}px;height:${SIZE}px;z-index:${20+i};pointer-events:none;border-radius:14px;`;
+    stack.insertBefore(cvs,outlineCanvas);
+    S.layerCanvases.push(cvs);S.layerCtxs.push(cvs.getContext('2d'));
+    S.layerVisible.push(true);S.undoStacks.push([]);
+  });
+
+  eventCanvas=document.getElementById('event-canvas');
+  eventCanvas.width=eventCanvas.height=SIZE;
+  eventCanvas.style.width=eventCanvas.style.height=SIZE+'px';
+  eventCanvas.style.zIndex=200;
+  eventCtx=eventCanvas.getContext('2d');
+
+  drawOutlines(SIZE);
+  renderComposite();renderLayerPanel();renderPaletteBar();renderBrushBtns();
+  document.getElementById('btn-eraser').classList.remove('active');
+  updateOutlineBtn();
+
+  eventCanvas.onmousedown=startDraw;eventCanvas.onmousemove=onDraw;
+  eventCanvas.onmouseup=endDraw;eventCanvas.onmouseleave=endDraw;
+  eventCanvas.ontouchstart=e=>{e.preventDefault();startDraw(e.touches[0]);};
+  eventCanvas.ontouchmove=e=>{e.preventDefault();onDraw(e.touches[0]);};
+  eventCanvas.ontouchend=endDraw;
+
+  setTutorMsg(S.emotion.coaching[0]);
+  if(coachTimer)clearInterval(coachTimer);
+  coachTimer=setInterval(runCoach,4000);
+}
+
+/* 윤곽선 가이드 (점선) */
+function drawOutlines(SIZE){
+  const ctx=outlineCtx;
+  ctx.clearRect(0,0,SIZE,SIZE);
+  if(!S.showOutline||!S.artwork.outlineShapes)return;
+  const sc=v=>v/100*SIZE;
+  ctx.strokeStyle='rgba(80,40,10,0.40)';ctx.lineWidth=1.8;
+  ctx.setLineDash([7,5]);ctx.lineCap='round';
+  S.artwork.outlineShapes.forEach(sh=>{
+    ctx.beginPath();
+    if(sh.type==='ellipse') ctx.ellipse(sc(sh.cx),sc(sh.cy),sc(sh.rx),sc(sh.ry),0,0,Math.PI*2);
+    else if(sh.type==='circle') ctx.arc(sc(sh.cx),sc(sh.cy),sc(sh.r),0,Math.PI*2);
+    else if(sh.type==='rect')   ctx.rect(sc(sh.x),sc(sh.y),sc(sh.w),sc(sh.h));
+    else if(sh.type==='polygon'){sh.pts.forEach(([x,y],i)=>i===0?ctx.moveTo(sc(x),sc(y)):ctx.lineTo(sc(x),sc(y)));ctx.closePath();}
+    else if(sh.type==='line')   {ctx.moveTo(sc(sh.x1),sc(sh.y1));ctx.lineTo(sc(sh.x2),sc(sh.y2));}
+    else if(sh.type==='wave')   {const y=sc(sh.y);ctx.moveTo(0,y);for(let x=0;x<=SIZE;x+=4)ctx.lineTo(x,y+Math.sin(x/SIZE*Math.PI*sh.freq)*sc(sh.amp));}
+    else if(sh.type==='star')   {for(let i=0;i<10;i++){const r=i%2===0?sc(sh.r):sc(sh.r)*.45,a=(i*Math.PI)/5-Math.PI/2;i===0?ctx.moveTo(sc(sh.cx)+r*Math.cos(a),sc(sh.cy)+r*Math.sin(a)):ctx.lineTo(sc(sh.cx)+r*Math.cos(a),sc(sh.cy)+r*Math.sin(a));}ctx.closePath();}
+    ctx.stroke();
+  });
+  ctx.setLineDash([]);
+}
+function updateOutlineBtn(){const b=document.getElementById('btn-outline');b.textContent=S.showOutline?'가이드\nON':'가이드\nOFF';b.style.background=S.showOutline?'#FFD9B3':'';}
+function toggleOutline(){S.showOutline=!S.showOutline;drawOutlines(eventCanvas.width);updateOutlineBtn();}
+
+/* 합성 */
+function renderComposite(){if(!compositeCtx)return;const S2=compositeCanvas.width;compositeCtx.clearRect(0,0,S2,S2);compositeCtx.fillStyle='rgba(255,255,255,0.92)';compositeCtx.fillRect(0,0,S2,S2);S.layerCanvases.forEach((c,i)=>{if(S.layerVisible[i])compositeCtx.drawImage(c,0,0);});}
+
+/* 레이어 */
+function renderLayerPanel(){
+  const list=document.getElementById('layer-list');list.innerHTML='';
+  S.artwork.layers.forEach((l,i)=>{
+    const item=document.createElement('div');
+    item.className='layer-item'+(i===S.activeLayerIdx?' active':'');item.onclick=()=>setActiveLayer(i);
+    item.innerHTML=`<div class="layer-swatch" style="background:${S.palette[i]}"></div><div class="layer-name">${l.name}</div><span class="layer-eye${S.layerVisible[i]?'':' off'}" onclick="event.stopPropagation();toggleLayerVis(${i})">${S.layerVisible[i]?'👁':'🙈'}</span>`;
+    list.appendChild(item);
+  });
+}
+function setActiveLayer(idx){S.activeLayerIdx=idx;S.color=S.palette[idx];S.erasing=false;document.getElementById('btn-eraser').classList.remove('active');renderLayerPanel();renderPaletteBar();}
+function toggleLayerVis(idx){S.layerVisible[idx]=!S.layerVisible[idx];S.layerCanvases[idx].style.opacity=S.layerVisible[idx]?'1':'0';renderComposite();renderLayerPanel();}
+
+/* 팔레트 */
+function renderPaletteBar(){const bar=document.getElementById('palette-bar');bar.innerHTML='';[...S.palette,'#ffffff','#333333'].forEach(c=>{const b=document.createElement('button');b.className='pal-btn'+(c===S.color?' active':'');b.style.background=c;if(c==='#ffffff')b.style.border='3px solid #E0C8B0';b.onclick=()=>setColor(c);bar.appendChild(b);});}
+function setColor(c){if(S.color!==c)S.stats.colorChanges++;S.color=c;S.erasing=false;S.stats.usedColors.add(c);document.getElementById('btn-eraser').classList.remove('active');renderPaletteBar();}
+
+/* 브러시 */
+function renderBrushBtns(){const con=document.getElementById('brush-btns');con.innerHTML='';[3,6,10,16].forEach(sz=>{const b=document.createElement('button');b.className='brush-btn'+(sz===S.brushSize?' active':'');const dot=Math.min(sz+4,22);b.innerHTML=`<div class="brush-dot" style="width:${dot}px;height:${dot}px"></div>`;b.onclick=()=>{S.brushSize=sz;renderBrushBtns();};con.appendChild(b);});}
+function toggleEraser(){S.erasing=!S.erasing;document.getElementById('btn-eraser').classList.toggle('active',S.erasing);}
+
+/* 드로잉 */
+function getPos(e){const r=eventCanvas.getBoundingClientRect(),sx=eventCanvas.width/r.width,sy=eventCanvas.height/r.height;return{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};}
+function saveSnap(){const i=S.activeLayerIdx,s=S.layerCtxs[i].getImageData(0,0,S.layerCanvases[i].width,S.layerCanvases[i].height);S.undoStacks[i].push(s);if(S.undoStacks[i].length>20)S.undoStacks[i].shift();}
+function startDraw(e){drawing=true;const p=getPos(e);lx=p.x;ly=p.y;lmt=Date.now();S.stats.strokeCount++;saveSnap();const ctx=S.layerCtxs[S.activeLayerIdx];ctx.globalCompositeOperation=S.erasing?'destination-out':'source-over';ctx.beginPath();ctx.arc(p.x,p.y,S.brushSize/2,0,Math.PI*2);ctx.fillStyle=S.erasing?'rgba(0,0,0,1)':S.color;ctx.fill();renderComposite();}
+function onDraw(e){if(!drawing)return;const p=getPos(e);const now=Date.now();S.stats.avgSpeed=S.stats.avgSpeed*.8+(Math.hypot(p.x-lx,p.y-ly)/(now-lmt||1))*.2;const ctx=S.layerCtxs[S.activeLayerIdx];ctx.globalCompositeOperation=S.erasing?'destination-out':'source-over';ctx.lineWidth=S.brushSize;ctx.lineCap=ctx.lineJoin='round';ctx.strokeStyle=S.erasing?'rgba(0,0,0,1)':S.color;ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(p.x,p.y);ctx.stroke();lx=p.x;ly=p.y;lmt=now;renderComposite();}
+function endDraw(){drawing=false;if(S.layerCtxs[S.activeLayerIdx])S.layerCtxs[S.activeLayerIdx].globalCompositeOperation='source-over';}
+function undoStroke(){const i=S.activeLayerIdx;if(!S.undoStacks[i].length)return;S.layerCtxs[i].putImageData(S.undoStacks[i].pop(),0,0);renderComposite();}
+function clearActiveLayer(){const i=S.activeLayerIdx;saveSnap();S.layerCtxs[i].clearRect(0,0,S.layerCanvases[i].width,S.layerCanvases[i].height);renderComposite();}
+function confirmFinish(){if(coachTimer){clearInterval(coachTimer);coachTimer=null;}goTo('result');}
+
+/* AI 코칭 */
+function setTutorMsg(msg){const el=document.getElementById('tutor-msg');el.style.opacity='0';setTimeout(()=>{el.textContent=msg;el.style.opacity='1';},300);}
+function runCoach(){if(!S.emotion)return;const now=Date.now();if(now-S.stats.lastCoachAt<3000)return;const msgs=S.emotion.coaching;setTutorMsg(msgs[Math.floor(Math.random()*msgs.length)]);S.stats.lastCoachAt=now;}
+
+/* ============================================================
+   ■ 결과
+   ============================================================ */
+function initResult(){
+  const em=S.emotion,aw=S.artwork;if(!em||!aw)return;
+  const badge=document.getElementById('result-badge');badge.textContent=em.icon+' '+em.name;badge.style.background=em.gradient;
+  const rc=document.getElementById('result-canvas');
+  rc.width=rc.height=compositeCanvas.width;
+  const rCtx=rc.getContext('2d');rCtx.fillStyle='#fff';rCtx.fillRect(0,0,rc.width,rc.height);rCtx.drawImage(compositeCanvas,0,0);
+  const cc=S.stats.usedColors.size;
+  let detail=cc>=4?'다양한 색 선택이 개성을 더해줬어요. ':S.stats.avgSpeed<0.3?'부드러운 선이 마음을 잘 담아냈어요. ':'힘있는 선이 느낌을 잘 표현했어요. ';
+  detail+=cc>=3?'밝고 다채로운 색이 기분 좋은 느낌을 더했어요 🌈':'차분하게 집중하며 완성한 그림이에요 ✨';
+  document.getElementById('rc-main').textContent=em.resultMain;
+  document.getElementById('rc-detail').textContent=detail;
+  renderGallery('gallery-same-art', GALLERY.byArt[aw.id]||[]);
+  renderGallery('gallery-same-emo', GALLERY.byEmo[em.id]||[]);
+  startAnim(em.anim);
+}
+
+/* 갤러리 */
+let likesS={};
+function renderGallery(cid,items){
+  const con=document.getElementById(cid);con.innerHTML='';
+  if(!items.length){con.innerHTML='<div style="color:var(--text2);font-size:0.85rem;padding:10px 0;">아직 작품이 없어요. 첫 번째로 완성해봐요! 🎨</div>';return;}
+  items.forEach((item,idx)=>{
+    const key=cid+idx;
+    if(likesS[key]===undefined)likesS[key]={liked:false,count:item.likes};
+    const card=document.createElement('div');card.className='gallery-card';
+    card.innerHTML=`
+      <img src="${item.img}" alt="${item.title}" loading="lazy" onerror="this.style.background='#FFE4CC'">
+      <div class="gallery-card-info">
+        <div class="gallery-card-title">${item.title}</div>
+        <div class="gallery-card-emotion">${item.emotion}</div>
+        <div class="gallery-card-actions">
+          <button class="gallery-action-btn ${likesS[key].liked?'liked':''}" id="like-${key}" onclick="toggleLike('${key}')">
+            ❤️ <span id="lc-${key}">${likesS[key].count}</span>
+          </button>
+          <button class="gallery-action-btn" onclick="openComments('${item.title}',${JSON.stringify(item.comments)})">
+            💬 ${item.comments.length}
+          </button>
+        </div>
+      </div>`;
+    con.appendChild(card);
+  });
+}
+function toggleLike(key){const s=likesS[key];s.liked=!s.liked;s.count+=s.liked?1:-1;document.getElementById('like-'+key).classList.toggle('liked',s.liked);document.getElementById('lc-'+key).textContent=s.count;}
+
+/* 댓글 */
+let curComments=[],curTitle='';
+function openComments(title,comments){curTitle=title;curComments=[...comments];document.getElementById('comment-title').textContent='💬 '+title;renderComments();document.getElementById('comment-modal').classList.add('open');}
+function closeCommentModal(){document.getElementById('comment-modal').classList.remove('open');}
+function renderComments(){const avs=['🐶','🐱','🦊','🐧','🦁','🐸','🐼','🦋'];document.getElementById('comment-list').innerHTML=curComments.map((c,i)=>`<div class="comment-item"><div class="comment-avatar">${avs[i%avs.length]}</div><div class="comment-bubble"><div class="comment-name">익명 ${i+1}</div><div class="comment-text">${c}</div><div class="comment-time">${Math.floor(Math.random()*59)+1}분 전</div></div></div>`).join('');}
+function submitComment(){const inp=document.getElementById('comment-input');const v=inp.value.trim();if(!v)return;curComments.push(v);inp.value='';renderComments();document.getElementById('comment-list').scrollTop=9999;}
+
+/* 애니메이션 */
+let animRAF=null,animP=[];
+function startAnim(type){const cvs=document.getElementById('anim-canvas');cvs.width=window.innerWidth;cvs.height=window.innerHeight;const ctx=cvs.getContext('2d');if(animRAF)cancelAnimationFrame(animRAF);animP=Array.from({length:28},()=>mkP(type,cvs.width,cvs.height));const loop=()=>{ctx.clearRect(0,0,cvs.width,cvs.height);animP.forEach((p,i)=>{mvP(p,type);drP(ctx,p,type);if(p.y>cvs.height+30||p.y<-30||p.x<-30||p.x>cvs.width+30||p.age>p.life)animP[i]=mkP(type,cvs.width,cvs.height);});animRAF=requestAnimationFrame(loop);};loop();}
+function mkP(type,w,h){const c=S.palette.length?S.palette[Math.floor(Math.random()*S.palette.length)]:'#ff8c42';
+  if(type==='stars') return{x:Math.random()*w,y:Math.random()*h+h*.3,vx:(Math.random()-.5)*.3,vy:-(0.2+Math.random()*.5),size:3+Math.random()*9,alpha:.4+Math.random()*.5,color:c,rot:Math.random()*360,rotv:(Math.random()-.5)*2,age:0,life:999};
+  if(type==='waves') return{x:Math.random()*w,y:h*.3+Math.random()*h*.4,vx:.3+Math.random()*.3,vy:0,size:4+Math.random()*7,alpha:.2+Math.random()*.3,color:c,phase:Math.random()*Math.PI*2,age:0,life:999};
+  if(type==='glow')  return{x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,size:8+Math.random()*14,alpha:.1+Math.random()*.2,color:c,age:0,life:999};
+  if(type==='dots')  return{x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*1.5,vy:(Math.random()-.5)*1.5,size:3+Math.random()*6,alpha:.4+Math.random()*.5,color:c,age:0,life:50+Math.random()*50};
+  if(type==='burst') return{x:Math.random()*w,y:h+10,vx:(Math.random()-.5)*3,vy:-(2+Math.random()*4),size:5+Math.random()*9,alpha:.6+Math.random()*.4,color:c,gravity:.07,age:0,life:999};
+  return{x:Math.random()*w,y:Math.random()*h,vx:.3,vy:-.3,size:5,alpha:.4,color:c,age:0,life:999};}
+function mvP(p,t){p.age++;if(t==='waves'){p.x+=p.vx;p.y+=Math.sin(p.x*.02+p.phase)*.5;}else if(t==='burst'){p.vy+=p.gravity;p.x+=p.vx;p.y+=p.vy;}else if(t==='dots'){p.x+=p.vx;p.y+=p.vy;p.alpha=.5*(1-p.age/p.life);}else if(t==='stars'){p.x+=p.vx;p.y+=p.vy;p.rot+=p.rotv||0;}else{p.x+=p.vx;p.y+=p.vy;}}
+function drP(ctx,p,t){ctx.save();ctx.globalAlpha=Math.max(0,p.alpha);if(t==='stars'){ctx.translate(p.x,p.y);ctx.rotate((p.rot||0)*Math.PI/180);ctx.fillStyle=p.color;ctx.beginPath();for(let i=0;i<10;i++){const r=i%2===0?p.size:p.size*.45,a=(i*Math.PI)/5-Math.PI/2;i===0?ctx.moveTo(r*Math.cos(a),r*Math.sin(a)):ctx.lineTo(r*Math.cos(a),r*Math.sin(a));}ctx.closePath();ctx.fill();}else if(t==='glow'){const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size);g.addColorStop(0,p.color+'cc');g.addColorStop(1,p.color+'00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();}else{ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size/2,0,Math.PI*2);ctx.fill();}ctx.restore();}
+
+/* 공유 */
+function openShareModal(){document.getElementById('share-preview').src=document.getElementById('result-canvas').toDataURL('image/png');document.getElementById('share-modal').classList.add('open');}
+function closeShareModal(){document.getElementById('share-modal').classList.remove('open');}
+function downloadImg(){const a=document.createElement('a');a.href=document.getElementById('result-canvas').toDataURL('image/png');a.download='아트플로우_내그림.png';a.click();}
+function copyShareMsg(){const msg=`${S.emotion?.icon||'🎨'} 아트플로우에서 "${S.artwork?.name||'명화'}"를 "${S.emotion?.name||'마음'}" 으로 완성했어요!\n같은 그림도 마음에 따라 다르게 완성돼요 ✨`;if(navigator.clipboard)navigator.clipboard.writeText(msg).then(()=>alert('복사됐어요! 🎉'));else alert(msg);}
+</script>
+</body>
+</html>
