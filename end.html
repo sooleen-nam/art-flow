@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>완성! — 아트플로우</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="end-page">
+  <canvas id="anim-canvas"></canvas>
+  <div class="result-inner">
+    <div class="result-title">완성!</div>
+    <div class="result-badge" id="result-badge">마음</div>
+    <div class="result-canvas-wrap">
+      <canvas id="result-canvas"></canvas>
+    </div>
+    <div class="result-card">
+      <div class="rc-main" id="rc-main"></div>
+      <div class="rc-detail" id="rc-detail"></div>
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-primary" onclick="location.href='choosing_drawing.html'">다시 그리기</button>
+      <button class="btn btn-primary" onclick="openBrowseModal()">구경하기</button>
+      <button class="btn btn-primary" onclick="openShareModal()">공유하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 구경하기 모달 -->
+<div class="modal-overlay" id="browse-modal">
+  <div class="modal-box" style="position:relative;">
+    <button class="modal-x" onclick="closeBrowseModal()">✕</button>
+    <div style="font-size:2rem;margin-bottom:12px;">🎨</div>
+    <h3 style="margin-bottom:10px;">친구들 그림 구경하기</h3>
+    <p style="font-size:.88rem;color:var(--text2);line-height:1.6;margin-bottom:20px;">나와 같은 그림과 같은 마음을 가진<br>친구들의 그림을 감상해보세요.</p>
+    <div class="modal-actions" style="flex-direction:column;gap:8px;">
+      <button class="btn btn-primary" onclick="location.href='gallery.html'">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 공유 모달 -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal-box">
+    <h3>그림 공유하기</h3>
+    <p>"같은 그림도 내 마음대로 완성했어요"</p>
+    <img id="share-preview" class="modal-preview" src="" alt="">
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="downloadImage()">PNG 저장</button>
+      <button class="btn btn-outline" onclick="copyShareMsg()">공유 메시지 복사</button>
+    </div>
+    <button class="modal-close" onclick="closeShareModal()">닫기</button>
+  </div>
+</div>
+
+<script>if(performance.getEntriesByType("navigation")[0]?.type==="reload"){location.replace("landing.html");}</script>
+<script src="data.js"></script>
+<script>
+const artwork = getArtwork();
+const emotion = getEmotion();
+const resultDataUrl = sessionStorage.getItem('resultDataUrl');
+const statsRaw = sessionStorage.getItem('resultStats');
+const stats = statsRaw ? JSON.parse(statsRaw) : { usedColorCount: 1, avgSpeed: 0.5 };
+
+if (!artwork || !emotion) location.href = 'choosing_drawing.html';
+
+let resultCanvas;
+
+/* ── 결과 초기화 ── */
+function initResult() {
+  // 배지
+  const badge = document.getElementById('result-badge');
+  badge.textContent = `${emotion.icon} ${emotion.name}`;
+  badge.style.background = emotion.gradient;
+
+  // 결과 캔버스 복원
+  resultCanvas = document.getElementById('result-canvas');
+  if (resultDataUrl) {
+    const img = new Image();
+    img.onload = () => {
+      resultCanvas.width  = img.width;
+      resultCanvas.height = img.height;
+      resultCanvas.getContext('2d').drawImage(img, 0, 0);
+    };
+    img.src = resultDataUrl;
+  }
+
+  // 피드백 텍스트
+  const colorCount = stats.usedColorCount;
+  let detail = '';
+  if (colorCount >= 4) detail = '다양한 색 선택이 개성을 더해줬어요. ';
+  else if (stats.avgSpeed < 0.3) detail = '부드러운 선이 마음을 잘 담아냈어요. ';
+  else detail = '힘있는 선이 느낌을 잘 표현했어요. ';
+  detail += colorCount >= 3
+    ? '밝고 다채로운 색이 기분 좋은 느낌을 더했어요 🌈'
+    : '차분하게 집중하며 완성한 그림이에요 ✨';
+
+  document.getElementById('rc-main').textContent = emotion.resultMain;
+  document.getElementById('rc-detail').textContent = detail;
+
+  // 팔레트 계산 후 애니메이션
+  const emotionImg = artwork.emotionImages?.[emotion.id];
+  const palette = emotionImg
+    ? emotionImg.palette
+    : artwork.layers.map((l, i) => emotion.transform(l.color, i));
+  startResultAnim(emotion.anim, palette);
+}
+
+/* ── 결과 애니메이션 ── */
+let animRAF = null, animParticles = [];
+
+function startResultAnim(type, palette) {
+  const cvs = document.getElementById('anim-canvas');
+  cvs.width = window.innerWidth; cvs.height = window.innerHeight;
+  const ctx = cvs.getContext('2d');
+  if (animRAF) cancelAnimationFrame(animRAF);
+  animParticles = Array.from({length: 36}, () => mkParticle(type, cvs.width, cvs.height, palette));
+  const loop = () => {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    animParticles.forEach((p, i) => {
+      moveParticle(p, type); drawParticle(ctx, p, type);
+      if (p.y > cvs.height + 30 || p.y < -30 || p.x < -30 || p.x > cvs.width + 30 || p.age > p.life)
+        animParticles[i] = mkParticle(type, cvs.width, cvs.height, palette);
+    });
+    animRAF = requestAnimationFrame(loop);
+  };
+  loop();
+}
+
+function mkParticle(type, w, h, palette) {
+  const color = palette[Math.floor(Math.random() * palette.length)];
+  if (type==='stars')  return {x:Math.random()*w,y:Math.random()*h+h*.3,vx:(Math.random()-.5)*.4,vy:-(0.3+Math.random()*.6),size:3+Math.random()*10,alpha:.4+Math.random()*.5,color,rot:Math.random()*360,rotv:(Math.random()-.5)*3,age:0,life:999};
+  if (type==='waves')  return {x:Math.random()*w,y:h*.3+Math.random()*h*.4,vx:.3+Math.random()*.4,vy:0,size:4+Math.random()*8,alpha:.2+Math.random()*.3,color,phase:Math.random()*Math.PI*2,age:0,life:999};
+  if (type==='glow')   return {x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,size:8+Math.random()*16,alpha:.1+Math.random()*.2,color,age:0,life:999};
+  if (type==='dots')   return {x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*1.5,vy:(Math.random()-.5)*1.5,size:3+Math.random()*7,alpha:.4+Math.random()*.5,color,age:0,life:60+Math.random()*60};
+  if (type==='burst')  return {x:Math.random()*w,y:h+10,vx:(Math.random()-.5)*3,vy:-(2+Math.random()*4),size:5+Math.random()*10,alpha:.6+Math.random()*.4,color,gravity:.07,age:0,life:999};
+  return {x:Math.random()*w,y:Math.random()*h,vx:.3,vy:-.3,size:5,alpha:.4,color,age:0,life:999};
+}
+
+function moveParticle(p, type) {
+  p.age++;
+  if (type==='waves')  { p.x+=p.vx; p.y+=Math.sin(p.x*.02+p.phase)*.5; }
+  else if (type==='burst') { p.vy+=p.gravity; p.x+=p.vx; p.y+=p.vy; }
+  else if (type==='dots')  { p.x+=p.vx; p.y+=p.vy; p.alpha=.5*(1-p.age/p.life); }
+  else if (type==='stars') { p.x+=p.vx; p.y+=p.vy; p.rot+=(p.rotv||0); }
+  else { p.x+=p.vx; p.y+=p.vy; }
+}
+
+function drawParticle(ctx, p, type) {
+  ctx.save(); ctx.globalAlpha = Math.max(0, p.alpha);
+  if (type==='stars') {
+    ctx.translate(p.x, p.y); ctx.rotate((p.rot||0)*Math.PI/180);
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    for (let i=0; i<10; i++) {
+      const r = i%2===0 ? p.size : p.size*.45;
+      const a = (i*Math.PI)/5 - Math.PI/2;
+      i===0 ? ctx.moveTo(r*Math.cos(a), r*Math.sin(a)) : ctx.lineTo(r*Math.cos(a), r*Math.sin(a));
+    }
+    ctx.closePath(); ctx.fill();
+  } else if (type==='glow') {
+    const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+    g.addColorStop(0, p.color+'cc'); g.addColorStop(1, p.color+'00');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
+  } else {
+    ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.size/2, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* ── 구경하기 ── */
+function openBrowseModal()  { document.getElementById('browse-modal').classList.add('open'); }
+function closeBrowseModal() { document.getElementById('browse-modal').classList.remove('open'); }
+
+/* ── 공유 ── */
+function openShareModal() {
+  document.getElementById('share-preview').src = resultCanvas.toDataURL('image/png');
+  document.getElementById('share-modal').classList.add('open');
+}
+function closeShareModal() { document.getElementById('share-modal').classList.remove('open'); }
+function downloadImage() {
+  const a = document.createElement('a');
+  a.href = resultCanvas.toDataURL('image/png');
+  a.download = '아트플로우_내그림.png'; a.click();
+}
+function copyShareMsg() {
+  const msg = `${emotion.icon} 아트플로우에서 "${artwork.name}"를 "${emotion.name}" 으로 완성했어요!\n같은 그림도 마음에 따라 다르게 완성돼요 ✨`;
+  if (navigator.clipboard) navigator.clipboard.writeText(msg).then(() => alert('복사됐어요!'));
+  else alert(msg);
+}
+
+window.addEventListener('resize', () => {
+  const cvs = document.getElementById('anim-canvas');
+  if (cvs) { cvs.width = window.innerWidth; cvs.height = window.innerHeight; }
+});
+
+initResult();
+</script>
+</body>
+</html>

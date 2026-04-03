@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>마음 고르기 — 아트플로우</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="style.css">
+<style>
+.emotion-illust {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 10px;
+  margin-right: 4px;
+}
+</style>
+</head>
+<body>
+
+<div class="mind-page">
+  <div class="page-topbar">
+    <button class="topbar-back" onclick="location.href='choosing_drawing.html'">◀︎</button>
+    <h2>어떤 마음으로 그리고 싶나요?</h2>
+  </div>
+  <p class="mind-sub">오늘의 마음을 하나 골라보세요. 드로잉 가이드와 색깔 팔레트가 달라져요!</p>
+  <div class="emotion-list" id="emotion-list"></div>
+  <div class="mind-footer">
+    <button class="btn btn-primary" id="btn-confirm" style="min-width:200px;" onclick="confirmEmotion()" disabled>
+      이 마음으로 그릴래요
+    </button>
+  </div>
+</div>
+
+<script>if(performance.getEntriesByType("navigation")[0]?.type==="reload"){location.replace("landing.html");}</script>
+<script src="data.js"></script>
+<script>
+const artwork = getArtwork();
+if (!artwork) location.href = 'choosing_drawing.html';
+
+let selectedEmotionId = sessionStorage.getItem('emotionId') || null;
+
+function initEmotions() {
+  const list = document.getElementById('emotion-list');
+  list.innerHTML = '';
+  EMOTIONS.forEach(e => {
+    const item = document.createElement('div');
+    item.className = 'emotion-item' + (e.locked ? ' locked-card' : '') + (selectedEmotionId === e.id ? ' selected' : '');
+    item.style.background = e.gradient;
+    item.style.filter = e.locked ? 'brightness(0.55) saturate(0.7)' : 'none';
+    item.onclick = () => e.locked ? alert('PRO 전용 마음이에요 🔒\n업그레이드하면 더 다양한 마음으로 그릴 수 있어요!') : selectEmotion(e.id);
+    item.innerHTML = `
+      <img src="${e.name}.png" alt="${e.name}" style="width:48px;height:48px;object-fit:contain;${e.id==='joy'?'filter:drop-shadow(0 0 1.5px rgba(0,0,0,0.35));':''}">
+      <div class="emotion-item-text">
+        <span class="ei-name">${e.name}${e.locked ? ' <span style="font-size:.55rem;background:linear-gradient(135deg,#fbbf24,#f97316);color:#fff;padding:2px 5px;border-radius:8px;font-weight:900;margin-left:3px;">PRO</span>' : ''}</span>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+  if (selectedEmotionId) list.classList.add('has-selection');
+  document.getElementById('btn-confirm').disabled = !selectedEmotionId;
+}
+
+function selectEmotion(id) {
+  selectedEmotionId = id;
+  document.querySelectorAll('.emotion-item').forEach((el, i) => {
+    el.classList.toggle('selected', EMOTIONS[i].id === id);
+  });
+  document.getElementById('emotion-list').classList.add('has-selection');
+  document.getElementById('btn-confirm').disabled = false;
+}
+
+function confirmEmotion() {
+  if (!selectedEmotionId) return;
+  sessionStorage.setItem('emotionId', selectedEmotionId);
+  location.href = 'guide.html';
+}
+
+initEmotions();
+</script>
+</body>
+</html>

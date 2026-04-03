@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>그림 고르기 — 아트플로우</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="select-page">
+  <div class="page-topbar">
+    <button class="topbar-back" onclick="location.href='landing.html'">◀︎</button>
+    <h2>어떤 그림을 그릴까요?</h2>
+  </div>
+  <div class="artwork-grid" id="artwork-grid"></div>
+</div>
+
+<!-- ① 감정 선택 팝업 -->
+<div class="popup-overlay" id="emotion-overlay" onclick="closeEmotionSheet()"></div>
+<div class="emotion-sheet" id="emotion-sheet">
+  <button class="sheet-close" onclick="closeEmotionSheet()">✕</button>
+  <div class="sheet-title">어떤 마음으로 그리고 싶나요?</div>
+  <div class="sheet-sub">오늘의 마음을 하나 골라보세요. 드로잉 가이드와 색깔 팔레트가 달라져요!</div>
+  <div class="emotion-list" id="emotion-list"></div>
+  <div class="sheet-footer">
+    <button class="btn btn-primary" id="btn-confirm-emotion" style="min-width:200px;" onclick="confirmEmotion()" disabled>
+      이 마음으로 그릴래요
+    </button>
+  </div>
+</div>
+
+<!-- ② 가이드 팝업 (이렇게 그려볼까요?) -->
+<div class="popup-overlay" id="compare-overlay" onclick="closeCompareModal()" style="z-index:60;"></div>
+<div class="compare-modal" id="compare-modal">
+  <button class="sheet-close" style="left:18px;right:auto;" onclick="backToEmotionSheet()">◀︎</button>
+  <button class="sheet-close" onclick="closeCompareModal()">✕</button>
+  <div class="compare-title">이렇게 그려볼까요?</div>
+  <div class="compare-panels">
+    <div class="compare-panel">
+      <div class="compare-label">원본</div>
+      <div class="compare-img-wrap">
+        <img class="compare-img" id="compare-img-original" alt="원본">
+      </div>
+      <div class="compare-palette" id="compare-palette-original"></div>
+    </div>
+    <div class="compare-panel">
+      <div class="compare-label" id="compare-emotion-label">마음 버전</div>
+      <div class="compare-img-wrap">
+        <img class="compare-img" id="compare-img-emotion" alt="마음 버전">
+        <div class="compare-img-overlay" id="compare-img-overlay"></div>
+      </div>
+      <div class="compare-palette" id="compare-palette-emotion"></div>
+    </div>
+  </div>
+  <div class="compare-hints" id="compare-hints"></div>
+  <div class="compare-footer">
+    <button class="btn btn-primary" onclick="startDrawing()">그리기 시작 </button>
+  </div>
+</div>
+
+<script>if(performance.getEntriesByType("navigation")[0]?.type==="reload"){location.replace("landing.html");}</script>
+<script src="data.js"></script>
+<script>
+sessionStorage.removeItem('artworkId');
+sessionStorage.removeItem('emotionId');
+
+let selectedArtwork = null;
+let selectedEmotion = null;
+
+/* ── 그림 그리드 ── */
+function initSelect() {
+  const grid = document.getElementById('artwork-grid');
+  ARTWORKS.forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'artwork-card' + (a.locked ? ' locked-card' : '');
+    card.onclick = () => a.locked ? showLockedAlert() : selectArtwork(a.id);
+    const dots = a.layers.map(l =>
+      `<div class="artwork-palette-dot" style="background:${l.color}" title="${l.name}"></div>`
+    ).join('');
+    const diff = a.difficulty;
+    const lockBadge = a.locked
+      ? `<div class="lock-badge">🔒 PRO</div>`
+      : '';
+    card.innerHTML = `
+      ${lockBadge}
+      <img class="artwork-img" src="${a.imageUrl}" alt="${a.name}" loading="lazy" style="${a.locked ? 'filter:brightness(0.6)' : ''}">
+      <div class="artwork-info">
+        <div class="artwork-name">${a.name}</div>
+        <div class="artwork-artist">${a.artist}</div>
+        <div class="artwork-palette-row">
+          <div class="artwork-palette">${dots}</div>
+          <div class="artwork-difficulty" style="background:${diff.color}22; color:${diff.color};">
+            <span class="artwork-difficulty-dot" style="background:${diff.color};"></span>
+            난이도 ${diff.label}
+          </div>
+        </div>
+      </div>
+      <div class="artwork-check">✓</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function showLockedAlert() {
+  alert('PRO 전용 그림이에요 🔒\n업그레이드하면 더 많은 작품을 즐길 수 있어요!');
+}
+
+function selectArtwork(id) {
+  selectedArtwork = ARTWORKS.find(a => a.id === id);
+  sessionStorage.setItem('artworkId', id);
+  document.querySelectorAll('.artwork-card').forEach((c, i) => {
+    c.classList.toggle('selected', ARTWORKS[i].id === id);
+  });
+  openEmotionSheet();
+}
+
+/* ── 감정 팝업 ── */
+function openEmotionSheet() {
+  selectedEmotion = null;
+  const list = document.getElementById('emotion-list');
+  list.innerHTML = '';
+  list.classList.remove('has-selection');
+  EMOTIONS.forEach(e => {
+    const item = document.createElement('div');
+    item.className = 'emotion-item' + (e.locked ? ' locked-card' : '');
+    item.style.background = e.gradient;
+    item.style.filter = e.locked ? 'brightness(0.55) saturate(0.7)' : 'none';
+    item.onclick = () => e.locked ? alert('PRO 전용 마음이에요 🔒\n업그레이드하면 더 다양한 마음으로 그릴 수 있어요!') : selectEmotion(e.id);
+    item.innerHTML = `
+      <img src="${e.name}.png" alt="${e.name}" style="width:48px;height:48px;object-fit:contain;${e.id==='joy'?'filter:drop-shadow(0 0 1.5px rgba(0,0,0,0.35));':''}">
+      <div class="emotion-item-text">
+        <span class="ei-name">${e.name}${e.locked ? ' <span style="font-size:.55rem;background:linear-gradient(135deg,#fbbf24,#f97316);color:#fff;padding:2px 5px;border-radius:8px;font-weight:900;margin-left:3px;">PRO</span>' : ''}</span>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+  document.getElementById('btn-confirm-emotion').disabled = true;
+  document.getElementById('emotion-overlay').classList.add('open');
+  document.getElementById('emotion-sheet').classList.add('open');
+}
+
+function closeEmotionSheet() {
+  document.getElementById('emotion-overlay').classList.remove('open');
+  document.getElementById('emotion-sheet').classList.remove('open');
+}
+
+function selectEmotion(id) {
+  selectedEmotion = EMOTIONS.find(e => e.id === id);
+  document.querySelectorAll('.emotion-item').forEach((el, i) => {
+    el.classList.toggle('selected', EMOTIONS[i].id === id);
+  });
+  document.getElementById('emotion-list').classList.add('has-selection');
+  document.getElementById('btn-confirm-emotion').disabled = false;
+}
+
+function confirmEmotion() {
+  if (!selectedEmotion || !selectedArtwork) return;
+  sessionStorage.setItem('emotionId', selectedEmotion.id);
+  closeEmotionSheet();
+  openCompareModal();
+}
+
+/* ── 가이드 팝업 ── */
+function openCompareModal() {
+  // 감정별 커스텀 이미지/팔레트 여부 확인
+  const emotionImg = selectedArtwork.emotionImages?.[selectedEmotion.id];
+
+  document.getElementById('compare-img-original').src = selectedArtwork.imageUrl;
+
+  if (emotionImg) {
+    // 커스텀 감정 이미지 사용 (bird 등)
+    document.getElementById('compare-img-emotion').src = emotionImg.url;
+    document.getElementById('compare-img-overlay').style.background = 'none';
+    document.getElementById('compare-palette-emotion').innerHTML =
+      emotionImg.palette.map(c =>
+        `<div class="compare-palette-dot" style="background:${c}"></div>`
+      ).join('');
+  } else {
+    // 기존 방식: 이미지 + 색상 오버레이
+    document.getElementById('compare-img-emotion').src = selectedArtwork.imageUrl;
+    document.getElementById('compare-img-overlay').style.background = selectedEmotion.gradient;
+    document.getElementById('compare-palette-emotion').innerHTML =
+      selectedArtwork.layers.map((l, i) => {
+        const c = selectedEmotion.transform(l.color, i);
+        return `<div class="compare-palette-dot" style="background:${c}"></div>`;
+      }).join('');
+  }
+
+  document.getElementById('compare-emotion-label').textContent = `${selectedEmotion.icon} ${selectedEmotion.name} 버전`;
+
+  document.getElementById('compare-palette-original').innerHTML =
+    selectedArtwork.layers.map(l =>
+      `<div class="compare-palette-dot" style="background:${l.color}" title="${l.name}"></div>`
+    ).join('');
+
+  document.getElementById('compare-hints').innerHTML = `
+    <div class="compare-hint-chip">🤖 ${selectedEmotion.tutorMsg}</div>
+  `;
+
+  document.getElementById('compare-overlay').classList.add('open');
+  document.getElementById('compare-modal').classList.add('open');
+}
+
+function closeCompareModal() {
+  document.getElementById('compare-overlay').classList.remove('open');
+  document.getElementById('compare-modal').classList.remove('open');
+}
+
+function backToEmotionSheet() {
+  document.getElementById('compare-overlay').classList.remove('open');
+  document.getElementById('compare-modal').classList.remove('open');
+  openEmotionSheet();
+}
+
+function startDrawing() {
+  location.href = 'canvas_drawing.html';
+}
+
+initSelect();
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>아트플로우 — AI 마음튜터</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="style.css">
+<style>
+@font-face {
+  font-family: 'MilkChoco';
+  src: url('Milk Choco.otf') format('opentype');
+}
+.landing-logo {
+  font-family: 'MilkChoco', sans-serif !important;
+  font-size: clamp(4rem, 13vw, 7rem) !important;
+  letter-spacing: 0 !important;
+  font-weight: normal !important;
+}
+</style>
+</head>
+<body>
+
+<div class="landing-page">
+  <video class="landing-bg-video" src="drawing_process.mov" autoplay loop muted playsinline></video>
+  <div class="landing-overlay"></div>
+<div class="landing-content">
+    <div class="tag-row" id="tag-row"></div>
+    <div class="landing-logo">Art Flow</div>
+    <p class="landing-sub">쉽게 따라만 그리면 행복해지는 아트 플로우</p>
+    <p class="landing-desc">
+      같은 그림도 마음에 따라 다르게 완성!<br>
+      더 행복한 마음을 느낄 수 있도록
+      <strong style="color:#a78bfa;">AI 마음튜터</strong>가 도와줄게요.
+    </p>
+    <button class="btn btn-primary" onclick="location.href='choosing_drawing.html'">시작하기</button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+/* ── 랜딩 초기화 ── */
+(function initLanding() {
+  const row = document.getElementById('tag-row');
+  EMOTIONS.forEach(e => {
+    const tag = document.createElement('span');
+    tag.className = 'emotion-tag';
+    tag.style.background = e.gradient;
+    tag.textContent = e.icon + ' ' + e.name;
+    row.appendChild(tag);
+  });
+})();
+
+</script>
+</body>
+</html>

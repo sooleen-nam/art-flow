@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>이렇게 그려볼까요? — 아트플로우</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="guide-page">
+  <div class="page-topbar">
+    <button class="topbar-back" onclick="location.href='choosing_mind.html'">◀︎</button>
+    <h2>이렇게 그려볼까요?</h2>
+  </div>
+
+  <div class="guide-body">
+    <div class="compare-panels">
+      <div class="compare-panel">
+        <div class="compare-label">원본</div>
+        <div class="compare-img-wrap">
+          <img class="compare-img" id="compare-img-original" alt="원본">
+        </div>
+        <div class="compare-palette" id="compare-palette-original"></div>
+      </div>
+      <div class="compare-panel">
+        <div class="compare-label" id="compare-emotion-label">마음 버전</div>
+        <div class="compare-img-wrap">
+          <img class="compare-img" id="compare-img-emotion" alt="마음 버전">
+          <div class="compare-img-overlay" id="compare-img-overlay"></div>
+        </div>
+        <div class="compare-palette" id="compare-palette-emotion"></div>
+      </div>
+    </div>
+    <div class="compare-hints" id="compare-hints"></div>
+  </div>
+
+  <div class="guide-footer">
+    <button class="btn btn-primary" onclick="location.href='canvas_drawing.html'">그리기 시작</button>
+  </div>
+</div>
+
+<script>if(performance.getEntriesByType("navigation")[0]?.type==="reload"){location.replace("landing.html");}</script>
+<script src="data.js"></script>
+<script>
+const artwork = getArtwork();
+const emotion = getEmotion();
+if (!artwork || !emotion) location.href = 'choosing_drawing.html';
+
+function initGuide() {
+  const emotionImg = artwork.emotionImages?.[emotion.id];
+
+  document.getElementById('compare-img-original').src = artwork.imageUrl;
+
+  if (emotionImg) {
+    document.getElementById('compare-img-emotion').src = emotionImg.url;
+    document.getElementById('compare-img-overlay').style.background = 'none';
+    document.getElementById('compare-palette-emotion').innerHTML =
+      emotionImg.palette.map(c =>
+        `<div class="compare-palette-dot" style="background:${c}"></div>`
+      ).join('');
+  } else {
+    document.getElementById('compare-img-emotion').src = artwork.imageUrl;
+    document.getElementById('compare-img-overlay').style.background = emotion.gradient;
+    document.getElementById('compare-palette-emotion').innerHTML =
+      artwork.layers.map((l, i) => {
+        const c = emotion.transform(l.color, i);
+        return `<div class="compare-palette-dot" style="background:${c}" title="${l.name}"></div>`;
+      }).join('');
+  }
+
+  document.getElementById('compare-emotion-label').textContent = `${emotion.icon} ${emotion.name} 버전`;
+
+  document.getElementById('compare-palette-original').innerHTML =
+    artwork.layers.map(l =>
+      `<div class="compare-palette-dot" style="background:${l.color}" title="${l.name}"></div>`
+    ).join('');
+
+  document.getElementById('compare-hints').innerHTML = `
+    <div class="compare-hint-chip">🤖 ${emotion.tutorMsg}</div>
+  `;
+}
+
+initGuide();
+</script>
+</body>
+</html>
