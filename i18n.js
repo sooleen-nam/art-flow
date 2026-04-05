@@ -25,7 +25,7 @@ const I18N = {
     /* 난이도 */
     'diff.하':'하','diff.중':'중','diff.상':'상','diff.최상':'최상',
     /* 랜딩 */
-    'landing.sub':'따라 그릴수록, 행복한 마음이 자라는 아트 플로우',
+    'landing.sub':'따라 그릴수록 행복한 마음이 자라는, 아트 플로우',
     'landing.desc':'같은 그림도 마음에 따라 다르게 완성!<br>더 행복한 마음을 느낄 수 있도록',
     'landing.tutor':'AI 마음튜터','landing.tutorSuffix':'가 도와줄게요.','landing.cta':'시작하기',
     /* 그림 선택 */
