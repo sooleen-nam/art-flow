@@ -6,6 +6,7 @@
 <title>완성! — 아트플로우</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -203,14 +204,45 @@ function openBrowseModal()  { document.getElementById('browse-modal').classList.
 function closeBrowseModal() { document.getElementById('browse-modal').classList.remove('open'); }
 
 /* ── 공유 ── */
-function openShareModal() {
-  document.getElementById('share-preview').src = resultCanvas.toDataURL('image/png');
+let _shareDataUrl = null;
+
+async function buildShareImage() {
+  const inner   = document.querySelector('.result-inner');
+  const actions = document.querySelector('.result-actions');
+  const animCvs = document.getElementById('anim-canvas');
+
+  // 버튼 행 + 배경 애니메이션 캔버스 숨기기
+  actions.style.visibility = 'hidden';
+  actions.style.height = '0';
+  animCvs.style.display = 'none';
+
+  const canvas = await html2canvas(inner, {
+    backgroundColor: '#faf9ff',
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    logging: false,
+  });
+
+  // 복원
+  actions.style.visibility = '';
+  actions.style.height = '';
+  animCvs.style.display = '';
+
+  return canvas.toDataURL('image/png');
+}
+
+async function openShareModal() {
+  const url = await buildShareImage();
+  _shareDataUrl = url;
+  document.getElementById('share-preview').src = url;
   document.getElementById('share-modal').classList.add('open');
 }
 function closeShareModal() { document.getElementById('share-modal').classList.remove('open'); }
-function downloadImage() {
+async function downloadImage() {
+  const url = _shareDataUrl || await buildShareImage();
   const a = document.createElement('a');
-  a.href = resultCanvas.toDataURL('image/png');
+  a.href = url;
   a.download = '아트플로우_내그림.png'; a.click();
 }
 function copyShareMsg() {
