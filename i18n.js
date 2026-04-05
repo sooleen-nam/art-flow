@@ -90,7 +90,7 @@ const I18N = {
     'draw.musicTooltip':'마음 음악을 눌러보세요!<br>더 깊이 감정을 몰입할 수 있어요!',
     'draw.initBubble':(n)=>`지금부터 ${n}을 느낄 수 있도록, 내가 그리기를 도와줄게!`,
     'time.fmt':(m,s)=>m>0?`${m}분 ${s}초`:`${s}초`,
-    'end.scoreTimeText':(timeStr,eName,score)=>`오늘 ${timeStr} 동안 ${eName} ${score}% 채워졌어요!`,
+    'end.scoreTimeText':(_,eName,score)=>`오늘 ${eName} ${score}% 채워졌어요!`,
     'result.tiers':{
       joy:[
         {main:'즐거움을 그리기 시작했어요!',detail:'더 밝고 경쾌한 선, 노랑·연핑크 색을 더 써보면 즐거움이 훨씬 잘 담길 거예요.',cheer:'조금만 더 신나게 그려봐요! 할 수 있어요 🌟'},
@@ -201,7 +201,7 @@ const I18N = {
     'draw.musicTooltip':'Try the mood music!<br>It helps you feel your emotions more deeply!',
     'draw.initBubble':(n)=>`I'll help you draw with ${n}! Let's go!`,
     'time.fmt':(m,s)=>m>0?`${m}m ${s}s`:`${s}s`,
-    'end.scoreTimeText':(timeStr,eName,score)=>`${eName} filled ${score}% in ${timeStr} today!`,
+    'end.scoreTimeText':(_,eName,score)=>`${eName} filled ${score}% today!`,
     'result.tiers':{
       joy:[
         {main:'Joy is just starting to show!',detail:'Try brighter strokes and more yellow or pink — joy will shine through even more.',cheer:'Keep going, you can make it more exciting! 🌟'},
@@ -312,7 +312,7 @@ const I18N = {
     'draw.musicTooltip':'マインドミュージックを試してみよう！<br>より深く感情に没入できます！',
     'draw.initBubble':(n)=>`${n}を感じながら描けるよう、サポートするよ！`,
     'time.fmt':(m,s)=>m>0?`${m}分${s}秒`:`${s}秒`,
-    'end.scoreTimeText':(timeStr,eName,score)=>`今日 ${timeStr} の間に${eName}が${score}%満たされました！`,
+    'end.scoreTimeText':(_,eName,score)=>`今日${eName}が${score}%満たされました！`,
     'result.tiers':{
       joy:[
         {main:'喜びが少し描かれ始めました！',detail:'明るい色使いや黄色・ピンクをもっと使うと、喜びがより伝わりますよ。',cheer:'もっと楽しく描いてみよう！できるよ 🌟'},
