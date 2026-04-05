@@ -25,7 +25,7 @@ const I18N = {
     /* 난이도 */
     'diff.하':'하','diff.중':'중','diff.상':'상','diff.최상':'최상',
     /* 랜딩 */
-    'landing.sub':'쉽게 따라만 그리면 행복해지는 아트 플로우',
+    'landing.sub':'따라 그릴수록, 행복한 마음이 자라는 아트 플로우',
     'landing.desc':'같은 그림도 마음에 따라 다르게 완성!<br>더 행복한 마음을 느낄 수 있도록',
     'landing.tutor':'AI 마음튜터','landing.tutorSuffix':'가 도와줄게요.','landing.cta':'시작하기',
     /* 그림 선택 */
@@ -101,7 +101,7 @@ const I18N = {
     'artist.bird':'Iroun, Age 7','artist.flower':'Jiwon Kim, Age 58','artist.grandma':'Surin Nam, Age 15',
     'artist.pearl':'Johannes Vermeer','artist.starry':'Vincent van Gogh','artist.bedroom':'Vincent van Gogh',
     'diff.하':'Easy','diff.중':'Med','diff.상':'Hard','diff.최상':'Expert',
-    'landing.sub':'Art Flow — draw along, feel happier',
+    'landing.sub':'The more you draw, the happier you grow — Art Flow',
     'landing.desc':'The same drawing, completed differently by your mood!<br>Your',
     'landing.tutor':'AI Mind Tutor','landing.tutorSuffix':' will guide you.','landing.cta':'Get Started',
     'choose.pageTitle':'Choose a Drawing',
@@ -172,7 +172,7 @@ const I18N = {
     'artist.bird':'7歳・イロウン','artist.flower':'58歳・キム・ジウォン','artist.grandma':'15歳・ナム・スリン',
     'artist.pearl':'ヨハネス・フェルメール','artist.starry':'ファン・ゴッホ','artist.bedroom':'ファン・ゴッホ',
     'diff.하':'易','diff.중':'中','diff.상':'難','diff.최상':'超難',
-    'landing.sub':'描くだけで幸せになれる アートフロー',
+    'landing.sub':'描けば描くほど、幸せな気持ちが育つ アートフロー',
     'landing.desc':'同じ絵でも気持ち次第で違う作品に！<br>より豊かな気持ちを感じられるよう',
     'landing.tutor':'AI マインドチューター','landing.tutorSuffix':'がサポートします。','landing.cta':'はじめる',
     'choose.pageTitle':'どの絵を描きますか？',
