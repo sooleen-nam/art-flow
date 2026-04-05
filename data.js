@@ -72,6 +72,13 @@ const ARTWORKS = [
     outlineUrl: 'flower.coloring.png',
     difficulty: { label: '중', color: '#4CAF82' },
     locked: false,
+    emotionImages: {
+      joy:        { url: 'flower_즐거움.png',  palette: ['#f5c800','#e84820','#4aaa30','#a05820','#f0f0e0'] },
+      calm:       { url: 'flower_편안함.png',  palette: ['#88c8e8','#a0d8b8','#c0a8d8','#d4c870','#c8d8c0'] },
+      confidence: { url: 'flower_자신감.png',  palette: ['#cc1820','#2838b8','#7828b0','#d4b820','#2a8830'] },
+      curiosity:  { url: 'flower_호기심.png',  palette: ['#2860c8','#d83018','#7030b0','#e8a810','#2a8830'] },
+      love:       { url: 'flower_설레임.png',  palette: ['#f0a8c0','#f8c890','#e8d0a0','#d4a8b8','#5a9840'] },
+    },
     layers: [
       { name: '배경',         color: '#fff9e6' },
       { name: '꽃잎',         color: '#f9a8d4' },
