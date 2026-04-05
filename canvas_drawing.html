@@ -43,7 +43,7 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 #color-picker {
   position: fixed; z-index: 500;
   background: #fff; border-radius: 16px;
-  padding: 14px; gap: 10px;
+  padding: 14px; padding-top: 36px; gap: 10px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.15);
   border: 1px solid var(--border);
   display: none; flex-direction: column; align-items: center;
@@ -629,11 +629,12 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 
 <!-- 색상환 팝업 -->
 <div id="color-picker">
+  <button id="picker-close" onclick="document.getElementById('color-picker').classList.remove('open')" style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(0,0,0,.07);cursor:pointer;font-size:.85rem;color:#666;display:flex;align-items:center;justify-content:center;line-height:1;">✕</button>
   <canvas id="color-wheel" width="160" height="160"></canvas>
   <input type="range" id="picker-bri" min="10" max="90" value="50">
   <div class="picker-row">
     <div id="picker-preview"></div>
-    <button id="picker-apply" onclick="applyColor()">이 색 선택</button>
+    <button id="picker-apply" onclick="applyColor()">색 선택</button>
   </div>
 </div>
 
