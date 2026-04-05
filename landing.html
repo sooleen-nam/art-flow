@@ -47,25 +47,6 @@
   background: rgba(255,255,255,0.22);
   color: #fff;
 }
-/* ── 붓 글씨 애니메이션 ── */
-.logo-char {
-  display: inline-block;
-  white-space: pre;
-  opacity: 0;
-  clip-path: inset(0 100% 0 0);
-  -webkit-clip-path: inset(0 100% 0 0);
-  filter: blur(8px);
-}
-.logo-char.brushed {
-  opacity: 1;
-  clip-path: inset(0 0% 0 0);
-  -webkit-clip-path: inset(0 0% 0 0);
-  filter: blur(0);
-  transition: clip-path 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
-              -webkit-clip-path 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
-              opacity 0.2s ease,
-              filter 0.45s ease;
-}
 </style>
 </head>
 <body>
@@ -83,7 +64,7 @@
 
   <div class="landing-content">
     <div class="tag-row" id="tag-row"></div>
-    <div class="landing-logo" id="landing-logo"></div>
+    <div class="landing-logo">Art Flow</div>
     <p class="landing-sub" id="landing-sub">쉽게 따라만 그리면 행복해지는 아트 플로우</p>
     <p class="landing-desc" id="landing-desc">
       같은 그림도 마음에 따라 다르게 완성!<br>
@@ -97,17 +78,6 @@
 <script src="i18n.js?v=2"></script>
 <script src="data.js"></script>
 <script>
-// 붓 글씨 애니메이션
-(function() {
-  const logo = document.getElementById('landing-logo');
-  logo.innerHTML = [...'Art Flow'].map(ch =>
-    `<span class="logo-char">${ch === ' ' ? '&nbsp;' : ch}</span>`
-  ).join('');
-  logo.querySelectorAll('.logo-char').forEach((span, i) => {
-    setTimeout(() => span.classList.add('brushed'), 300 + i * 180);
-  });
-})();
-
 function applyLanding(lang) {
   saveLang(lang);
   document.getElementById('landing-sub').textContent = t('landing.sub');
