@@ -1631,7 +1631,7 @@ window.addEventListener('pagehide', () => { if (ytPlayer && ytPlayer.pauseVideo)
 const _drawStartTime = Date.now();
 init();
 
-// 음악 툴팁: 버튼 위치 계산 후 표시, 3초 후 페이드아웃
+// 음악 툴팁: 5초 후 등장, 3초 지속 후 페이드아웃
 setTimeout(() => {
   const btn = document.getElementById('btn-music');
   const tip = document.getElementById('music-tooltip');
@@ -1652,7 +1652,7 @@ setTimeout(() => {
     tip.style.opacity = '0';
     setTimeout(() => tip.style.display = 'none', 400);
   }, 3000);
-}, 500);
+}, 5000);
 </script>
 </body>
 </html>
