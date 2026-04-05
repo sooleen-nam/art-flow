@@ -1468,9 +1468,7 @@ function nextStep() {
   currentStep++;
   maxStepReached = Math.max(maxStepReached, currentStep);
   if (currentStep === 2) {
-    emotionScore = 0;
     scribbleWarned = false;
-    updateScoreDisplay();
     addBubble(t('draw.bubbleStep2', tEmotion(emotion.id)));
   }
   renderStep();
