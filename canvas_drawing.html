@@ -463,6 +463,23 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 .tool-btn img { width:24px; height:24px; object-fit:contain; }
 .tool-btn:hover { background:var(--bg3); }
 .tool-btn.active { background:var(--surface); border-color:var(--accent); }
+
+/* 🎵 음악 활성 애니메이션 */
+@keyframes music-pulse {
+  0%,100% { transform:scale(1);    box-shadow:0 0 0 0 rgba(124,110,247,0); }
+  50%      { transform:scale(1.13); box-shadow:0 0 12px 4px rgba(124,110,247,0.35); }
+}
+@keyframes music-hue {
+  0%   { filter:hue-rotate(0deg)   brightness(1.05); }
+  33%  { filter:hue-rotate(60deg)  brightness(1.12); }
+  66%  { filter:hue-rotate(150deg) brightness(1.08); }
+  100% { filter:hue-rotate(0deg)   brightness(1.05); }
+}
+#btn-music.music-on {
+  animation: music-pulse 1.6s ease-in-out infinite,
+             music-hue   4s   linear        infinite;
+  border: none !important;
+}
 .tool-btn.locked { opacity:.5; cursor:not-allowed; pointer-events:none; }
 .pro-tag {
   position:absolute; top:-7px; right:-7px;
@@ -1532,6 +1549,7 @@ function setMusicBtn(on) {
   const btn  = document.getElementById('btn-music');
   const icon = document.getElementById('music-icon');
   btn.classList.toggle('active', on);
+  btn.classList.toggle('music-on', on);
   btn.style.background = on ? emotion.gradient : '';
   btn.style.border     = on ? 'none' : '';
   icon.textContent = on ? '🔊' : '🎵';
