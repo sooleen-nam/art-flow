@@ -48,28 +48,23 @@
   color: #fff;
 }
 /* ── 붓 글씨 애니메이션 ── */
-@keyframes brushChar {
-  from {
-    clip-path: inset(0 105% 0 0);
-    filter: blur(8px);
-    opacity: 0;
-  }
-  40% {
-    opacity: 1;
-  }
-  75% {
-    filter: blur(0.8px);
-  }
-  to {
-    clip-path: inset(0 0% 0 0);
-    filter: blur(0);
-    opacity: 1;
-  }
-}
 .logo-char {
   display: inline-block;
-  animation: brushChar 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
   white-space: pre;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  -webkit-clip-path: inset(0 100% 0 0);
+  filter: blur(8px);
+}
+.logo-char.brushed {
+  opacity: 1;
+  clip-path: inset(0 0% 0 0);
+  -webkit-clip-path: inset(0 0% 0 0);
+  filter: blur(0);
+  transition: clip-path 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+              -webkit-clip-path 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+              opacity 0.2s ease,
+              filter 0.45s ease;
 }
 </style>
 </head>
@@ -105,9 +100,12 @@
 // 붓 글씨 애니메이션
 (function() {
   const logo = document.getElementById('landing-logo');
-  logo.innerHTML = [...'Art Flow'].map((ch, i) =>
-    `<span class="logo-char" style="animation-delay:${0.3 + i * 0.18}s">${ch === ' ' ? '&nbsp;' : ch}</span>`
+  logo.innerHTML = [...'Art Flow'].map(ch =>
+    `<span class="logo-char">${ch === ' ' ? '&nbsp;' : ch}</span>`
   ).join('');
+  logo.querySelectorAll('.logo-char').forEach((span, i) => {
+    setTimeout(() => span.classList.add('brushed'), 300 + i * 180);
+  });
 })();
 
 function applyLanding(lang) {
