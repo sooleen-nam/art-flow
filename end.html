@@ -69,6 +69,7 @@ const resultDataUrl = sessionStorage.getItem('resultDataUrl');
 const statsRaw = sessionStorage.getItem('resultStats');
 const stats = statsRaw ? JSON.parse(statsRaw) : { usedColorCount: 1, avgSpeed: 0.5 };
 const emotionScore = parseInt(sessionStorage.getItem('emotionScore') || '0', 10);
+const drawingMinutes = parseInt(sessionStorage.getItem('drawingMinutes') || '1', 10);
 
 if (!artwork || !emotion) location.href = 'choosing_drawing.html';
 
@@ -154,7 +155,8 @@ function initResult() {
   const msg  = RESULT_MSG[emotion.id]?.[tier] || RESULT_MSG.joy[1];
 
   // 점수 문구
-  document.getElementById('rc-score').textContent = t('end.scoreText', eName, emotionScore);
+  document.getElementById('rc-score').textContent =
+    `오늘 ${drawingMinutes}분 동안 ${eName}이(가) ${emotionScore}% 채워졌어요!`;
 
   document.getElementById('rc-main').textContent   = msg.main;
   document.getElementById('rc-detail').textContent = msg.detail;

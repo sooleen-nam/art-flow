@@ -1509,6 +1509,8 @@ function confirmFinish() {
       avgSpeed: S.stats.avgSpeed,
     }));
     sessionStorage.setItem('emotionScore', emotionScore);
+    const elapsedMin = Math.max(1, Math.round((Date.now() - _drawStartTime) / 60000));
+    sessionStorage.setItem('drawingMinutes', elapsedMin);
   } catch(e) { console.warn('finish save error', e); }
   location.href = 'end.html';
 }
@@ -1621,6 +1623,7 @@ function toggleMusic() {
 // 페이지 떠날 때 음악 정지
 window.addEventListener('pagehide', () => { if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo(); });
 
+const _drawStartTime = Date.now();
 init();
 
 // 음악 툴팁: 버튼 위치 계산 후 표시, 3초 후 페이드아웃
