@@ -691,9 +691,27 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
           <img src="reset.png" alt="리셋">
         </button>
         <!-- 마음 음악 -->
-        <button class="tool-btn" id="btn-music" onclick="toggleMusic()" title="마음 음악" style="margin-top:4px;">
-          <span id="music-icon" style="font-size:1.1rem;">🎵</span>
-        </button>
+        <div style="position:relative;">
+          <button class="tool-btn" id="btn-music" onclick="toggleMusic()" title="마음 음악" style="margin-top:4px;">
+            <span id="music-icon" style="font-size:1.1rem;">🎵</span>
+          </button>
+          <div id="music-tooltip" style="
+            position:absolute; left:44px; bottom:0;
+            background:#1a1a2e; color:#fff;
+            font-size:.72rem; font-weight:700; line-height:1.5;
+            padding:8px 12px; border-radius:12px; white-space:nowrap;
+            box-shadow:0 4px 16px rgba(0,0,0,.25);
+            pointer-events:none; z-index:300;
+            opacity:1; transition:opacity .4s;
+          ">
+            마음 음악을 눌러보세요!<br>더 깊이 감정을 몰입할 수 있어요!
+            <div style="
+              position:absolute; right:100%; bottom:10px;
+              border:6px solid transparent;
+              border-right-color:#1a1a2e;
+            "></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1603,6 +1621,12 @@ function toggleMusic() {
 window.addEventListener('pagehide', () => { if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo(); });
 
 init();
+
+// 음악 툴팁 3초 후 페이드아웃
+setTimeout(() => {
+  const tip = document.getElementById('music-tooltip');
+  if (tip) { tip.style.opacity = '0'; setTimeout(() => tip.style.display = 'none', 400); }
+}, 3000);
 </script>
 </body>
 </html>
