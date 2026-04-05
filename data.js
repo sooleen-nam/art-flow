@@ -171,7 +171,7 @@ const EMOTIONS = [
   {
     id: 'calm',
     tutorMsg: 'AI 마음튜터가 천천히 차분한 마음으로 그릴 수 있도록 실시간으로 도와줄게요',
-    name: '편안함', icon: '', img: 'bird_편안함.png',
+    name: '편안함', icon: '', exampleImg: 'bird_편안함.png',
     desc: '부드러운 곡선으로 천천히<br>차분하고 안정된 마음을 연습해요',
     lineHint: '부드러운 곡선, 느린 흐름',
     patternHint: '물결, 구름 형태',
