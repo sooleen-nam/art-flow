@@ -1189,13 +1189,21 @@ function extractFeatures() {
 function calculateEmotionScore(features) {
   const rule = EMOTION_RULES[emotion.id];
   if (!rule) return 0;
-  let total = 0;
-  for (const key in WEIGHTS) {
+
+  // areaFill 제외한 감정 특징 점수
+  const qualityKeys = ['speed', 'pressure', 'thickness', 'colorVariety', 'colorMatch', 'pattern'];
+  const qualityWeightSum = qualityKeys.reduce((s, k) => s + WEIGHTS[k], 0);
+  let qualityScore = 0;
+  for (const key of qualityKeys) {
     let score = scoreFeature(features[key], rule[key][0], rule[key][1]);
-    if (key === rule.core) score *= 1.1;
-    total += score * WEIGHTS[key];
+    if (key === rule.core) score = Math.min(110, score * 1.1);
+    qualityScore += score * (WEIGHTS[key] / qualityWeightSum);
   }
-  return Math.min(100, Math.round(total));
+
+  // areaFill은 곱셈 승수: 캔버스를 채울수록 점수가 쌓임
+  // 0.2(20% 채움 ≈ 25~30획) 기준으로 최대 1.0
+  const fillMultiplier = Math.min(1, features.areaFill / 0.2);
+  return Math.min(100, Math.round(qualityScore * fillMultiplier));
 }
 
 function getFeedback(features) {
