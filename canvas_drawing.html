@@ -379,24 +379,26 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
     flex-direction: row;
     border-right: none;
     border-top: 1px solid var(--border);
-    justify-content: center;
+    justify-content: flex-start;   /* 1. 좌우 잘림 방지: 왼쪽 정렬 + 스크롤 */
     align-items: center;
-    padding: 8px 12px;
-    gap: 10px;
+    padding: 8px 10px;
+    gap: 8px;
     flex-shrink: 0;
-    overflow-x: auto;
+    overflow-x: auto;              /* 1. 넘치면 가로 스크롤 */
     overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
   }
   .lp-section {
     padding: 0;
     border-bottom: none;
     border-right: 1px solid var(--border);
-    padding-right: 10px;
+    padding-right: 8px;
+    flex-shrink: 0;                /* 1. 찌그러지지 않도록 */
   }
   .lp-section:last-child { border-right: none; padding-right: 0; }
   .palette-dots {
     grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
+    gap: 5px;
   }
   .pal-dot { width: 26px; height: 26px; }
   .lp-tools {
@@ -405,29 +407,59 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
     border-top: none;
     gap: 8px;
     align-items: center;
+    flex-shrink: 0;
   }
+  /* 2. 붓 슬라이더 - 가로 방향으로 제대로 표시 */
   .brush-wrap {
-    height: 26px; width: 80px;
+    width: 70px; height: 20px;
     flex-direction: row;
     align-items: center;
+    position: relative;
   }
   #brush-slider {
-    writing-mode: horizontal-tb;
-    direction: ltr;
-    width: 80px; height: 20px;
+    writing-mode: horizontal-tb !important;
+    direction: ltr !important;
+    width: 70px !important;
+    height: 20px !important;
+    -webkit-appearance: slider-horizontal;
+    appearance: auto;
+  }
+  #brush-slider::-webkit-slider-runnable-track {
+    background: var(--bg3);
+    height: 4px; border-radius: 2px;
+  }
+  #brush-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: -7px;
+    box-shadow: 0 2px 6px rgba(124,110,247,.4);
   }
   .brush-taper { display: none; }
-  .tool-btn { width:36px; height:36px; border-radius:10px; }
-  .tool-btn img { width:18px; height:18px; }
+  .tool-btn { width:34px; height:34px; border-radius:10px; flex-shrink:0; }
+  .tool-btn img { width:17px; height:17px; }
+  .current-color-dot { width:26px; height:26px; flex-shrink:0; }
   /* 캔버스 영역 패딩 축소 */
   .canvas-area { padding: 6px; }
-  /* 튜터 오버레이 숨김 (공간 확보) */
+  /* 튜터 오버레이 숨김 */
   .tutor-overlay { display: none; }
-  /* 줌 컨트롤 */
-  .zoom-controls { padding:3px 5px; gap:3px; bottom:8px; }
-  .zoom-btn { width:28px; height:28px; font-size:.85rem; }
-  #zoom-label { width:34px; font-size:.62rem; }
-  #btn-outline { font-size:.6rem; padding:0 6px; }
+  /* 3. 스케치 숨기기 버튼 - 줄바꿈 방지 */
+  .zoom-controls {
+    padding: 3px 5px; gap: 3px; bottom: 8px;
+    flex-wrap: nowrap;             /* 3. 한 줄 유지 */
+    white-space: nowrap;
+  }
+  .zoom-btn { width:26px; height:26px; font-size:.8rem; }
+  #zoom-label { width:30px; font-size:.58rem; }
+  #btn-outline {
+    font-size:.58rem !important;
+    padding: 0 5px !important;
+    width: auto !important;
+    white-space: nowrap;           /* 3. 텍스트 줄바꿈 방지 */
+    height: 26px;
+    border-radius: 10px !important;
+  }
 }
 </style>
 </head>
