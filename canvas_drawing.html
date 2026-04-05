@@ -1027,11 +1027,6 @@ function onDraw(e) {
   ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(p.x, p.y); ctx.stroke();
   lx = p.x; ly = p.y; lmt = now;
   renderComposite();
-  // 드로잉 중 실시간 스코어 업데이트 (50px 이동할 때마다)
-  if (!S.erasing && strokeDist > 0 && strokeDist % 50 < dist + 1) {
-    const elapsed = Math.max(Date.now() - strokeStartTime, 1);
-    evalStrokeScore(strokeDist / elapsed, S.brushSize, S.color);
-  }
 }
 function endDraw() {
   if (!drawing) return;
@@ -1064,50 +1059,37 @@ function evalStrokeScore(spd, brush, color) {
   let delta = 0;
   const colorOk = isEmotionColor(color);
 
+  // 각 감정당 획 1개 기준: 잘 맞으면 최대 +4, 안 맞으면 최소 -3
+  // 25~30번 꾸준히 잘 그리면 100% 도달
   switch (emotion.id) {
     case 'joy':
-      // 선: 중간~빠른 속도 / 너무 느리면 감소
-      delta += (spd > 0.10 && spd < 1.0) ? 3 : (spd <= 0.04 ? -3 : 0);
-      // 붓: 중간 크기(3~14)
-      delta += (brush >= 3 && brush <= 14) ? 2 : -2;
-      // 색: 감정 팔레트 색이면 보너스, 아니면 감소
-      delta += colorOk ? 3 : -2;
+      delta += (spd > 0.10 && spd < 1.0) ? 2 : (spd <= 0.04 ? -2 : 0);
+      delta += (brush >= 3 && brush <= 14) ? 1 : -1;
+      delta += colorOk ? 1 : -1;
       break;
 
     case 'calm':
-      // 선: 느릴수록 좋음 / 빠르면 크게 감소
-      delta += spd < 0.06 ? 4 : spd < 0.14 ? 1 : spd < 0.28 ? -2 : -5;
-      // 붓: 작은 붓(≤7)
-      delta += brush <= 7 ? 3 : brush <= 12 ? 0 : -3;
-      // 색
-      delta += colorOk ? 3 : -2;
+      delta += spd < 0.06 ? 2 : spd < 0.14 ? 1 : spd < 0.28 ? -1 : -3;
+      delta += brush <= 7 ? 1 : brush <= 12 ? 0 : -1;
+      delta += colorOk ? 1 : -1;
       break;
 
     case 'confidence':
-      // 붓: 클수록 좋음(≥12)
-      delta += brush >= 12 ? 4 : brush >= 8 ? 2 : brush >= 5 ? -1 : -4;
-      // 선: 중간 속도
-      delta += (spd > 0.10 && spd < 0.80) ? 2 : -2;
-      // 색
-      delta += colorOk ? 2 : -1;
+      delta += brush >= 12 ? 2 : brush >= 8 ? 1 : brush >= 5 ? -1 : -2;
+      delta += (spd > 0.10 && spd < 0.80) ? 1 : -1;
+      delta += colorOk ? 1 : 0;
       break;
 
     case 'curiosity':
-      // 색 변화가 핵심
-      delta += colorOk ? 3 : 1; // 어떤 색이든 시도하면 약간 긍정
-      // 빠르지도 느리지도 않은 탐색적 속도
-      delta += (spd > 0.06 && spd < 0.80) ? 2 : -1;
-      // 붓 크기 다양하면 중립
+      delta += colorOk ? 2 : 1;
+      delta += (spd > 0.06 && spd < 0.80) ? 1 : -1;
       delta += 1;
       break;
 
     case 'energy':
-      // 선: 빠를수록 좋음 / 느리면 크게 감소
-      delta += spd > 0.55 ? 5 : spd > 0.28 ? 2 : spd > 0.10 ? -2 : -5;
-      // 붓: 큰 붓(≥9)
-      delta += brush >= 9 ? 3 : brush >= 5 ? 0 : -3;
-      // 색
-      delta += colorOk ? 2 : -1;
+      delta += spd > 0.55 ? 3 : spd > 0.28 ? 1 : spd > 0.10 ? -1 : -3;
+      delta += brush >= 9 ? 1 : brush >= 5 ? 0 : -1;
+      delta += colorOk ? 1 : 0;
       break;
   }
 
