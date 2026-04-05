@@ -297,8 +297,11 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   font-size:.62rem; font-weight:800; color:var(--text2);
   display:flex; align-items:center; justify-content:center;
   flex-shrink:0; transition:all .25s;
+  cursor:default;
 }
 .step-dot.done { background:var(--accent); border-color:var(--accent); color:#fff; }
+.step-dot.reachable { cursor:pointer; }
+.step-dot.reachable:hover { opacity:.75; transform:scale(1.1); }
 .step-dot.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); border-color:transparent; color:#fff; box-shadow:0 0 0 3px rgba(124,110,247,.2); }
 .step-line { flex:1; height:2px; background:var(--border); border-radius:1px; }
 .step-line.done { background:var(--accent); }
@@ -656,11 +659,11 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
       <!-- 단계 패널 -->
       <div class="step-panel" id="step-panel">
         <div class="step-track">
-          <div class="step-dot active" id="sdot-1">1</div>
+          <div class="step-dot active" id="sdot-1" onclick="goToStep(1)">1</div>
           <div class="step-line" id="sline-1"></div>
-          <div class="step-dot" id="sdot-2">2</div>
+          <div class="step-dot" id="sdot-2" onclick="goToStep(2)">2</div>
           <div class="step-line" id="sline-2"></div>
-          <div class="step-dot" id="sdot-3">3</div>
+          <div class="step-dot" id="sdot-3" onclick="goToStep(3)">3</div>
         </div>
         <div class="step-body">
           <div class="step-title" id="step-title"></div>
@@ -707,8 +710,10 @@ if (!artwork || !emotion) location.href = 'choosing_drawing.html';
 /* ────────────────────────────────── 상태 */
 const S = {
   palette: [], color: '#fff',
-  brushSize: 6, erasing: false, activeLayerIdx: 0,
-  layerCanvases: [], layerCtxs: [], layerVisible: [], undoStacks: [],
+  brushSize: 6, erasing: false,
+  stepLayerCanvases: [], stepLayerCtxs: [], stepUndoStacks: [],
+  // legacy (kept for renderLayers no-op compatibility)
+  activeLayerIdx: 0, layerCanvases: [], layerCtxs: [], layerVisible: [], undoStacks: [],
   stats: {
     strokeCount: 0, colorChanges: 0,
     usedColors: new Set(), avgSpeed: 0,
@@ -834,19 +839,19 @@ function init() {
     compositeCtx = compositeCanvas.getContext('2d');
 
     stack.querySelectorAll('.layer-canvas').forEach(c => c.remove());
-    S.layerCanvases = []; S.layerCtxs = []; S.layerVisible = []; S.undoStacks = [];
+    S.stepLayerCanvases = []; S.stepLayerCtxs = []; S.stepUndoStacks = [];
 
-    artwork.layers.forEach((l, i) => {
+    // 단계별 레이어 3개 생성 (step1=스케치, step2=채우기, step3=꾸미기)
+    for (let i = 0; i < 3; i++) {
       const cvs = document.createElement('canvas');
       cvs.className = 'layer-canvas';
       cvs.width = cvs.height = SIZE;
       cvs.style.cssText = `width:${SIZE}px;height:${SIZE}px;position:absolute;top:0;left:0;z-index:${10+i};pointer-events:none;`;
       stack.insertBefore(cvs, document.getElementById('event-canvas'));
-      S.layerCanvases.push(cvs);
-      S.layerCtxs.push(cvs.getContext('2d'));
-      S.layerVisible.push(true);
-      S.undoStacks.push([]);
-    });
+      S.stepLayerCanvases.push(cvs);
+      S.stepLayerCtxs.push(cvs.getContext('2d'));
+      S.stepUndoStacks.push([]);
+    }
 
     eventCanvas = document.getElementById('event-canvas');
     eventCanvas.width = eventCanvas.height = SIZE;
@@ -892,8 +897,8 @@ function renderComposite() {
   compositeCtx.clearRect(0, 0, sz, sz);
   // 흰 배경
   compositeCtx.fillStyle = '#fff'; compositeCtx.fillRect(0, 0, sz, sz);
-  // 색칠 레이어
-  S.layerCanvases.forEach((c, i) => { if (S.layerVisible[i]) compositeCtx.drawImage(c, 0, 0); });
+  // 단계별 레이어 순서대로 합성
+  S.stepLayerCanvases.forEach(c => compositeCtx.drawImage(c, 0, 0));
   // 도안 선을 맨 위에 multiply로 합성
   if (outlineImg) {
     compositeCtx.save();
@@ -1049,13 +1054,14 @@ function toggleEraser() {
 }
 function resetCanvas() {
   if (!confirm('처음부터 다시 시작할까요? 지금까지 그린 내용이 모두 지워져요.')) return;
-  S.layerCtxs.forEach((ctx, i) => {
-    ctx.clearRect(0, 0, S.layerCanvases[i].width, S.layerCanvases[i].height);
-    S.undoStacks[i] = [];
+  S.stepLayerCtxs.forEach((ctx, i) => {
+    ctx.clearRect(0, 0, S.stepLayerCanvases[i].width, S.stepLayerCanvases[i].height);
+    S.stepUndoStacks[i] = [];
   });
-  S.stats = { strokeCount:0, colorChanges:0, usedColors:new Set(), avgSpeed:0, lastAlertAt:0 };
+  S.stats = { strokeCount:0, colorChanges:0, usedColors:new Set(), avgSpeed:0, lastAlertAt:0, patternStrokeCount:0, lastStrokeSpeed:0 };
   emotionScore = 0;
-  renderComposite(); updateScoreDisplay();
+  currentStep = 1; maxStepReached = 1;
+  renderComposite(); updateScoreDisplay(); renderStep();
 }
 
 /* ────────────────────────────────── 드로잉 */
@@ -1076,9 +1082,10 @@ function getPos(e) {
   };
 }
 function saveUndo() {
-  const i = S.activeLayerIdx;
-  S.undoStacks[i].push(S.layerCtxs[i].getImageData(0, 0, S.layerCanvases[i].width, S.layerCanvases[i].height));
-  if (S.undoStacks[i].length > MAX_UNDO) S.undoStacks[i].shift();
+  const i = currentStep - 1;
+  const cvs = S.stepLayerCanvases[i];
+  S.stepUndoStacks[i].push(S.stepLayerCtxs[i].getImageData(0, 0, cvs.width, cvs.height));
+  if (S.stepUndoStacks[i].length > MAX_UNDO) S.stepUndoStacks[i].shift();
 }
 function startDraw(e) {
   drawing = true;
@@ -1087,7 +1094,7 @@ function startDraw(e) {
   S.stats.strokeCount++;
   S.stats.usedColors.add(S.color);
   saveUndo();
-  const ctx = S.layerCtxs[S.activeLayerIdx];
+  const ctx = S.stepLayerCtxs[currentStep - 1];
   ctx.globalCompositeOperation = S.erasing ? 'destination-out' : 'source-over';
   ctx.beginPath(); ctx.arc(p.x, p.y, S.brushSize/2, 0, Math.PI*2);
   ctx.fillStyle = S.erasing ? 'rgba(0,0,0,1)' : S.color; ctx.fill();
@@ -1099,7 +1106,7 @@ function onDraw(e) {
   const dist = Math.hypot(p.x - lx, p.y - ly);
   strokeDist += dist;
   S.stats.avgSpeed = S.stats.avgSpeed * 0.85 + (dist / dt) * 0.15;
-  const ctx = S.layerCtxs[S.activeLayerIdx];
+  const ctx = S.stepLayerCtxs[currentStep - 1];
   ctx.globalCompositeOperation = S.erasing ? 'destination-out' : 'source-over';
   ctx.lineWidth = S.brushSize; ctx.lineCap = ctx.lineJoin = 'round';
   ctx.strokeStyle = S.erasing ? 'rgba(0,0,0,1)' : S.color;
@@ -1116,7 +1123,8 @@ function endDraw() {
     if (strokeDist < 30) S.stats.patternStrokeCount++;
     analyzeAndUpdateScore();
   }
-  if (S.layerCtxs[S.activeLayerIdx]) S.layerCtxs[S.activeLayerIdx].globalCompositeOperation = 'source-over';
+  const stepCtx = S.stepLayerCtxs[currentStep - 1];
+  if (stepCtx) stepCtx.globalCompositeOperation = 'source-over';
 }
 
 /* ────────────────────────────────── 감정 스코어 시스템 */
@@ -1239,11 +1247,12 @@ function updateScore() { updateScoreDisplay(); }
 
 /* ────────────────────────────────── 단계 시스템 */
 let currentStep = 1;
+let maxStepReached = 1;
 
 const STEPS = [
   {
     title: '① 스케치 따라 그리기',
-    desc: '점선 스케치를 따라 그려보세요.',
+    desc: '스케치를 따라 그려보세요.\n원하는 모양을 더 그려도 좋아요!',
     btnLabel: '다음 단계 →',
     hint: '',
     canNext: () => true,
@@ -1266,6 +1275,7 @@ const STEPS = [
 
 function initSteps() {
   currentStep = 1;
+  maxStepReached = 1;
   renderStep();
 }
 
@@ -1286,10 +1296,10 @@ function renderStep() {
 
   // 트래커 업데이트
   [1,2,3].forEach(n => {
-    const dot  = document.getElementById(`sdot-${n}`);
-    dot.classList.remove('active','done');
-    if (n < currentStep)       dot.classList.add('done');
-    else if (n === currentStep) dot.classList.add('active');
+    const dot = document.getElementById(`sdot-${n}`);
+    dot.classList.remove('active','done','reachable');
+    if (n === currentStep)      dot.classList.add('active');
+    else if (n <= maxStepReached) { dot.classList.add('done'); dot.classList.add('reachable'); }
   });
   [1,2].forEach(n => {
     document.getElementById(`sline-${n}`).classList.toggle('done', n < currentStep);
@@ -1313,8 +1323,8 @@ function renderStep() {
 function nextStep() {
   if (currentStep === 3) { confirmFinish(); return; }
   currentStep++;
+  maxStepReached = Math.max(maxStepReached, currentStep);
   if (currentStep === 2) {
-    // 채우기 단계 진입 시 스코어 리셋
     emotionScore = 0;
     updateScoreDisplay();
     addBubble(`추천 색으로 ${emotion.name}을 채워봐! 🎨`);
@@ -1322,11 +1332,18 @@ function nextStep() {
   renderStep();
 }
 
+// 이전 단계로 이동하여 해당 레이어 수정
+function goToStep(n) {
+  if (n > maxStepReached) return; // 아직 도달하지 않은 단계
+  currentStep = n;
+  renderStep();
+}
+
 function refreshStep2UI() {
   if (currentStep !== 2) return;
   const s = STEPS[1];
-  document.getElementById('step-desc').textContent  = s.desc();
-  document.getElementById('step-score-hint').textContent = s.hint();
+  const hint = typeof s.hint === 'function' ? s.hint() : s.hint;
+  document.getElementById('step-score-hint').textContent = hint;
   document.getElementById('step-next-btn').disabled = !s.canNext();
 }
 
