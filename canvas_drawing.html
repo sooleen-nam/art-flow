@@ -920,6 +920,7 @@ function toggleOutline() {
   document.getElementById('outline-overlay').style.display = outlineVisible ? 'block' : 'none';
   document.getElementById('btn-outline').classList.toggle('active', !outlineVisible);
   document.getElementById('btn-outline').textContent = outlineVisible ? t('draw.sketchHide') : t('draw.sketchShow');
+  renderComposite();
 }
 function loadOutline() {
   const src = artwork.outlineUrl;
