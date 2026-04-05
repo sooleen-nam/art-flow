@@ -18,8 +18,10 @@
       <canvas id="result-canvas"></canvas>
     </div>
     <div class="result-card">
+      <div class="rc-score" id="rc-score"></div>
       <div class="rc-main" id="rc-main"></div>
       <div class="rc-detail" id="rc-detail"></div>
+      <div class="rc-cheer" id="rc-cheer"></div>
     </div>
     <div class="result-actions">
       <button class="btn btn-primary" onclick="location.href='choosing_drawing.html'">다시 그리기</button>
@@ -64,6 +66,7 @@ const emotion = getEmotion();
 const resultDataUrl = sessionStorage.getItem('resultDataUrl');
 const statsRaw = sessionStorage.getItem('resultStats');
 const stats = statsRaw ? JSON.parse(statsRaw) : { usedColorCount: 1, avgSpeed: 0.5 };
+const emotionScore = parseInt(sessionStorage.getItem('emotionScore') || '0', 10);
 
 if (!artwork || !emotion) location.href = 'choosing_drawing.html';
 
@@ -109,8 +112,21 @@ function initResult() {
   };
   const detail = detailMap[emotion.id] || '마음을 담아 완성한 멋진 그림이에요 ✨';
 
+  // 점수 문구
+  document.getElementById('rc-score').textContent = `오늘 ${emotion.name}이 ${emotionScore}% 채워졌어요!`;
+
   document.getElementById('rc-main').textContent = emotion.resultMain;
   document.getElementById('rc-detail').textContent = detail;
+
+  // 응원 문구
+  const cheerMap = {
+    joy:        `오늘 하루도 신나고 즐거운 일들이 가득하길 바라요! 🌈`,
+    calm:       `오늘 하루도 편안하고 포근한 시간이 함께하길 바라요 🌊`,
+    confidence: `오늘 하루도 자신 있게, 당당하게 빛나길 응원해요! 💪`,
+    curiosity:  `오늘 하루도 새로운 발견으로 가득한 하루가 되길 바라요! 🔮`,
+    energy:     `오늘 하루도 활기차고 에너지 넘치는 하루가 되길 바라요! 🔥`,
+  };
+  document.getElementById('rc-cheer').textContent = cheerMap[emotion.id] || `오늘 하루도 멋진 하루가 되길 바라요! ✨`;
 
   // 팔레트 계산 후 애니메이션
   const emotionImg = artwork.emotionImages?.[emotion.id];

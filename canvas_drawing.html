@@ -1390,6 +1390,7 @@ function confirmFinish() {
       usedColorCount: S.stats.usedColors.size,
       avgSpeed: S.stats.avgSpeed,
     }));
+    sessionStorage.setItem('emotionScore', emotionScore);
   } catch(e) { console.warn('finish save error', e); }
   location.href = 'end.html';
 }
