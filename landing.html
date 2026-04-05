@@ -17,6 +17,36 @@
   letter-spacing: 0 !important;
   font-weight: normal !important;
 }
+/* ── 언어 선택 ── */
+.lang-switcher {
+  position: absolute;
+  top: 18px; right: 18px;
+  z-index: 10;
+  display: flex;
+  gap: 4px;
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 30px;
+  padding: 4px;
+}
+.lang-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.55);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background .18s, color .18s;
+  letter-spacing: 0.02em;
+}
+.lang-btn.active {
+  background: rgba(255,255,255,0.22);
+  color: #fff;
+}
 </style>
 </head>
 <body>
@@ -24,33 +54,87 @@
 <div class="landing-page">
   <video class="landing-bg-video" src="drawing_process.mov" autoplay loop muted playsinline></video>
   <div class="landing-overlay"></div>
-<div class="landing-content">
+
+  <!-- 언어 선택 -->
+  <div class="lang-switcher">
+    <button class="lang-btn active" onclick="setLang('ko')">KO</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('ja')">JA</button>
+  </div>
+
+  <div class="landing-content">
     <div class="tag-row" id="tag-row"></div>
     <div class="landing-logo">Art Flow</div>
-    <p class="landing-sub">쉽게 따라만 그리면 행복해지는 아트 플로우</p>
-    <p class="landing-desc">
+    <p class="landing-sub" id="landing-sub">쉽게 따라만 그리면 행복해지는 아트 플로우</p>
+    <p class="landing-desc" id="landing-desc">
       같은 그림도 마음에 따라 다르게 완성!<br>
       더 행복한 마음을 느낄 수 있도록
-      <strong style="color:#a78bfa;">AI 마음튜터</strong>가 도와줄게요.
+      <strong style="color:#a78bfa;" id="landing-tutor">AI 마음튜터</strong>가 도와줄게요.
     </p>
-    <button class="btn btn-primary" onclick="location.href='choosing_drawing.html'">시작하기</button>
+    <button class="btn btn-primary" id="landing-cta" onclick="location.href='choosing_drawing.html'">시작하기</button>
   </div>
 </div>
 
 <script src="data.js"></script>
 <script>
-/* ── 랜딩 초기화 ── */
-(function initLanding() {
+/* ── 다국어 텍스트 ── */
+const LANGS = {
+  ko: {
+    sub:   '쉽게 따라만 그리면 행복해지는 아트 플로우',
+    desc:  '같은 그림도 마음에 따라 다르게 완성!<br>더 행복한 마음을 느낄 수 있도록',
+    tutor: 'AI 마음튜터',
+    tutorSuffix: '가 도와줄게요.',
+    cta:   '시작하기',
+    emotions: { joy:'즐거움', calm:'편안함', confidence:'자신감', curiosity:'호기심', love:'설레임' },
+  },
+  en: {
+    sub:   'Art Flow — draw along, feel happier',
+    desc:  'The same drawing, completed differently by your mood!<br>Your',
+    tutor: 'AI Mind Tutor',
+    tutorSuffix: ' will guide you.',
+    cta:   'Get Started',
+    emotions: { joy:'Joy', calm:'Calm', confidence:'Confidence', curiosity:'Curiosity', love:'Love' },
+  },
+  ja: {
+    sub:   '描くだけで幸せになれる アートフロー',
+    desc:  '同じ絵でも気持ち次第で違う作品に！<br>より豊かな気持ちを感じられるよう',
+    tutor: 'AI マインドチューター',
+    tutorSuffix: 'がサポートします。',
+    cta:   'はじめる',
+    emotions: { joy:'喜び', calm:'安らぎ', confidence:'自信', curiosity:'好奇心', love:'ときめき' },
+  },
+};
+
+let currentLang = 'ko';
+
+function setLang(lang) {
+  currentLang = lang;
+  const t = LANGS[lang];
+
+  document.getElementById('landing-sub').textContent = t.sub;
+  document.getElementById('landing-desc').innerHTML =
+    t.desc + ' <strong style="color:#a78bfa;" id="landing-tutor">' + t.tutor + '</strong>' + t.tutorSuffix;
+  document.getElementById('landing-cta').textContent = t.cta;
+
+  // 감정 태그 업데이트
   const row = document.getElementById('tag-row');
+  row.innerHTML = '';
   EMOTIONS.forEach(e => {
     const tag = document.createElement('span');
     tag.className = 'emotion-tag';
     tag.style.background = e.gradient;
-    tag.textContent = e.icon ? e.icon + ' ' + e.name : e.name;
+    tag.textContent = t.emotions[e.id] || e.name;
     row.appendChild(tag);
   });
-})();
 
+  // 언어 버튼 active 토글
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
+  });
+}
+
+/* ── 초기화 ── */
+setLang('ko');
 </script>
 </body>
 </html>
