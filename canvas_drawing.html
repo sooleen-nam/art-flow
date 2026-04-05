@@ -277,6 +277,65 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   }
 }
 
+/* ── 단계 패널 ── */
+.step-panel {
+  position:absolute; top:14px; left:14px; z-index:200;
+  width:156px;
+  background:rgba(255,255,255,0.96);
+  border-radius:16px;
+  padding:12px 12px 10px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.12);
+  border:1px solid var(--border);
+  pointer-events:auto;
+}
+.step-track {
+  display:flex; align-items:center; gap:4px; margin-bottom:10px;
+}
+.step-dot {
+  width:22px; height:22px; border-radius:50%;
+  border:2px solid var(--border);
+  font-size:.62rem; font-weight:800; color:var(--text2);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; transition:all .25s;
+}
+.step-dot.done { background:var(--accent); border-color:var(--accent); color:#fff; }
+.step-dot.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); border-color:transparent; color:#fff; box-shadow:0 0 0 3px rgba(124,110,247,.2); }
+.step-line { flex:1; height:2px; background:var(--border); border-radius:1px; }
+.step-line.done { background:var(--accent); }
+.step-body {}
+.step-title {
+  font-size:.78rem; font-weight:900; color:var(--text);
+  margin-bottom:3px;
+}
+.step-desc {
+  font-size:.68rem; color:var(--text2); line-height:1.5; margin-bottom:8px;
+}
+.step-next-btn {
+  width:100%; padding:7px 0;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff; border:none; border-radius:20px;
+  font-size:.72rem; font-weight:700; cursor:pointer;
+  transition:opacity .15s, transform .15s;
+}
+.step-next-btn:disabled { opacity:.35; pointer-events:none; }
+.step-next-btn:active { transform:scale(.97); }
+.step-score-hint {
+  font-size:.62rem; color:var(--accent); font-weight:700;
+  text-align:center; margin-bottom:4px; min-height:14px;
+}
+
+/* 모바일: 단계 패널 하단 좌측 */
+@media (max-width:600px) {
+  .step-panel {
+    position:fixed;
+    top:auto; left:10px;
+    bottom:58px;
+    width:140px;
+    padding:10px;
+    font-size:.9em;
+  }
+}
+
 /* ── 우측 도구 컬럼 ── */
 .tutor-col {
   width:70px; flex-shrink:0;
@@ -594,6 +653,23 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
         <img id="outline-overlay" alt="도안">
         <canvas id="event-canvas"></canvas>
       </div>
+      <!-- 단계 패널 -->
+      <div class="step-panel" id="step-panel">
+        <div class="step-track">
+          <div class="step-dot active" id="sdot-1">1</div>
+          <div class="step-line" id="sline-1"></div>
+          <div class="step-dot" id="sdot-2">2</div>
+          <div class="step-line" id="sline-2"></div>
+          <div class="step-dot" id="sdot-3">3</div>
+        </div>
+        <div class="step-body">
+          <div class="step-title" id="step-title"></div>
+          <div class="step-desc" id="step-desc"></div>
+          <div class="step-score-hint" id="step-score-hint"></div>
+          <button class="step-next-btn" id="step-next-btn" onclick="nextStep()"></button>
+        </div>
+      </div>
+
       <!-- AI 튜터 오버레이 -->
       <div class="tutor-overlay">
         <div class="tutor-float">
@@ -779,6 +855,7 @@ function init() {
     bindDraw();
     renderPalette();
     drawColorWheel();
+    initSteps();
     coachTimer = setInterval(runCoach, 3000);
     setTimeout(() => {
       addBubble(`지금부터 ${emotion.name}을 느낄 수 있도록, 내가 그리기를 도와줄게!`);
@@ -1081,9 +1158,103 @@ function updateScoreDisplay() {
   if (pct)  pct.textContent  = emotionScore + '%';
   const hint = document.getElementById('sh-hint');
   if (hint) hint.textContent = '';
+  refreshStep2UI();
 }
 
 function updateScore() { updateScoreDisplay(); }
+
+/* ────────────────────────────────── 단계 시스템 */
+let currentStep = 1;
+
+const STEPS = [
+  {
+    title: '① 스케치 따라 그리기',
+    desc: '점선 스케치를 보며 원하는 색으로 따라 그려봐요.',
+    btnLabel: '다음 단계 →',
+    hint: '',
+    canNext: () => true, // 언제든 넘어갈 수 있음
+  },
+  {
+    title: () => `② ${emotion.name} 채우기`,
+    desc: () => `추천 색으로 자유롭게 채워봐요.\n${emotion.name}이 ${emotionScore}% 채워졌어요!`,
+    btnLabel: '다음 단계 →',
+    hint: () => emotionScore < 60 ? `${emotion.name}을 60% 이상 채워야 다음 단계로!` : '충분히 채워졌어요! 다음으로 가요 ✨',
+    canNext: () => emotionScore >= 60,
+  },
+  {
+    title: () => `③ ${emotion.name} 꾸미기`,
+    desc: `원하는 무늬를 자유롭게 그려 넣어봐요.\n${emotion.patternHint}을 추가해보세요!`,
+    btnLabel: '완성하기 🎉',
+    hint: '',
+    canNext: () => true,
+  },
+];
+
+function initSteps() {
+  currentStep = 1;
+  renderStep();
+}
+
+function renderStep() {
+  const s = STEPS[currentStep - 1];
+  const title = typeof s.title === 'function' ? s.title() : s.title;
+  const desc   = typeof s.desc  === 'function' ? s.desc()  : s.desc;
+  const hint   = typeof s.hint  === 'function' ? s.hint()  : s.hint;
+  const canNext = s.canNext();
+
+  document.getElementById('step-title').textContent = title;
+  document.getElementById('step-desc').textContent  = desc;
+  document.getElementById('step-score-hint').textContent = hint;
+
+  const btn = document.getElementById('step-next-btn');
+  btn.textContent = s.btnLabel;
+  btn.disabled = !canNext;
+
+  // 트래커 업데이트
+  [1,2,3].forEach(n => {
+    const dot  = document.getElementById(`sdot-${n}`);
+    dot.classList.remove('active','done');
+    if (n < currentStep)       dot.classList.add('done');
+    else if (n === currentStep) dot.classList.add('active');
+  });
+  [1,2].forEach(n => {
+    document.getElementById(`sline-${n}`).classList.toggle('done', n < currentStep);
+  });
+
+  // 2단계: 스케치 자동 표시
+  if (currentStep === 1) {
+    document.getElementById('outline-overlay').style.display = 'block';
+    outlineVisible = true;
+    document.getElementById('btn-outline').classList.remove('active');
+  }
+  // 3단계: 스케치 숨기고 자유 꾸미기
+  if (currentStep === 3) {
+    document.getElementById('outline-overlay').style.display = 'none';
+    outlineVisible = false;
+    document.getElementById('btn-outline').classList.add('active');
+    addBubble(`✨ 이제 ${emotion.patternHint}을 그려서 꾸며봐!`);
+  }
+}
+
+function nextStep() {
+  if (currentStep === 3) { confirmFinish(); return; }
+  currentStep++;
+  if (currentStep === 2) {
+    // 채우기 단계 진입 시 스코어 리셋
+    emotionScore = 0;
+    updateScoreDisplay();
+    addBubble(`추천 색으로 ${emotion.name}을 채워봐! 🎨`);
+  }
+  renderStep();
+}
+
+function refreshStep2UI() {
+  if (currentStep !== 2) return;
+  const s = STEPS[1];
+  document.getElementById('step-desc').textContent  = s.desc();
+  document.getElementById('step-score-hint').textContent = s.hint();
+  document.getElementById('step-next-btn').disabled = !s.canNext();
+}
 
 /* ────────────────────────────────── AI 코치 (Claude API) */
 const CLAUDE_API_KEY = 'YOUR_API_KEY_HERE';
