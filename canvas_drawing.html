@@ -325,6 +325,7 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 .step-score-hint {
   font-size:.62rem; color:var(--accent); font-weight:700;
   text-align:center; margin-bottom:4px; min-height:14px;
+  line-height:1.5;
 }
 
 /* 모바일: 단계 패널 하단 우측 */
@@ -1258,9 +1259,15 @@ const STEPS = [
   },
   {
     title: () => `② ${emotion.name} 채우기`,
-    desc: '추천 마음색으로 자유롭게 채워봐요.',
+    desc: () => ({
+      joy:        '추천 마음색으로 신나고 경쾌하게 채워봐요!',
+      calm:       '추천 마음색으로 부드럽고 느긋하게 채워봐요!',
+      confidence: '추천 마음색으로 또렷하고 당당하게 채워봐요!',
+      curiosity:  '추천 마음색으로 고정관념에서 벗어나 채워봐요!',
+      energy:     '추천 마음색으로 에너지 넘치게 채워봐요!',
+    }[emotion.id] || '추천 마음색으로 자유롭게 채워봐요!'),
     btnLabel: '다음 단계 →',
-    hint: () => `${emotion.name}이 60% 채워져야 넘어갈 수 있어요!`,
+    hint: () => `${emotion.name}이 60% 이상 채워져<br>넘어갈 수 있어요!`,
     canNext: () => emotionScore >= 60,
   },
   {
@@ -1287,7 +1294,7 @@ function renderStep() {
 
   document.getElementById('step-title').textContent = title;
   document.getElementById('step-desc').textContent  = desc;
-  document.getElementById('step-score-hint').textContent = hint;
+  document.getElementById('step-score-hint').innerHTML = hint;
 
   const btn = document.getElementById('step-next-btn');
   btn.textContent = s.btnLabel;
@@ -1342,7 +1349,7 @@ function refreshStep2UI() {
   if (currentStep !== 2) return;
   const s = STEPS[1];
   const hint = typeof s.hint === 'function' ? s.hint() : s.hint;
-  document.getElementById('step-score-hint').textContent = hint;
+  document.getElementById('step-score-hint').innerHTML = hint;
   document.getElementById('step-next-btn').disabled = !s.canNext();
 }
 
