@@ -249,7 +249,7 @@ const EMOTIONS = [
       '선을 부드럽고 둥글게 그려봐~ 설레임이 가득해질 거야!',
     ],
     resultMain: '설레고 따뜻한 마음이 그림에 가득 담겼어요!',
-    anim: 'stars',
+    anim: 'hearts',
   },
 ];
 
