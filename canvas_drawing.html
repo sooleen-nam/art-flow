@@ -1262,7 +1262,7 @@ const STEPS = [
     desc: '추천 마음색으로 자유롭게 채워봐요.',
     btnLabel: '다음 단계 →',
     hint: () => `${emotion.name}이 60% 채워져야 넘어갈 수 있어요!`,
-    canNext: () => { const f = extractFeatures(); return f.colorMatch > 0.4 && f.areaFill > 0.3; },
+    canNext: () => emotionScore >= 60,
   },
   {
     title: () => `③ ${emotion.name} 꾸미기`,
