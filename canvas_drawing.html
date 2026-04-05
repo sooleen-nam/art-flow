@@ -206,7 +206,7 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 /* ── 캔버스 ── */
 .canvas-area {
   flex:1; display:flex; align-items:center; justify-content:center;
-  padding:12px; min-width:0; overflow:hidden;
+  padding:12px; padding-bottom:62px; min-width:0; overflow:hidden;
   background:var(--bg3); position:relative;
 }
 .canvas-stack {
@@ -303,7 +303,7 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 
 /* ── 단계 패널 ── */
 .step-panel {
-  position:absolute; top:50%; right:14px; transform:translateY(-50%); z-index:200;
+  position:absolute; bottom:62px; right:14px; top:auto; transform:none; z-index:200;
   width:180px;
   background:rgba(255,255,255,0.97);
   border-radius:20px;
