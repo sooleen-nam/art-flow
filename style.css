@@ -301,16 +301,9 @@ body { animation: fadeUp 0.35s ease; }
   color: var(--text);
 }
 .sheet-sub {
-  display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, rgba(99,102,241,0.10), rgba(168,85,247,0.10));
-  border: 1.5px solid rgba(99,102,241,0.22);
-  border-radius: 20px;
-  margin: 0;
-  padding: 13px 20px;
-  font-size: 0.9rem; font-weight: 700;
-  color: #3730a3; text-align: center; line-height: 1.6;
+  text-align: center; font-size: 0.82rem; color: var(--text2);
+  margin-bottom: 20px; padding: 0 24px;
 }
-.sheet-sub strong { color: #1e1b4b; font-weight: 900; }
 
 .emotion-list {
   display: flex;
@@ -342,7 +335,7 @@ body { animation: fadeUp 0.35s ease; }
 .emotion-item-text { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .emotion-item-text .ei-name { font-size: .95rem; font-weight: 900; color: #fff; }
 .emotion-item-text .ei-desc { display: none; }
-.sheet-footer { padding: 16px 20px 24px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.sheet-footer { padding: 16px 20px 24px; display: flex; justify-content: center; }
 
 /* ============================================================
    ④ 가이드 팝업 (이렇게 그려볼까요?)
