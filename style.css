@@ -375,8 +375,8 @@ body { animation: fadeUp 0.35s ease; }
   font-size: 0.78rem; font-weight: 800; color: var(--text2);
   letter-spacing: .06em; text-transform: uppercase;
 }
-.compare-img-wrap { position: relative; border-radius: 14px; overflow: hidden; width: 100%; }
-.compare-img { width: 100%; height: auto; object-fit: contain; display: block; }
+.compare-img-wrap { position: relative; border-radius: 14px; overflow: hidden; width: 85%; }
+.compare-img { width: 100%; height: auto; max-height: 180px; object-fit: cover; display: block; }
 .compare-img-overlay { position: absolute; inset: 0; mix-blend-mode: color; opacity: 0.5; }
 .compare-palette { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
 .compare-palette-dot { width: 24px; height: 24px; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
