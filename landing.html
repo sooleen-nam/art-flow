@@ -46,7 +46,7 @@
     const tag = document.createElement('span');
     tag.className = 'emotion-tag';
     tag.style.background = e.gradient;
-    tag.textContent = e.icon + ' ' + e.name;
+    tag.textContent = e.icon ? e.icon + ' ' + e.name : e.name;
     row.appendChild(tag);
   });
 })();

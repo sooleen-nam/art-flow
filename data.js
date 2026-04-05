@@ -234,7 +234,7 @@ const EMOTIONS = [
     id: 'love',
     locked: true,
     tutorMsg: 'AI 마음튜터가 설레는 마음으로 그릴 수 있도록 실시간으로 도와줄게요',
-    name: '설레임', icon: '💕',
+    name: '설레임', icon: '',
     desc: '부드럽고 따뜻한 선으로<br>설레는 마음을 담아요',
     lineHint: '부드럽고 둥근 선',
     patternHint: '하트, 꽃, 별',
