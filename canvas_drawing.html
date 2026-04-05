@@ -363,8 +363,30 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   flex-shrink:0;
 }
 
-@media (max-width:700px) { .left-panel { width:70px; } .tutor-bubbles { width:170px; } }
-@media (max-width:500px) { .left-panel { width:60px; } .tutor-col { display:none; } .tutor-overlay { display:none; } }
+@media (max-width:700px) {
+  .left-panel { width:64px; }
+  .tutor-bubbles { width:160px; }
+  .pal-dot { width:26px; height:26px; }
+  .score-header { padding:6px 10px; gap:8px; }
+  #sh-thumb { width:36px; height:36px; }
+  #sh-bar-text { font-size:.78rem; }
+  .sh-pct { font-size:.82rem; min-width:28px; }
+  .sh-finish { padding:7px 12px; font-size:.75rem; }
+}
+@media (max-width:480px) {
+  .left-panel { width:54px; }
+  .palette-dots { gap:5px; padding:2px 0; }
+  .pal-dot { width:22px; height:22px; }
+  .tool-btn { width:34px; height:34px; border-radius:10px; }
+  .tool-btn img { width:18px; height:18px; }
+  .brush-wrap { height:60px; }
+  #brush-slider { height:60px; }
+  .tutor-overlay { display:none; }
+  .tutor-bubbles { width:140px; }
+  .zoom-controls { padding:3px 5px; gap:3px; }
+  .zoom-btn { width:28px; height:28px; font-size:.85rem; }
+  #zoom-label { width:36px; font-size:.65rem; }
+}
 </style>
 </head>
 <body>
