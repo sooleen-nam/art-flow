@@ -736,7 +736,7 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
         <button class="zoom-btn" id="zoom-label" onclick="resetZoom()" title="초기화">100%</button>
         <button class="zoom-btn" onclick="zoomIn()" title="확대">＋</button>
         <button class="zoom-btn" id="btn-pan" onclick="togglePan()" title="이동"><img src="hand.png" style="width:18px;height:18px;object-fit:contain;"></button>
-        <button class="zoom-btn" id="btn-outline" onclick="toggleOutline()" title="스케치" style="font-size:.65rem;width:auto;padding:0 8px;border-radius:12px;">스케치 숨기기</button>
+        <button class="zoom-btn" id="btn-outline" onclick="toggleOutline()" title="스케치" style="font-size:.65rem;width:auto;padding:0 8px;border-radius:12px;">스케치 보이기</button>
       </div>
     </div>
 
@@ -861,7 +861,7 @@ function init() {
   // Score 헤더 + 정적 버튼 텍스트
   document.getElementById('sh-bar-text').textContent = `${emotion.icon} ${t('draw.scoreText', tEmotion(emotion.id))}`;
   document.getElementById('btn-finish').textContent  = t('draw.finish');
-  document.getElementById('btn-outline').textContent = t('draw.sketchHide');
+  document.getElementById('btn-outline').textContent = t('draw.sketchShow');
   document.getElementById('sh-fill').style.background = emotion.gradient;
   document.getElementById('sh-fill').style.width = '0%';
   document.getElementById('sh-pct').style.color  = emotion.color;
@@ -940,7 +940,7 @@ function toggleOutline() {
   outlineVisible = !outlineVisible;
   document.getElementById('outline-overlay').style.display = outlineVisible ? 'block' : 'none';
   document.getElementById('btn-outline').classList.toggle('active', !outlineVisible);
-  document.getElementById('btn-outline').textContent = outlineVisible ? t('draw.sketchHide') : t('draw.sketchShow');
+  document.getElementById('btn-outline').textContent = outlineVisible ? t('draw.sketchShow') : t('draw.sketchHide');
   renderComposite();
 }
 function loadOutline() {
@@ -1419,12 +1419,14 @@ function renderStep() {
     document.getElementById('outline-overlay').style.display = 'block';
     outlineVisible = true;
     document.getElementById('btn-outline').classList.remove('active');
+    document.getElementById('btn-outline').textContent = t('draw.sketchShow');
   }
   // 3단계: 스케치 숨기고 자유 꾸미기
   if (currentStep === 3) {
     document.getElementById('outline-overlay').style.display = 'none';
     outlineVisible = false;
     document.getElementById('btn-outline').classList.add('active');
+    document.getElementById('btn-outline').textContent = t('draw.sketchHide');
     addBubble(t('draw.bubbleStep3', tPattern(emotion.id)));
   }
 }
