@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="stylesheet" href="style.css">
 <style>
-.guide-page { min-height:100vh; background:#f6f5ff; }
+body { background:#f5f4ff; }
 
 /* 상단바 */
 .guide-topbar {
@@ -19,275 +19,341 @@
 .guide-topbar-back {
   width:36px; height:36px; border-radius:50%;
   background:#eaeaf6; border:none; cursor:pointer;
-  font-size:.95rem; color:#555;
+  font-size:.9rem; color:#555;
   display:flex; align-items:center; justify-content:center;
 }
 .guide-topbar h2 { font-size:1rem; font-weight:800; color:#1a1a2e; }
 
-/* 바디 */
-.guide-body { padding:20px 16px 72px; max-width:480px; margin:0 auto; }
+.guide-body { padding:20px 16px 72px; max-width:520px; margin:0 auto; }
 
-/* 섹션 레이블 */
 .section-label {
-  font-size:.7rem; font-weight:800; color:#aaa;
-  letter-spacing:.08em; margin-bottom:12px; padding-left:2px;
+  font-size:.68rem; font-weight:800; color:#bbb;
+  letter-spacing:.08em; margin-bottom:10px;
 }
 
-/* ══ 드로잉 모크업 ══ */
-.mockup-frame {
-  background:#fff; border-radius:20px;
+/* ══════════════════════
+   모크업 프레임 (가로형)
+══════════════════════ */
+.mockup-wrap {
+  background:#fff;
+  border-radius:18px;
   border:1.5px solid rgba(0,0,0,.08);
   overflow:hidden;
-  box-shadow:0 4px 20px rgba(0,0,0,.07);
-  margin-bottom:24px;
+  box-shadow:0 4px 24px rgba(0,0,0,.08);
+  margin-bottom:20px;
+  position:relative;
 }
 
-/* 점수 바 */
-.m-gauge {
-  background:#faf9ff; border-bottom:1px solid #eee;
-  padding:9px 14px; position:relative;
+/* 상단 게이지바 */
+.m-top {
+  display:flex; align-items:center; gap:8px;
+  padding:7px 10px;
+  border-bottom:1px solid #eee;
+  background:#faf9ff;
+  position:relative;
 }
-.m-gauge-label { font-size:.62rem; font-weight:800; color:#7c6ef7; margin-bottom:4px; }
-.m-gauge-row { display:flex; align-items:center; gap:8px; }
-.m-gauge-track { flex:1; height:12px; background:#e8e8f8; border-radius:10px; overflow:hidden; }
-.m-gauge-fill { height:100%; width:68%; background:linear-gradient(90deg,#7c6ef7,#f06292); border-radius:10px; }
-.m-gauge-pct { font-size:.72rem; font-weight:900; color:#7c6ef7; }
-
-/* 캔버스 영역 */
-.m-body { display:flex; position:relative; }
-
-.m-left {
-  width:40px; background:#faf9ff; border-right:1px solid #eee;
-  display:flex; flex-direction:column; align-items:center;
-  padding:10px 0 8px; gap:5px;
+.m-thumb-img {
+  width:28px; height:28px; border-radius:8px;
+  background:linear-gradient(135deg,#b8e0d2,#f8d7ea);
+  flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  font-size:.9rem;
 }
-.m-slider { width:3px; height:64px; background:#e0e0f0; border-radius:3px; position:relative; margin-bottom:2px; }
-.m-thumb {
-  width:14px; height:14px; background:#7c6ef7; border-radius:50%;
-  border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.2);
-  position:absolute; top:24px; left:50%; transform:translateX(-50%);
+.m-gauge-label { font-size:.58rem; font-weight:800; color:#7c6ef7; white-space:nowrap; }
+.m-gauge-bar {
+  flex:1; height:6px; background:#e8e8f8; border-radius:6px; overflow:hidden;
 }
-.m-icon { width:26px; height:26px; border-radius:7px; background:#eeeefa; display:flex; align-items:center; justify-content:center; font-size:.78rem; }
-.m-icon.music { background:linear-gradient(135deg,#7c6ef7,#f06292); }
-
-.m-canvas {
-  flex:1; background:#f8f8fc; position:relative; min-height:170px;
-  display:flex; align-items:center; justify-content:center;
-}
-.m-outline {
-  width:68%; height:72%; border:2px dashed #ccc; border-radius:6px;
-  position:relative; display:flex; align-items:center; justify-content:center;
-}
-.m-outline span { font-size:2rem; opacity:.12; }
-.m-paint { position:absolute; border-radius:4px; }
-.m-bubble {
-  position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
-  background:#fff; border:1.5px solid #7c6ef7; border-radius:12px;
-  padding:5px 10px; white-space:nowrap;
-  font-size:.58rem; font-weight:700; color:#7c6ef7;
-  box-shadow:0 2px 8px rgba(124,110,247,.18);
-}
-
-.m-right {
-  width:44px; background:#faf9ff; border-left:1px solid #eee;
-  display:flex; flex-direction:column; align-items:center;
-  padding:10px 0; gap:5px;
-}
-.m-swatch { width:24px; height:24px; border-radius:50%; border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.12); }
-.m-swatch.sel { outline:2px solid #7c6ef7; outline-offset:1px; }
-.m-picker { width:24px; height:24px; border-radius:7px; background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red); border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.12); }
-
-/* 스텝 바 */
-.m-steps {
-  background:#fff; border-top:1px solid #eee;
-  padding:7px 12px; display:flex; align-items:center; justify-content:space-between;
-}
-.m-dots { display:flex; gap:4px; }
-.m-dot { width:6px; height:6px; border-radius:50%; background:#ddd; }
-.m-dot.done { background:#7c6ef7; }
-.m-dot.cur { background:#f06292; width:16px; border-radius:3px; }
-.m-next {
+.m-gauge-fill { height:100%; width:4%; background:linear-gradient(90deg,#7c6ef7,#f06292); border-radius:6px; }
+.m-gauge-pct { font-size:.58rem; font-weight:900; color:#7c6ef7; white-space:nowrap; }
+.m-done-btn {
   background:linear-gradient(135deg,#7c6ef7,#f06292);
-  color:#fff; border-radius:20px; padding:5px 10px;
-  font-size:.6rem; font-weight:800;
+  color:#fff; border-radius:14px; padding:4px 10px;
+  font-size:.58rem; font-weight:800; flex-shrink:0;
 }
 
-/* ══ 콜아웃 배지 ══ */
-.cb {
-  position:absolute; z-index:10; pointer-events:none;
-  width:20px; height:20px; border-radius:50%;
-  background:#1a1a2e; color:#fff;
-  font-size:.58rem; font-weight:900;
+/* 메인 영역 */
+.m-main {
+  display:flex;
+  min-height:160px;
+}
+
+/* 왼쪽 패널 */
+.m-left {
+  width:52px; background:#f8f8fc; border-right:1px solid #eee;
+  display:flex; flex-direction:column; align-items:center;
+  padding:8px 0; gap:4px; flex-shrink:0;
+}
+.m-color-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:3px; margin-bottom:2px;
+}
+.mc { width:14px; height:14px; border-radius:50%; border:1.5px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.15); }
+.m-cur-color {
+  width:20px; height:20px; border-radius:50%; background:#222;
+  border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.2);
+}
+.m-vslider { width:3px; height:48px; background:#e0e0f0; border-radius:3px; position:relative; }
+.m-vthumb {
+  width:12px; height:12px; background:#7c6ef7; border-radius:50%;
+  border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,.2);
+  position:absolute; top:28px; left:50%; transform:translateX(-50%);
+}
+.m-tool { width:24px; height:24px; border-radius:7px; background:#eeeefa; display:flex; align-items:center; justify-content:center; font-size:.7rem; }
+.m-tool.music { background:linear-gradient(135deg,#7c6ef7,#f06292); }
+.m-tool.red   { background:#ff4444; }
+.m-pro-badge  { font-size:.42rem; font-weight:900; color:#fff; background:#aaa; border-radius:4px; padding:1px 4px; }
+
+/* 캔버스 */
+.m-canvas {
+  flex:1; background:#f0f0f8;
   display:flex; align-items:center; justify-content:center;
-  border:2px solid #fff; box-shadow:0 1px 6px rgba(0,0,0,.3);
+  position:relative;
+}
+.m-canvas-inner {
+  width:75%; height:80%; background:#fff;
+  border-radius:8px; border:1px solid #ddd;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
 }
 
-/* ══ 기능 카드 리스트 ══ */
-.feature-list { display:flex; flex-direction:column; gap:8px; margin-bottom:28px; }
-.feature-item {
+/* 오른쪽 패널 */
+.m-right {
+  width:88px; background:#f8f8fc; border-left:1px solid #eee;
+  display:flex; flex-direction:column; align-items:center;
+  padding:8px 6px; gap:6px; flex-shrink:0;
+}
+.m-robot {
+  width:44px; height:44px; background:linear-gradient(135deg,#e8e8f8,#f0f0fc);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:1.2rem; position:relative;
+}
+.m-robot-dot {
+  width:7px; height:7px; background:#4caf50; border-radius:50%;
+  position:absolute; top:2px; right:2px; border:1.5px solid #fff;
+}
+.m-step-card {
+  background:#fff; border-radius:10px;
+  border:1px solid #eee; padding:8px 7px; width:100%;
+}
+.m-step-dots-row { display:flex; align-items:center; gap:2px; margin-bottom:6px; }
+.m-sdot { width:14px; height:14px; border-radius:50%; background:#ddd; display:flex; align-items:center; justify-content:center; font-size:.42rem; font-weight:900; color:#fff; flex-shrink:0; }
+.m-sdot.cur { background:#7c6ef7; }
+.m-sdash { flex:1; height:1px; background:#ddd; }
+.m-step-title { font-size:.58rem; font-weight:900; color:#1a1a2e; margin-bottom:3px; }
+.m-step-desc  { font-size:.52rem; color:#aaa; line-height:1.4; margin-bottom:6px; }
+.m-step-btn {
+  width:100%; background:linear-gradient(135deg,#7c6ef7,#f06292);
+  color:#fff; border-radius:8px; padding:5px;
+  font-size:.55rem; font-weight:800; text-align:center;
+}
+
+/* 하단 */
+.m-bottom {
+  border-top:1px solid #eee; background:#faf9ff;
+  padding:6px 12px;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  position:relative;
+}
+.m-zoom-btn {
+  width:20px; height:20px; border-radius:6px;
+  background:#eeeefa; display:flex; align-items:center; justify-content:center;
+  font-size:.7rem; font-weight:800; color:#7c6ef7;
+}
+.m-zoom-pct { font-size:.62rem; font-weight:800; color:#666; }
+.m-pan-btn {
+  width:26px; height:26px; border-radius:50%;
+  background:#7c6ef7; display:flex; align-items:center; justify-content:center;
+  font-size:.82rem;
+}
+.m-sketch-btn {
+  background:#eeeefa; border-radius:20px; padding:4px 10px;
+  font-size:.58rem; font-weight:800; color:#7c6ef7;
+}
+
+/* 콜아웃 배지 */
+.cb {
+  position:absolute; z-index:20; pointer-events:none;
+  width:18px; height:18px; border-radius:50%;
+  background:#1a1a2e; color:#fff;
+  font-size:.55rem; font-weight:900;
+  display:flex; align-items:center; justify-content:center;
+  border:2px solid #fff;
+  box-shadow:0 1px 6px rgba(0,0,0,.35);
+}
+
+/* ══ 기능 카드 ══ */
+.feature-list { display:flex; flex-direction:column; gap:8px; margin-bottom:24px; }
+.fi {
   background:#fff; border-radius:14px;
   border:1.5px solid rgba(0,0,0,.06);
-  padding:13px 16px;
-  display:flex; align-items:center; gap:14px;
+  padding:12px 14px;
+  display:flex; align-items:flex-start; gap:12px;
 }
 .fi-num {
-  width:26px; height:26px; border-radius:50%; flex-shrink:0;
+  width:24px; height:24px; border-radius:50%; flex-shrink:0;
   background:#1a1a2e; color:#fff;
-  font-size:.62rem; font-weight:900;
+  font-size:.6rem; font-weight:900;
   display:flex; align-items:center; justify-content:center;
+  margin-top:1px;
 }
-.fi-title { font-size:.9rem; font-weight:800; color:#1a1a2e; }
-.fi-desc  { font-size:.75rem; color:#999; margin-top:2px; line-height:1.5; }
-
-/* 팁 */
-.tip-box {
-  background:linear-gradient(135deg,rgba(124,110,247,.07),rgba(240,98,146,.05));
-  border:1.5px solid rgba(124,110,247,.18);
-  border-radius:14px; padding:14px 16px;
-  font-size:.8rem; color:#666; line-height:1.65; margin-bottom:28px;
-}
-.tip-box strong { color:#7c6ef7; }
+.fi-title { font-size:.88rem; font-weight:800; color:#1a1a2e; margin-bottom:3px; }
+.fi-desc  { font-size:.76rem; color:#999; line-height:1.55; }
 
 /* CTA */
-.guide-cta { text-align:center; }
-.guide-cta p { font-size:.84rem; color:#aaa; margin-bottom:14px; }
+.guide-cta { text-align:center; padding-top:4px; }
+.guide-cta p { font-size:.82rem; color:#bbb; margin-bottom:14px; }
 </style>
 </head>
 <body>
-<div class="guide-page">
 
-  <div class="guide-topbar">
-    <button class="guide-topbar-back" onclick="history.back()">◀︎</button>
-    <h2>사용 가이드</h2>
-  </div>
-
-  <div class="guide-body">
-
-    <!-- 드로잉 화면 모크업 -->
-    <p class="section-label">그리는 화면 한눈에 보기</p>
-    <div class="mockup-frame">
-
-      <!-- ① 마음 게이지 -->
-      <div class="m-gauge" style="position:relative;">
-        <div class="m-gauge-label">즐거움이 채워지고 있어요!</div>
-        <div class="m-gauge-row">
-          <div class="m-gauge-track"><div class="m-gauge-fill"></div></div>
-          <div class="m-gauge-pct">68%</div>
-        </div>
-        <div class="cb" style="top:50%;right:6px;transform:translateY(-50%);">1</div>
-      </div>
-
-      <!-- 캔버스 영역 -->
-      <div class="m-body">
-
-        <!-- 왼쪽 패널 -->
-        <div class="m-left" style="position:relative;">
-          <div class="m-slider"><div class="m-thumb"></div></div>
-          <div class="m-icon">🩹</div>
-          <div class="m-icon">🔍</div>
-          <div class="m-icon">👁</div>
-          <div class="m-icon">🔄</div>
-          <div class="m-icon music">🎵</div>
-          <div class="cb" style="top:2px;right:-8px;">2</div>
-          <div class="cb" style="bottom:2px;right:-8px;">3</div>
-        </div>
-
-        <!-- 캔버스 -->
-        <div class="m-canvas">
-          <div class="m-outline">
-            <span>🐦</span>
-            <div class="m-paint" style="width:54%;height:5px;background:rgba(255,196,61,.6);top:26%;left:10%;transform:rotate(-4deg)"></div>
-            <div class="m-paint" style="width:36%;height:4px;background:rgba(92,192,104,.5);top:48%;left:22%;transform:rotate(6deg)"></div>
-          </div>
-          <div class="m-bubble">밝은 노랑을 더 써봐! 🌟</div>
-          <div class="cb" style="bottom:4px;right:4px;">4</div>
-        </div>
-
-        <!-- 오른쪽 팔레트 -->
-        <div class="m-right" style="position:relative;">
-          <div class="m-swatch sel" style="background:#FFD93D"></div>
-          <div class="m-swatch" style="background:#FFADAD"></div>
-          <div class="m-swatch" style="background:#f5783a"></div>
-          <div class="m-swatch" style="background:#5cc068"></div>
-          <div class="m-swatch" style="background:#5a9fd4"></div>
-          <div class="m-picker"></div>
-          <div class="cb" style="top:2px;left:-8px;">5</div>
-        </div>
-
-      </div>
-
-      <!-- 스텝 바 -->
-      <div class="m-steps" style="position:relative;">
-        <div class="m-dots">
-          <div class="m-dot done"></div>
-          <div class="m-dot cur"></div>
-          <div class="m-dot"></div>
-        </div>
-        <span style="font-size:.6rem;color:#aaa;font-weight:700;">2단계 · 마음색으로 채우기</span>
-        <div class="m-next">다음 단계 →</div>
-        <div class="cb" style="top:-8px;right:0;">6</div>
-      </div>
-
-    </div>
-
-    <!-- 기능 설명 -->
-    <p class="section-label">주요 기능</p>
-    <div class="feature-list">
-      <div class="feature-item">
-        <div class="fi-num">1</div>
-        <div>
-          <div class="fi-title">마음 표현 게이지</div>
-          <div class="fi-desc">선택한 감정과 얼마나 잘 맞게 그리는지 0~100% 실시간 측정. <strong style="color:#7c6ef7">60% 이상</strong>이면 다음 단계로 이동 가능해요.</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="fi-num">2</div>
-        <div>
-          <div class="fi-title">붓 굵기 슬라이더</div>
-          <div class="fi-desc">위아래로 드래그해서 1~40px 조절. 감정마다 기본 굵기가 자동 설정돼요.</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="fi-num">3</div>
-        <div>
-          <div class="fi-title">도구 버튼 · 마음 음악 🎵</div>
-          <div class="fi-desc">🩹 지우개 &nbsp;|&nbsp; 🔍 줌/팬 &nbsp;|&nbsp; 👁 도안 숨기기 &nbsp;|&nbsp; 🔄 초기화<br>🎵 탭하면 감정에 맞는 클래식 음악이 재생돼요.</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="fi-num">4</div>
-        <div>
-          <div class="fi-title">AI 마음튜터 코칭</div>
-          <div class="fi-desc">속도·색·굵기를 실시간 분석해 짧은 조언을 말풍선으로 알려줘요.</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="fi-num">5</div>
-        <div>
-          <div class="fi-title">마음 색 팔레트</div>
-          <div class="fi-desc">감정별 추천 색 5가지 제공. 무지개 버튼으로 직접 색 선택도 가능해요.</div>
-        </div>
-      </div>
-      <div class="feature-item">
-        <div class="fi-num">6</div>
-        <div>
-          <div class="fi-title">3단계 드로잉</div>
-          <div class="fi-desc">① 스케치 따라 그리기 → ② 마음색으로 채우기 → ③ 자유롭게 꾸미기</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="tip-box">
-      <strong>💡 팁</strong> — 추천 팔레트 색을 주로 쓰고, AI 코칭 말풍선이 뜨면 따라 해보세요. 마음 점수가 훨씬 빨리 올라가요!
-    </div>
-
-    <div class="guide-cta">
-      <p>이제 그려볼까요? 🎨</p>
-      <button class="btn btn-primary" onclick="location.href='choosing_drawing.html'">그리러 가기</button>
-    </div>
-
-  </div>
+<div class="guide-topbar">
+  <button class="guide-topbar-back" onclick="history.back()">◀︎</button>
+  <h2>사용 가이드</h2>
 </div>
+
+<div class="guide-body">
+
+  <p class="section-label">드로잉 화면</p>
+
+  <!-- ═══ 모크업 ═══ -->
+  <div class="mockup-wrap">
+
+    <!-- 상단 게이지 -->
+    <div class="m-top" style="position:relative;">
+      <div class="m-thumb-img">🌸</div>
+      <div>
+        <div class="m-gauge-label">편안함이 채워지고 있어요</div>
+        <div class="m-gauge-bar"><div class="m-gauge-fill"></div></div>
+      </div>
+      <div class="m-gauge-pct">0%</div>
+      <div class="m-done-btn">완료</div>
+      <!-- callout 1 -->
+      <div class="cb" style="top:-7px;left:50%;transform:translateX(-50%);">1</div>
+    </div>
+
+    <!-- 메인 -->
+    <div class="m-main">
+
+      <!-- 왼쪽 패널 -->
+      <div class="m-left" style="position:relative;">
+        <div class="m-color-grid">
+          <div class="mc" style="background:#5ab0d8"></div>
+          <div class="mc" style="background:#7aaa7a"></div>
+          <div class="mc" style="background:#8060a8"></div>
+          <div class="mc" style="background:#bea860"></div>
+          <div class="mc" style="background:#5a8060"></div>
+          <div class="mc" style="background:#f0f0f0"></div>
+          <div class="mc" style="background:#c8b090"></div>
+          <div class="mc" style="background:#222"></div>
+        </div>
+        <div class="m-cur-color"></div>
+        <div class="m-vslider"><div class="m-vthumb"></div></div>
+        <div class="m-tool">🩹</div>
+        <div class="m-pro-badge">PRO</div>
+        <div class="m-tool">↩</div>
+        <div class="m-tool red">🔄</div>
+        <div class="m-tool music">♪</div>
+        <!-- callout 2 -->
+        <div class="cb" style="top:-7px;right:-7px;">2</div>
+        <!-- callout 3 -->
+        <div class="cb" style="bottom:-7px;right:-7px;">3</div>
+      </div>
+
+      <!-- 캔버스 -->
+      <div class="m-canvas" style="position:relative;">
+        <div class="m-canvas-inner"></div>
+        <!-- callout 4 -->
+        <div class="cb" style="top:4px;left:4px;">4</div>
+      </div>
+
+      <!-- 오른쪽 패널 -->
+      <div class="m-right" style="position:relative;">
+        <div class="m-robot">
+          🤖
+          <div class="m-robot-dot"></div>
+        </div>
+        <div class="m-step-card">
+          <div class="m-step-dots-row">
+            <div class="m-sdot cur">1</div>
+            <div class="m-sdash"></div>
+            <div class="m-sdot">2</div>
+            <div class="m-sdash"></div>
+            <div class="m-sdot">3</div>
+          </div>
+          <div class="m-step-title">① 스케치 따라 그리기</div>
+          <div class="m-step-desc">스케치를 따라 그려보세요. 원하는 모양을 더 그려도 좋아요!</div>
+          <div class="m-step-btn">다음 단계 →</div>
+        </div>
+        <!-- callout 5 -->
+        <div class="cb" style="top:-7px;left:-7px;">5</div>
+      </div>
+
+    </div>
+
+    <!-- 하단 -->
+    <div class="m-bottom" style="position:relative;">
+      <div class="m-zoom-btn">−</div>
+      <div class="m-zoom-pct">100%</div>
+      <div class="m-zoom-btn">+</div>
+      <div class="m-pan-btn">✋</div>
+      <div class="m-sketch-btn">스케치 보이기</div>
+      <!-- callout 6 -->
+      <div class="cb" style="top:-7px;right:8px;">6</div>
+    </div>
+
+  </div>
+
+  <!-- ═══ 기능 설명 ═══ -->
+  <p class="section-label">주요 기능</p>
+  <div class="feature-list">
+    <div class="fi">
+      <div class="fi-num">1</div>
+      <div>
+        <div class="fi-title">마음 표현 게이지</div>
+        <div class="fi-desc">그릴수록 % 가 올라가요. <strong style="color:#7c6ef7">60% 이상</strong>이 되면 다음 단계로 이동할 수 있어요.</div>
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fi-num">2</div>
+      <div>
+        <div class="fi-title">색 팔레트 · 붓 굵기</div>
+        <div class="fi-desc">감정에 맞는 추천 색 8가지 제공. 슬라이더로 붓 굵기를 조절해요.</div>
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fi-num">3</div>
+      <div>
+        <div class="fi-title">도구 버튼 · 마음 음악</div>
+        <div class="fi-desc">🩹 지우개 &nbsp;|&nbsp; ↩ 되돌리기 &nbsp;|&nbsp; 🔄 초기화<br>♪ 탭하면 감정에 맞는 클래식 음악이 재생돼요.</div>
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fi-num">4</div>
+      <div>
+        <div class="fi-title">캔버스</div>
+        <div class="fi-desc">점선 도안 위에 자유롭게 그려요. 손가락으로 색칠하거나 선을 그으면 돼요.</div>
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fi-num">5</div>
+      <div>
+        <div class="fi-title">AI 마음튜터 · 단계 카드</div>
+        <div class="fi-desc">AI 로봇이 실시간으로 그리기 조언을 해줘요. 단계 카드에서 현재 미션과 다음 단계 이동 버튼을 확인해요.</div>
+      </div>
+    </div>
+    <div class="fi">
+      <div class="fi-num">6</div>
+      <div>
+        <div class="fi-title">줌 · 스케치 보이기</div>
+        <div class="fi-desc">− / + 로 캔버스를 확대·축소. ✋ 는 이동 모드. 스케치 보이기로 점선 도안을 켜고 꺼요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-cta">
+    <p>이제 그려볼까요? 🎨</p>
+    <button class="btn btn-primary" onclick="location.href='choosing_drawing.html'">그리러 가기</button>
+  </div>
+
+</div>
+
 <script src="i18n.js"></script>
 <script src="data.js"></script>
 </body>
