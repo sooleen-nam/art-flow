@@ -1356,10 +1356,17 @@ function getFeedback(features) {
 function analyzeAndUpdateScore() {
   const features = extractFeatures();
   const raw = calculateEmotionScore(features);
-  // 1단계: 붓질에 비례해 조금씩만 오름 (최대 35%)
+  // 단계별 획 수 기반 점수 증가 제어
   if (currentStep === 1) {
+    // 1단계: 최대 35%, 30획 기준으로 서서히
     const strokeProgress = Math.min(1, S.stats.strokeCount / 30);
     emotionScore = Math.round(raw * strokeProgress * 0.35);
+  } else if (currentStep === 2) {
+    // 2단계: 이 단계에서 그린 획 수 기준, 40획에 걸쳐 서서히 100%까지
+    const stepStrokes = S.stats.strokeCount - stepStartStrokeCount;
+    const strokeProgress = Math.min(1, stepStrokes / 40);
+    const prev = emotionScore; // 1단계 누적 점수 유지
+    emotionScore = Math.max(prev, Math.round(prev + (raw - prev) * strokeProgress));
   } else {
     emotionScore = raw;
   }
@@ -1388,6 +1395,7 @@ function updateScore() { updateScoreDisplay(); }
 /* ────────────────────────────────── 단계 시스템 */
 let currentStep = 1;
 let maxStepReached = 1;
+let stepStartStrokeCount = 0; // 각 단계 시작 시점의 획 수
 
 const STEPS = [
   {
@@ -1469,6 +1477,7 @@ function nextStep() {
   maxStepReached = Math.max(maxStepReached, currentStep);
   if (currentStep === 2) {
     scribbleWarned = false;
+    stepStartStrokeCount = S.stats.strokeCount;
     addBubble(t('draw.bubbleStep2', tEmotion(emotion.id)));
   }
   renderStep();
