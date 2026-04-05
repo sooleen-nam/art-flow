@@ -71,7 +71,7 @@ const ARTWORKS = [
     imageUrl: 'flower.jpg',
     outlineUrl: 'flower.coloring.png',
     difficulty: { label: '중', color: '#4CAF82' },
-    locked: true,
+    locked: false,
     layers: [
       { name: '배경',         color: '#fff9e6' },
       { name: '꽃잎',         color: '#f9a8d4' },
