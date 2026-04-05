@@ -88,6 +88,7 @@ const I18N = {
     'scribble.reset':'다시 그릴게요!',
     'scribble.continue':'계속 그릴게요',
     'draw.musicTooltip':'마음 음악을 눌러보세요!<br>더 깊이 감정을 몰입할 수 있어요!',
+    'draw.initBubble':(n)=>`지금부터 ${n}을 느낄 수 있도록, 내가 그리기를 도와줄게!`,
     'time.fmt':(m,s)=>m>0?`${m}분 ${s}초`:`${s}초`,
     'end.scoreTimeText':(timeStr,eName,score)=>`오늘 ${timeStr} 동안 ${eName} ${score}% 채워졌어요!`,
     'result.tiers':{
@@ -198,6 +199,7 @@ const I18N = {
     'scribble.reset':'Let me redo it!',
     'scribble.continue':'Keep going',
     'draw.musicTooltip':'Try the mood music!<br>It helps you feel your emotions more deeply!',
+    'draw.initBubble':(n)=>`I'll help you draw with ${n}! Let's go!`,
     'time.fmt':(m,s)=>m>0?`${m}m ${s}s`:`${s}s`,
     'end.scoreTimeText':(timeStr,eName,score)=>`${eName} filled ${score}% in ${timeStr} today!`,
     'result.tiers':{
@@ -308,6 +310,7 @@ const I18N = {
     'scribble.reset':'もう一度描く！',
     'scribble.continue':'このまま続ける',
     'draw.musicTooltip':'マインドミュージックを試してみよう！<br>より深く感情に没入できます！',
+    'draw.initBubble':(n)=>`${n}を感じながら描けるよう、サポートするよ！`,
     'time.fmt':(m,s)=>m>0?`${m}分${s}秒`:`${s}秒`,
     'end.scoreTimeText':(timeStr,eName,score)=>`今日 ${timeStr} の間に${eName}が${score}%満たされました！`,
     'result.tiers':{

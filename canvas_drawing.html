@@ -952,7 +952,7 @@ function init() {
     drawColorWheel();
     initSteps();
     setTimeout(() => {
-      addBubble(`지금부터 ${emotion.name}을 느낄 수 있도록, 내가 그리기를 도와줄게!`);
+      addBubble(t('draw.initBubble', tEmotion(emotion.id)));
       S.stats.lastAlertAt = Date.now();
     }, 800);
   });
