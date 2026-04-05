@@ -335,7 +335,7 @@ body { animation: fadeUp 0.35s ease; }
 .emotion-item-text { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .emotion-item-text .ei-name { font-size: .95rem; font-weight: 900; color: #fff; }
 .emotion-item-text .ei-desc { display: none; }
-.sheet-footer { padding: 24px 20px 24px; display: flex; justify-content: center; }
+.sheet-footer { padding: 28px 20px 24px; display: flex; justify-content: center; }
 
 /* ============================================================
    ④ 가이드 팝업 (이렇게 그려볼까요?)
