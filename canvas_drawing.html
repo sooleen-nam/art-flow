@@ -724,7 +724,7 @@ const S = {
 };
 let drawing = false, lx = 0, ly = 0, lmt = 0;
 let compositeCanvas, compositeCtx, eventCanvas;
-let coachTimer = null, alertTO = null;
+let alertTO = null;
 let pickedColor = '#ffffff';
 let emotionScore = 0;
 let strokeDist = 0, strokeStartTime = 0;
@@ -863,7 +863,6 @@ function init() {
     renderPalette();
     drawColorWheel();
     initSteps();
-    coachTimer = setInterval(runCoach, 3000);
     setTimeout(() => {
       addBubble(`지금부터 ${emotion.name}을 느낄 수 있도록, 내가 그리기를 도와줄게!`);
       S.stats.lastAlertAt = Date.now();
@@ -1347,89 +1346,7 @@ function refreshStep2UI() {
   document.getElementById('step-next-btn').disabled = !s.canNext();
 }
 
-/* ────────────────────────────────── AI 코치 (Claude API) */
-const CLAUDE_API_KEY = 'YOUR_API_KEY_HERE';
-let coachIdx = 0;
-let isCoaching = false;
-
-function runCoach() {
-  if (S.stats.strokeCount < 2) return;
-  if (Date.now() - S.stats.lastAlertAt < 5000) return;
-  if (isCoaching) return;
-  S.stats.lastAlertAt = Date.now();
-  callClaudeCoach();
-}
-
-async function callClaudeCoach() {
-  if (CLAUDE_API_KEY === 'YOUR_API_KEY_HERE') {
-    // API 키 미설정 시 기존 메시지 사용
-    const msgs = emotion.coaching;
-    addBubble(emotion.icon + ' ' + msgs[coachIdx % msgs.length]);
-    coachIdx++;
-    return;
-  }
-
-  isCoaching = true;
-  const stats = S.stats;
-  const speedLabel = stats.avgSpeed < 0.05 ? '매우 느림' : stats.avgSpeed < 0.15 ? '보통' : '빠름';
-  const emotionGuide = {
-    joy: { line: '둥글고 경쾌한 선', color: '노랑·연핑크·민트', pattern: '점이나 별 모양' },
-    calm: { line: '부드러운 느린 곡선', color: '파스텔 톤', pattern: '물결이나 구름 형태' },
-    confidence: { line: '또렷하고 힘 있는 선', color: '선명한 파랑·초록', pattern: '반복 강조 라인' },
-    curiosity: { line: '불규칙하고 자유로운 선', color: '다양하게 섞은 색', pattern: '작은 점과 짧은 선' },
-    energy: { line: '빠르고 힘찬 선', color: '빨강·주황', pattern: '튀기듯 찍은 점' },
-  }[emotion.id] || { line: '자유로운 선', color: '다양한 색', pattern: '자유로운 패턴' };
-
-  const prompt = `너는 아이들의 그림 그리기를 실시간으로 도와주는 AI 마음튜터야.
-지금 사용자가 "${emotion.name}" 감정을 그림으로 표현하고 있어.
-
-【감정 표현 가이드】
-- 선 스타일: ${emotionGuide.line}
-- 추천 색감: ${emotionGuide.color}
-- 추천 패턴: ${emotionGuide.pattern}
-- 선 힌트: ${emotion.lineHint}
-- 패턴 힌트: ${emotion.patternHint}
-- 목표 느낌: ${emotion.feel}
-
-【현재 상태】
-- 획 수: ${stats.strokeCount}번
-- 사용한 색 종류: ${stats.usedColors.size}가지
-- 그리기 속도: ${speedLabel}
-- 현재 붓 크기: ${S.brushSize}
-
-위 감정 가이드를 기반으로, 지금 상태에서 "${emotion.name}" 감정을 더 잘 표현하려면 구체적으로 무엇을 해야 하는지 알려줘.
-반말로, 20자 이내로, 이모지 1개 포함, 행동 중심으로 바로 말해. 예: "선을 더 둥글게 그려봐! ✨"`;
-
-  const systemPrompt = `너는 아이들의 그림 코칭 전문 AI야. 항상 친절하고 긍정적으로, 구체적인 행동을 짧게 제안해. 반말 사용.`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': CLAUDE_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-        'anthropic-dangerous-direct-browser-calls': 'true',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 60,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
-    const data = await res.json();
-    const msg = data?.content?.[0]?.text?.trim();
-    if (msg) addBubble(msg);
-  } catch (e) {
-    const msgs = emotion.coaching;
-    addBubble(emotion.icon + ' ' + msgs[coachIdx % msgs.length]);
-    coachIdx++;
-  } finally {
-    isCoaching = false;
-  }
-}
-
+/* ────────────────────────────────── 알럿 / 말풍선 */
 function showAlert(icon, msg) {
   addBubble(icon + ' ' + msg.replace(/\n/g,' '));
 }
@@ -1448,7 +1365,6 @@ function addBubble(msg) {
 
 /* ────────────────────────────────── 완성 */
 function confirmFinish() {
-  if (coachTimer) { clearInterval(coachTimer); coachTimer = null; }
   try {
     if (compositeCanvas) {
       sessionStorage.setItem('resultDataUrl', compositeCanvas.toDataURL('image/png'));
