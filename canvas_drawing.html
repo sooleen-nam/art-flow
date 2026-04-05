@@ -638,6 +638,25 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   </div>
 </div>
 
+<!-- 음악 말풍선 툴팁 (fixed) -->
+<div id="music-tooltip" style="
+  position:fixed; z-index:9999;
+  background:#fff; color:#1a1a2e;
+  font-size:.75rem; font-weight:700; line-height:1.55;
+  padding:9px 13px; border-radius:12px; white-space:nowrap;
+  box-shadow:0 4px 18px rgba(0,0,0,.18);
+  border:1.5px solid rgba(0,0,0,.07);
+  pointer-events:none;
+  opacity:1; transition:opacity .4s;
+  display:none;
+">
+  마음 음악을 눌러보세요!<br>더 깊이 감정을 몰입할 수 있어요!
+  <div id="music-tooltip-tail" style="
+    position:absolute; top:50%; right:100%; transform:translateY(-50%);
+    border:7px solid transparent; border-right-color:#fff;
+  "></div>
+</div>
+
 <div class="dp-root">
 
   <!-- 상단: 감정 스코어 바 -->
@@ -691,27 +710,9 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
           <img src="reset.png" alt="리셋">
         </button>
         <!-- 마음 음악 -->
-        <div style="position:relative;">
-          <button class="tool-btn" id="btn-music" onclick="toggleMusic()" title="마음 음악" style="margin-top:4px;">
-            <span id="music-icon" style="font-size:1.1rem;">🎵</span>
-          </button>
-          <div id="music-tooltip" style="
-            position:absolute; left:44px; bottom:0;
-            background:#1a1a2e; color:#fff;
-            font-size:.72rem; font-weight:700; line-height:1.5;
-            padding:8px 12px; border-radius:12px; white-space:nowrap;
-            box-shadow:0 4px 16px rgba(0,0,0,.25);
-            pointer-events:none; z-index:300;
-            opacity:1; transition:opacity .4s;
-          ">
-            마음 음악을 눌러보세요!<br>더 깊이 감정을 몰입할 수 있어요!
-            <div style="
-              position:absolute; right:100%; bottom:10px;
-              border:6px solid transparent;
-              border-right-color:#1a1a2e;
-            "></div>
-          </div>
-        </div>
+        <button class="tool-btn" id="btn-music" onclick="toggleMusic()" title="마음 음악" style="margin-top:4px;">
+          <span id="music-icon" style="font-size:1.1rem;">🎵</span>
+        </button>
       </div>
     </div>
 
@@ -1622,11 +1623,20 @@ window.addEventListener('pagehide', () => { if (ytPlayer && ytPlayer.pauseVideo)
 
 init();
 
-// 음악 툴팁 3초 후 페이드아웃
+// 음악 툴팁: 버튼 위치 계산 후 표시, 3초 후 페이드아웃
 setTimeout(() => {
+  const btn = document.getElementById('btn-music');
   const tip = document.getElementById('music-tooltip');
-  if (tip) { tip.style.opacity = '0'; setTimeout(() => tip.style.display = 'none', 400); }
-}, 3000);
+  if (!btn || !tip) return;
+  const r = btn.getBoundingClientRect();
+  tip.style.display = 'block';
+  tip.style.left = (r.right + 10) + 'px';
+  tip.style.top  = (r.top + r.height / 2 - tip.offsetHeight / 2) + 'px';
+  setTimeout(() => {
+    tip.style.opacity = '0';
+    setTimeout(() => tip.style.display = 'none', 400);
+  }, 3000);
+}, 500);
 </script>
 </body>
 </html>
