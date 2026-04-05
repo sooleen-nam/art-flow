@@ -672,6 +672,10 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
         <button class="tool-btn" onclick="resetCanvas()" title="처음부터">
           <img src="reset.png" alt="리셋">
         </button>
+        <!-- 마음 음악 -->
+        <button class="tool-btn" id="btn-music" onclick="toggleMusic()" title="마음 음악" style="margin-top:4px;">
+          <span id="music-icon" style="font-size:1.1rem;">🎵</span>
+        </button>
       </div>
     </div>
 
@@ -1469,6 +1473,50 @@ function confirmFinish() {
   } catch(e) { console.warn('finish save error', e); }
   location.href = 'end.html';
 }
+
+/* ────────────────────────────────── 마음 음악 */
+const MUSIC_MAP = {
+  joy:        'https://upload.wikimedia.org/wikipedia/commons/f/f7/Vivaldi_Spring_mvt_1_Allegro_-_John_Harrison_violin.ogg',
+  calm:       'https://upload.wikimedia.org/wikipedia/commons/e/e5/ErikSatieGymnopedie1.ogg',
+  confidence: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Beethoven_Symphony_No._5_in_C_minor%2C_Op._67%2C_i._Allegro_con_brio.ogg',
+  curiosity:  'https://upload.wikimedia.org/wikipedia/commons/2/25/Bach-Cello-Suite-1-Courante.ogg',
+  love:       'https://upload.wikimedia.org/wikipedia/commons/6/6d/Chopin_Nocturne_Op._9_No._2_B-flat_minor.ogg',
+};
+
+let musicAudio = null;
+let musicPlaying = false;
+
+function initMusic() {
+  const src = MUSIC_MAP[emotion.id];
+  if (!src) return;
+  musicAudio = new Audio(src);
+  musicAudio.loop   = true;
+  musicAudio.volume = 0.28;
+  musicAudio.preload = 'auto';
+}
+
+function toggleMusic() {
+  if (!musicAudio) initMusic();
+  if (!musicAudio) return;
+
+  if (musicPlaying) {
+    musicAudio.pause();
+    musicPlaying = false;
+    document.getElementById('btn-music').classList.remove('active');
+    document.getElementById('music-icon').textContent = '🎵';
+  } else {
+    musicAudio.play().then(() => {
+      musicPlaying = true;
+      document.getElementById('btn-music').classList.add('active');
+      document.getElementById('music-icon').textContent = '🔊';
+    }).catch(() => {
+      // 자동재생 차단 등 무시
+    });
+  }
+}
+
+// 페이지 떠날 때 음악 정지
+window.addEventListener('pagehide', () => { if (musicAudio) musicAudio.pause(); });
 
 init();
 </script>
