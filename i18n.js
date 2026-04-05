@@ -82,6 +82,11 @@ const I18N = {
     'result.cheer':{joy:'오늘 하루도 신나고 즐거운 일들이 가득하길 바라요! 🌈',calm:'오늘 하루도 편안하고 포근한 시간이 함께하길 바라요 🌊',confidence:'오늘 하루도 자신 있게, 당당하게 빛나길 응원해요! 💪',curiosity:'오늘 하루도 새로운 발견으로 가득한 하루가 되길 바라요! 🔮',love:'오늘 하루도 설레고 따뜻한 순간들로 가득하길 바라요! 💕'},
     'result.fallbackDetail':'마음을 담아 완성한 멋진 그림이에요 ✨',
     'result.fallbackCheer':'오늘 하루도 멋진 하루가 되길 바라요! ✨',
+    /* 낙서 감지 */
+    'scribble.title':'잠깐!',
+    'scribble.msg':'대충 그리고 있는 것 같아요 😅<br>천천히, 정성껏 그려봐요!',
+    'scribble.reset':'다시 그릴게요!',
+    'scribble.continue':'계속 그릴게요',
   },
 
   en: {
@@ -153,6 +158,10 @@ const I18N = {
     'result.cheer':{joy:'Hope today is full of fun and joyful moments! 🌈',calm:'Hope today brings you peace and warmth 🌊',confidence:'Shine brightly and confidently today! 💪',curiosity:'May today be full of new discoveries! 🔮',love:'Hope today is full of warm and exciting moments! 💕'},
     'result.fallbackDetail':'A wonderful drawing made with your heart ✨',
     'result.fallbackCheer':'Hope today is a wonderful day! ✨',
+    'scribble.title':'Wait!',
+    'scribble.msg':'Looks like you\'re rushing 😅<br>Take it slow and draw with care!',
+    'scribble.reset':'Let me redo it!',
+    'scribble.continue':'Keep going',
   },
 
   ja: {
@@ -224,6 +233,10 @@ const I18N = {
     'result.cheer':{joy:'今日も楽しくて嬉しいことがたくさんありますように！ 🌈',calm:'今日も穏やかで温かい時間が過ごせますように 🌊',confidence:'今日も自信をもって輝いてください！ 💪',curiosity:'今日も新しい発見でいっぱいの一日になりますように！ 🔮',love:'今日もときめきと温かさがあふれますように！ 💕'},
     'result.fallbackDetail':'心を込めて完成させた素敵な絵です ✨',
     'result.fallbackCheer':'今日も素敵な一日になりますように！ ✨',
+    'scribble.title':'ちょっと待って！',
+    'scribble.msg':'雑に描いているみたいだよ 😅<br>ゆっくり、丁寧に描いてみよう！',
+    'scribble.reset':'もう一度描く！',
+    'scribble.continue':'このまま続ける',
   },
 };
 

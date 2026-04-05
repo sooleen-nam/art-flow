@@ -118,6 +118,30 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   cursor:pointer; flex-shrink:0; white-space:nowrap;
 }
 
+/* ── 낙서 감지 팝업 ── */
+.scribble-overlay {
+  display:none; position:fixed; inset:0; z-index:300;
+  background:rgba(0,0,0,0.55); backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);
+  align-items:center; justify-content:center;
+}
+.scribble-overlay.open { display:flex; }
+.scribble-box {
+  background:#fff; border-radius:24px;
+  padding:36px 28px 28px; max-width:300px; width:88%;
+  text-align:center; box-shadow:0 12px 48px rgba(0,0,0,0.22);
+  animation:fadeUp .25s ease;
+}
+.scribble-icon { font-size:2.8rem; margin-bottom:10px; }
+.scribble-title {
+  font-size:1.5rem; font-weight:900; color:var(--text); margin-bottom:12px;
+}
+.scribble-msg {
+  font-size:.9rem; color:var(--text2); line-height:1.75; margin-bottom:26px;
+}
+.scribble-actions { display:flex; flex-direction:column; gap:10px; }
+.scribble-actions .btn { width:100%; font-size:.9rem; padding:13px; }
+
 /* ── 본문 ── */
 .draw-body { display:flex; flex:1; min-height:0; overflow:hidden; }
 
@@ -700,6 +724,19 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   </div>
 </div>
 
+<!-- 낙서 감지 팝업 -->
+<div class="scribble-overlay" id="scribble-overlay">
+  <div class="scribble-box">
+    <div class="scribble-icon">🖌️</div>
+    <div class="scribble-title" id="scribble-title">잠깐!</div>
+    <div class="scribble-msg" id="scribble-msg">대충 그리고 있는 것 같아요 😅<br>천천히, 정성껏 그려봐요!</div>
+    <div class="scribble-actions">
+      <button class="btn btn-primary" id="btn-scribble-reset" onclick="resetFromScribble()">다시 그릴게요!</button>
+      <button class="btn btn-outline" id="btn-scribble-continue" onclick="dismissScribble()">계속 그릴게요</button>
+    </div>
+  </div>
+</div>
+
 <script>if(performance.getEntriesByType("navigation")[0]?.type==="reload"){location.replace("landing.html");}</script>
 <script src="i18n.js"></script>
 <script src="data.js"></script>
@@ -1126,9 +1163,51 @@ function endDraw() {
     S.stats.lastStrokeSpeed = strokeDist / elapsed;
     if (strokeDist < 30) S.stats.patternStrokeCount++;
     analyzeAndUpdateScore();
+    checkScribble();
   }
   const stepCtx = S.stepLayerCtxs[currentStep - 1];
   if (stepCtx) stepCtx.globalCompositeOperation = 'source-over';
+}
+
+/* ────────────────────────────────── 낙서 감지 */
+let scribbleWarned = false;
+
+function checkScribble() {
+  if (scribbleWarned) return;
+  if (S.stats.strokeCount < 4) return;            // 획 수가 적으면 패스
+  if (S.stats.usedColors.size > 2) return;         // 색을 다양하게 쓰면 패스
+  if (S.stats.lastStrokeSpeed < 2.8) return;       // 빠르지 않으면 패스
+  if (S.stats.avgSpeed < 1.5) return;              // 평균 속도도 빠를 때만
+  const px = sampleCanvas();
+  if (px.areaFill < 0.08) return;                  // 너무 적게 그렸으면 패스
+  scribbleWarned = true;
+  showScribblePopup();
+}
+
+function showScribblePopup() {
+  document.getElementById('scribble-title').textContent    = t('scribble.title');
+  document.getElementById('scribble-msg').innerHTML        = t('scribble.msg');
+  document.getElementById('btn-scribble-reset').textContent    = t('scribble.reset');
+  document.getElementById('btn-scribble-continue').textContent = t('scribble.continue');
+  document.getElementById('scribble-overlay').classList.add('open');
+}
+
+function dismissScribble() {
+  document.getElementById('scribble-overlay').classList.remove('open');
+}
+
+function resetFromScribble() {
+  dismissScribble();
+  // 현재 단계 캔버스만 초기화
+  const idx = currentStep - 1;
+  const ctx = S.stepLayerCtxs[idx];
+  ctx.clearRect(0, 0, S.stepLayerCanvases[idx].width, S.stepLayerCanvases[idx].height);
+  S.stepUndoStacks[idx] = [];
+  // 통계 초기화
+  S.stats = { strokeCount:0, colorChanges:0, usedColors:new Set(), avgSpeed:0, lastAlertAt:0, patternStrokeCount:0, lastStrokeSpeed:0 };
+  emotionScore = 0;
+  scribbleWarned = false; // 다시 감지 가능
+  renderComposite(); updateScoreDisplay();
 }
 
 /* ────────────────────────────────── 감정 스코어 시스템 */
@@ -1333,6 +1412,7 @@ function nextStep() {
   maxStepReached = Math.max(maxStepReached, currentStep);
   if (currentStep === 2) {
     emotionScore = 0;
+    scribbleWarned = false;
     updateScoreDisplay();
     addBubble(t('draw.bubbleStep2', tEmotion(emotion.id)));
   }
