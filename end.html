@@ -13,7 +13,7 @@
 <div class="end-page">
   <canvas id="anim-canvas"></canvas>
   <div class="result-inner">
-    <div class="result-title">완성!</div>
+    <div class="result-title" id="result-title">완성!</div>
     <div class="result-badge" id="result-badge">마음</div>
     <div class="result-canvas-wrap">
       <canvas id="result-canvas"></canvas>
@@ -25,9 +25,9 @@
       <div class="rc-cheer" id="rc-cheer"></div>
     </div>
     <div class="result-actions">
-      <button class="btn btn-primary" onclick="location.href='choosing_drawing.html'">다시 그리기</button>
-      <button class="btn btn-primary" onclick="openBrowseModal()">구경하기</button>
-      <button class="btn btn-primary" onclick="openShareModal()">공유하기</button>
+      <button class="btn btn-primary" id="btn-redraw" onclick="location.href='choosing_drawing.html'">다시 그리기</button>
+      <button class="btn btn-primary" id="btn-browse" onclick="openBrowseModal()">구경하기</button>
+      <button class="btn btn-primary" id="btn-share-open" onclick="openShareModal()">공유하기</button>
     </div>
   </div>
 </div>
@@ -37,10 +37,10 @@
   <div class="modal-box" style="position:relative;">
     <button class="modal-x" onclick="closeBrowseModal()">✕</button>
     <div style="font-size:2rem;margin-bottom:12px;">🎨</div>
-    <h3 style="margin-bottom:10px;">친구들 그림 구경하기</h3>
-    <p style="font-size:.88rem;color:var(--text2);line-height:1.6;margin-bottom:20px;">나와 같은 그림과 같은 마음을 가진<br>친구들의 그림을 감상해보세요.</p>
+    <h3 id="browse-modal-title" style="margin-bottom:10px;">친구들 그림 구경하기</h3>
+    <p id="browse-modal-desc" style="font-size:.88rem;color:var(--text2);line-height:1.6;margin-bottom:20px;">나와 같은 그림과 같은 마음을 가진<br>친구들의 그림을 감상해보세요.</p>
     <div class="modal-actions" style="flex-direction:column;gap:8px;">
-      <button class="btn btn-primary" onclick="location.href='gallery.html'">확인</button>
+      <button class="btn btn-primary" id="btn-browse-ok" onclick="location.href='gallery.html'">확인</button>
     </div>
   </div>
 </div>
@@ -48,18 +48,19 @@
 <!-- 공유 모달 -->
 <div class="modal-overlay" id="share-modal">
   <div class="modal-box">
-    <h3>그림 공유하기</h3>
-    <p>"같은 그림도 내 마음대로 완성했어요"</p>
+    <h3 id="share-modal-title">그림 공유하기</h3>
+    <p id="share-modal-quote">"같은 그림도 내 마음대로 완성했어요"</p>
     <img id="share-preview" class="modal-preview" src="" alt="">
     <div class="modal-actions">
-      <button class="btn btn-primary" onclick="downloadImage()">PNG 저장</button>
-      <button class="btn btn-outline" onclick="copyShareMsg()">공유 메시지 복사</button>
+      <button class="btn btn-primary" id="btn-save-png" onclick="downloadImage()">PNG 저장</button>
+      <button class="btn btn-outline" id="btn-copy-msg" onclick="copyShareMsg()">공유 메시지 복사</button>
     </div>
-    <button class="modal-close" onclick="closeShareModal()">닫기</button>
+    <button class="modal-close" id="btn-close-share" onclick="closeShareModal()">닫기</button>
   </div>
 </div>
 
 <script>if(performance.getEntriesByType("navigation")[0]?.type==="reload"){location.replace("landing.html");}</script>
+<script src="i18n.js"></script>
 <script src="data.js"></script>
 <script>
 const artwork = getArtwork();
@@ -75,9 +76,25 @@ let resultCanvas;
 
 /* ── 결과 초기화 ── */
 function initResult() {
+  const eName = tEmotion(emotion.id);
+
+  // 정적 UI 텍스트 번역
+  document.getElementById('result-title').textContent    = t('end.title');
+  document.getElementById('btn-redraw').textContent      = t('end.redraw');
+  document.getElementById('btn-browse').textContent      = t('end.browse');
+  document.getElementById('btn-share-open').textContent  = t('end.share');
+  document.getElementById('browse-modal-title').textContent = t('end.browseTitle');
+  document.getElementById('browse-modal-desc').innerHTML = t('end.browseDesc');
+  document.getElementById('btn-browse-ok').textContent   = t('end.browseOk');
+  document.getElementById('share-modal-title').textContent = t('end.shareTitle');
+  document.getElementById('share-modal-quote').textContent = t('end.shareQuote');
+  document.getElementById('btn-save-png').textContent    = t('end.savePng');
+  document.getElementById('btn-copy-msg').textContent    = t('end.copyMsg');
+  document.getElementById('btn-close-share').textContent = t('end.close');
+
   // 배지
   const badge = document.getElementById('result-badge');
-  badge.textContent = `${emotion.icon} ${emotion.name}`;
+  badge.textContent = `${emotion.icon} ${eName}`;
   badge.style.background = emotion.gradient;
 
   // 결과 캔버스 복원
@@ -92,42 +109,27 @@ function initResult() {
     img.src = resultDataUrl;
   }
 
-  // 피드백 텍스트 (감정별)
+  // 피드백 텍스트 (i18n)
   const colorCount = stats.usedColorCount;
-  const detailMap = {
-    joy:        colorCount >= 3
-                  ? '다양한 색과 경쾌한 선이 즐거운 에너지를 가득 담아냈어요 🌈'
-                  : '밝고 신나는 분위기가 그림 곳곳에서 느껴져요 ✨',
-    calm:       stats.avgSpeed < 0.15
-                  ? '천천히, 부드러운 선으로 마음의 평온함을 잘 표현했어요 🌊'
-                  : '차분하게 집중하며 안정된 마음을 담아냈어요 ☁️',
-    confidence: stats.brushSize >= 8
-                  ? '굵고 힘 있는 선이 당당한 자신감을 잘 보여줬어요 💪'
-                  : '또렷한 선과 색으로 자신감 넘치는 그림을 완성했어요 ⚡',
-    curiosity:  colorCount >= 4
-                  ? '다채로운 색과 자유로운 선이 호기심 가득한 세계를 표현했어요 🔮'
-                  : '불규칙하고 탐구적인 선이 개성 있는 그림을 만들었어요 🌀',
-    love:       stats.usedColorCount >= 3
-                  ? '따뜻한 색과 부드러운 선이 설레는 마음을 가득 담아냈어요 💕'
-                  : '포근하고 설레는 분위기가 그림 곳곳에서 느껴져요 🌸',
+  const detailDic  = t('result.detail');
+  const detailKeys = {
+    joy:        colorCount >= 3         ? 'many' : 'few',
+    calm:       stats.avgSpeed < 0.15   ? 'slow' : 'fast',
+    confidence: stats.brushSize >= 8    ? 'big'  : 'small',
+    curiosity:  colorCount >= 4         ? 'many' : 'few',
+    love:       stats.usedColorCount >= 3 ? 'many' : 'few',
   };
-  const detail = detailMap[emotion.id] || '마음을 담아 완성한 멋진 그림이에요 ✨';
+  const detailVariant = detailKeys[emotion.id];
+  const detail = detailDic[emotion.id]?.[detailVariant] || t('result.fallbackDetail');
 
   // 점수 문구
-  document.getElementById('rc-score').textContent = `오늘 ${emotion.name}이 ${emotionScore}% 채워졌어요!`;
+  document.getElementById('rc-score').textContent = t('end.scoreText', eName, emotionScore);
 
-  document.getElementById('rc-main').textContent = emotion.resultMain;
+  document.getElementById('rc-main').textContent   = t('result.main')[emotion.id] || emotion.resultMain;
   document.getElementById('rc-detail').textContent = detail;
 
   // 응원 문구
-  const cheerMap = {
-    joy:        `오늘 하루도 신나고 즐거운 일들이 가득하길 바라요! 🌈`,
-    calm:       `오늘 하루도 편안하고 포근한 시간이 함께하길 바라요 🌊`,
-    confidence: `오늘 하루도 자신 있게, 당당하게 빛나길 응원해요! 💪`,
-    curiosity:  `오늘 하루도 새로운 발견으로 가득한 하루가 되길 바라요! 🔮`,
-    love:       `오늘 하루도 설레고 따뜻한 순간들로 가득하길 바라요! 💕`,
-  };
-  document.getElementById('rc-cheer').textContent = cheerMap[emotion.id] || `오늘 하루도 멋진 하루가 되길 바라요! ✨`;
+  document.getElementById('rc-cheer').textContent = t('result.cheer')[emotion.id] || t('result.fallbackCheer');
 
   // 팔레트 계산 후 애니메이션
   const emotionImg = artwork.emotionImages?.[emotion.id];
@@ -259,7 +261,7 @@ async function downloadImage() {
   a.download = '아트플로우_내그림.png'; a.click();
 }
 function copyShareMsg() {
-  const msg = `${emotion.icon} 아트플로우에서 "${artwork.name}"를 "${emotion.name}" 으로 완성했어요!\n같은 그림도 마음에 따라 다르게 완성돼요 ✨`;
+  const msg = t('end.copyMsgText', emotion.icon, tArtwork(artwork.id), tEmotion(emotion.id));
   if (navigator.clipboard) navigator.clipboard.writeText(msg).then(() => alert('복사됐어요!'));
   else alert(msg);
 }

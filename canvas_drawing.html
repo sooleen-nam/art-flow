@@ -610,7 +610,7 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
       </div>
     </div>
     <div class="sh-pct" id="sh-pct">0%</div>
-    <button class="sh-finish" onclick="confirmFinish()">완료</button>
+    <button class="sh-finish" id="btn-finish" onclick="confirmFinish()">완료</button>
   </div>
 
   <div class="draw-body">
@@ -701,6 +701,7 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 </div>
 
 <script>if(performance.getEntriesByType("navigation")[0]?.type==="reload"){location.replace("landing.html");}</script>
+<script src="i18n.js"></script>
 <script src="data.js"></script>
 <script>
 const MAX_UNDO = 20;
@@ -798,8 +799,10 @@ document.getElementById('canvas-area').addEventListener('touchmove', e => {
 
 /* ────────────────────────────────── 초기화 */
 function init() {
-  // Score 헤더
-  document.getElementById('sh-bar-text').textContent = `${emotion.icon} ${emotion.name}이 채워지고 있어요`;
+  // Score 헤더 + 정적 버튼 텍스트
+  document.getElementById('sh-bar-text').textContent = `${emotion.icon} ${t('draw.scoreText', tEmotion(emotion.id))}`;
+  document.getElementById('btn-finish').textContent  = t('draw.finish');
+  document.getElementById('btn-outline').textContent = t('draw.sketchHide');
   document.getElementById('sh-fill').style.background = emotion.gradient;
   document.getElementById('sh-fill').style.width = '0%';
   document.getElementById('sh-pct').style.color  = emotion.color;
@@ -878,6 +881,7 @@ function toggleOutline() {
   outlineVisible = !outlineVisible;
   document.getElementById('outline-overlay').style.display = outlineVisible ? 'block' : 'none';
   document.getElementById('btn-outline').classList.toggle('active', !outlineVisible);
+  document.getElementById('btn-outline').textContent = outlineVisible ? t('draw.sketchHide') : t('draw.sketchShow');
 }
 function loadOutline() {
   const src = artwork.outlineUrl;
@@ -1210,23 +1214,15 @@ function getFeedback(features) {
   const rule = EMOTION_RULES[emotion.id];
   if (!rule) return null;
   if (currentStep === 2) {
-    if (features.colorMatch < 0.4)
-      return '추천 색을 더 써봐! 🎨';
-    if (features.areaFill < 0.3)
-      return '빈 공간을 더 채워봐! 🖌️';
+    if (features.colorMatch < 0.4) return t('fb.color');
+    if (features.areaFill < 0.3)   return t('fb.fill');
   }
-  if (emotion.id === 'love' && features.pattern < 0.5)
-    return '하트나 부드러운 무늬를 넣어볼까? 💕';
-  if (emotion.id === 'love' && features.colorVariety < 0.5)
-    return '따뜻한 색을 더 써봐! 더 설레는 느낌이 날 거야 🌸';
-  if (emotion.id === 'calm' && features.speed > 0.5)
-    return '천천히 그려봐~ 선이 더 예뻐질거야 🌊';
-  if (emotion.id === 'confidence' && features.thickness < 0.5)
-    return '선에 힘을 더 줘봐! 굵을수록 좋아 💪';
-  if (emotion.id === 'curiosity' && features.colorVariety < 0.5)
-    return '다양한 색을 더 써봐! 🔮';
-  if (currentStep === 3 && features.pattern < 0.3)
-    return `${emotion.patternHint}을 그려봐! 더 멋져질거야 ✨`;
+  if (emotion.id === 'love' && features.pattern < 0.5)      return t('fb.lovePattern');
+  if (emotion.id === 'love' && features.colorVariety < 0.5) return t('fb.loveColor');
+  if (emotion.id === 'calm' && features.speed > 0.5)        return t('fb.calmSpeed');
+  if (emotion.id === 'confidence' && features.thickness < 0.5) return t('fb.confidenceThick');
+  if (emotion.id === 'curiosity' && features.colorVariety < 0.5) return t('fb.curiosityColor');
+  if (currentStep === 3 && features.pattern < 0.3) return t('fb.pattern', tPattern(emotion.id));
   return null;
 }
 
@@ -1261,29 +1257,23 @@ let maxStepReached = 1;
 
 const STEPS = [
   {
-    title: '① 스케치 따라 그리기',
-    desc: '스케치를 따라 그려보세요.\n원하는 모양을 더 그려도 좋아요!',
-    btnLabel: '다음 단계 →',
+    title: () => t('draw.step1Title'),
+    desc:  () => t('draw.step1Desc'),
+    btnLabel: () => t('draw.step1Next'),
     hint: '',
     canNext: () => true,
   },
   {
-    title: () => `② ${emotion.name} 채우기`,
-    desc: () => ({
-      joy:        '추천 마음색으로 신나고 경쾌하게 채워봐요!',
-      calm:       '추천 마음색으로 부드럽고 느긋하게 채워봐요!',
-      confidence: '추천 마음색으로 또렷하고 당당하게 채워봐요!',
-      curiosity:  '추천 마음색으로 고정관념에서 벗어나 채워봐요!',
-      love:       '추천 마음색으로 설레고 따뜻하게 채워봐요!',
-    }[emotion.id] || '추천 마음색으로 자유롭게 채워봐요!'),
-    btnLabel: '다음 단계 →',
-    hint: () => `${emotion.name}이 60% 이상 채워져야<br>넘어갈 수 있어요!`,
+    title: () => t('draw.step2Title', tEmotion(emotion.id)),
+    desc:  () => (t('draw.step2Desc')[emotion.id] || t('draw.step2Desc').joy),
+    btnLabel: () => t('draw.step2Next'),
+    hint:  () => t('draw.step2Hint', tEmotion(emotion.id)),
     canNext: () => emotionScore >= 60,
   },
   {
-    title: () => `③ ${emotion.name} 꾸미기`,
-    desc: () => `${emotion.patternHint}을 그려서 자유롭게 꾸며봐요.`,
-    btnLabel: '완성하기 🎉',
+    title: () => t('draw.step3Title', tEmotion(emotion.id)),
+    desc:  () => t('draw.step3Desc', tPattern(emotion.id)),
+    btnLabel: () => t('draw.step3Next'),
     hint: '',
     canNext: () => true,
   },
@@ -1297,9 +1287,10 @@ function initSteps() {
 
 function renderStep() {
   const s = STEPS[currentStep - 1];
-  const title = typeof s.title === 'function' ? s.title() : s.title;
-  const desc   = typeof s.desc  === 'function' ? s.desc()  : s.desc;
-  const hint   = typeof s.hint  === 'function' ? s.hint()  : s.hint;
+  const title    = typeof s.title    === 'function' ? s.title()    : s.title;
+  const desc     = typeof s.desc     === 'function' ? s.desc()     : s.desc;
+  const hint     = typeof s.hint     === 'function' ? s.hint()     : s.hint;
+  const btnLabel = typeof s.btnLabel === 'function' ? s.btnLabel() : s.btnLabel;
   const canNext = s.canNext();
 
   document.getElementById('step-title').textContent = title;
@@ -1307,7 +1298,7 @@ function renderStep() {
   document.getElementById('step-score-hint').innerHTML = hint;
 
   const btn = document.getElementById('step-next-btn');
-  btn.textContent = s.btnLabel;
+  btn.textContent = btnLabel;
   btn.disabled = !canNext;
 
   // 트래커 업데이트
@@ -1332,7 +1323,7 @@ function renderStep() {
     document.getElementById('outline-overlay').style.display = 'none';
     outlineVisible = false;
     document.getElementById('btn-outline').classList.add('active');
-    addBubble(`✨ 이제 ${emotion.patternHint}을 그려서 꾸며봐!`);
+    addBubble(t('draw.bubbleStep3', tPattern(emotion.id)));
   }
 }
 
@@ -1343,7 +1334,7 @@ function nextStep() {
   if (currentStep === 2) {
     emotionScore = 0;
     updateScoreDisplay();
-    addBubble(`추천 색으로 ${emotion.name}을 채워봐! 🎨`);
+    addBubble(t('draw.bubbleStep2', tEmotion(emotion.id)));
   }
   renderStep();
 }

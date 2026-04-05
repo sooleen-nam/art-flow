@@ -12,7 +12,7 @@
 <div class="select-page">
   <div class="page-topbar">
     <button class="topbar-back" onclick="location.href='landing.html'">◀︎</button>
-    <h2>어떤 그림을 그릴까요?</h2>
+    <h2 id="page-title">어떤 그림을 그릴까요?</h2>
   </div>
   <div class="artwork-grid" id="artwork-grid"></div>
 </div>
@@ -21,12 +21,12 @@
 <div class="popup-overlay" id="emotion-overlay" onclick="closeEmotionSheet()"></div>
 <div class="emotion-sheet" id="emotion-sheet">
   <button class="sheet-close" onclick="closeEmotionSheet()">✕</button>
-  <div class="sheet-title">어떤 마음으로 그리고 싶나요?</div>
-  <div class="sheet-sub">오늘의 마음을 하나 골라보세요. 드로잉 가이드와 색깔 팔레트가 달라져요!</div>
+  <div class="sheet-title" id="emotion-sheet-title">어떤 마음으로 그리고 싶나요?</div>
+  <div class="sheet-sub" id="emotion-sheet-sub">오늘의 마음을 하나 골라보세요. 드로잉 가이드와 색깔 팔레트가 달라져요!</div>
   <div class="emotion-list" id="emotion-list"></div>
   <div class="sheet-footer">
     <button class="btn btn-primary" id="btn-confirm-emotion" style="min-width:200px;" onclick="confirmEmotion()" disabled>
-      이 마음으로 그릴래요
+      <span id="btn-confirm-text">이 마음으로 그릴래요</span>
     </button>
   </div>
 </div>
@@ -36,10 +36,10 @@
 <div class="compare-modal" id="compare-modal">
   <button class="sheet-close" style="left:18px;right:auto;" onclick="backToEmotionSheet()">◀︎</button>
   <button class="sheet-close" onclick="closeCompareModal()">✕</button>
-  <div class="compare-title">이렇게 그려볼까요?</div>
+  <div class="compare-title" id="compare-title">이렇게 그려볼까요?</div>
   <div class="compare-panels">
     <div class="compare-panel">
-      <div class="compare-label">원본</div>
+      <div class="compare-label" id="compare-label-original">원본</div>
       <div class="compare-img-wrap">
         <img class="compare-img" id="compare-img-original" alt="원본">
       </div>
@@ -56,11 +56,12 @@
   </div>
   <div class="compare-hints" id="compare-hints"></div>
   <div class="compare-footer">
-    <button class="btn btn-primary" onclick="startDrawing()">그리기 시작 </button>
+    <button class="btn btn-primary" id="btn-start-drawing" onclick="startDrawing()">그리기 시작 </button>
   </div>
 </div>
 
 <script>if(performance.getEntriesByType("navigation")[0]?.type==="reload"){location.replace("landing.html");}</script>
+<script src="i18n.js"></script>
 <script src="data.js"></script>
 <script>
 sessionStorage.removeItem('artworkId');
@@ -85,15 +86,15 @@ function initSelect() {
       : '';
     card.innerHTML = `
       ${lockBadge}
-      <img class="artwork-img" src="${a.imageUrl}" alt="${a.name}" loading="lazy" style="${a.locked ? 'filter:brightness(0.6)' : ''}">
+      <img class="artwork-img" src="${a.imageUrl}" alt="${tArtwork(a.id)}" loading="lazy" style="${a.locked ? 'filter:brightness(0.6)' : ''}">
       <div class="artwork-info">
-        <div class="artwork-name">${a.name}</div>
-        <div class="artwork-artist">${a.artist}</div>
+        <div class="artwork-name">${tArtwork(a.id)}</div>
+        <div class="artwork-artist">${tArtist(a.id)}</div>
         <div class="artwork-palette-row">
           <div class="artwork-palette">${dots}</div>
           <div class="artwork-difficulty" style="background:${diff.color}22; color:${diff.color};">
             <span class="artwork-difficulty-dot" style="background:${diff.color};"></span>
-            난이도 ${diff.label}
+            ${t('choose.difficulty')} ${tDiff(diff.label)}
           </div>
         </div>
       </div>
@@ -104,7 +105,7 @@ function initSelect() {
 }
 
 function showLockedAlert() {
-  alert('PRO 전용 그림이에요 🔒\n업그레이드하면 더 많은 작품을 즐길 수 있어요!');
+  alert(t('choose.lockedArt'));
 }
 
 function selectArtwork(id) {
@@ -127,11 +128,11 @@ function openEmotionSheet() {
     item.className = 'emotion-item' + (e.locked ? ' locked-card' : '');
     item.style.background = e.gradient;
     item.style.filter = e.locked ? 'brightness(0.55) saturate(0.7)' : 'none';
-    item.onclick = () => e.locked ? alert('PRO 전용 마음이에요 🔒\n업그레이드하면 더 다양한 마음으로 그릴 수 있어요!') : selectEmotion(e.id);
+    item.onclick = () => e.locked ? alert(t('choose.lockedEmo')) : selectEmotion(e.id);
     item.innerHTML = `
-      <img src="${e.name}.png" alt="${e.name}" style="width:48px;height:48px;object-fit:contain;${e.id==='joy'?'filter:drop-shadow(0 0 1.5px rgba(0,0,0,0.35));':''}">
+      <img src="${e.name}.png" alt="${tEmotion(e.id)}" style="width:48px;height:48px;object-fit:contain;${e.id==='joy'?'filter:drop-shadow(0 0 1.5px rgba(0,0,0,0.35));':''}">
       <div class="emotion-item-text">
-        <span class="ei-name">${e.name}${e.locked ? ' <span style="font-size:.55rem;background:linear-gradient(135deg,#fbbf24,#f97316);color:#fff;padding:2px 5px;border-radius:8px;font-weight:900;margin-left:3px;">PRO</span>' : ''}</span>
+        <span class="ei-name">${tEmotion(e.id)}${e.locked ? ' <span style="font-size:.55rem;background:linear-gradient(135deg,#fbbf24,#f97316);color:#fff;padding:2px 5px;border-radius:8px;font-weight:900;margin-left:3px;">PRO</span>' : ''}</span>
       </div>
     `;
     list.appendChild(item);
@@ -197,7 +198,7 @@ function openCompareModal() {
       }).join('');
   }
 
-  document.getElementById('compare-emotion-label').textContent = `${selectedEmotion.icon} ${selectedEmotion.name} 예시`;
+  document.getElementById('compare-emotion-label').textContent = `${selectedEmotion.icon} ${tEmotion(selectedEmotion.id)}${t('choose.exampleSuffix')}`;
 
   document.getElementById('compare-palette-original').innerHTML =
     selectedArtwork.layers.map(l =>
@@ -205,7 +206,7 @@ function openCompareModal() {
     ).join('');
 
   document.getElementById('compare-hints').innerHTML = `
-    <div class="compare-hint-chip">🤖 ${selectedEmotion.tutorMsg}</div>
+    <div class="compare-hint-chip">🤖 ${t('tutorMsg.' + selectedEmotion.id)}</div>
   `;
 
   document.getElementById('compare-overlay').classList.add('open');
@@ -227,6 +228,18 @@ function startDrawing() {
   location.href = 'canvas_drawing.html';
 }
 
+/* ── 정적 UI 번역 적용 ── */
+function applyI18n() {
+  document.getElementById('page-title').textContent        = t('choose.pageTitle');
+  document.getElementById('emotion-sheet-title').textContent = t('choose.emotionTitle');
+  document.getElementById('emotion-sheet-sub').textContent = t('choose.emotionSub');
+  document.getElementById('btn-confirm-text').textContent  = t('choose.confirmBtn');
+  document.getElementById('compare-title').textContent     = t('choose.compareTitle');
+  document.getElementById('compare-label-original').textContent = t('choose.original');
+  document.getElementById('btn-start-drawing').textContent = t('choose.startBtn');
+}
+
+applyI18n();
 initSelect();
 </script>
 </body>
