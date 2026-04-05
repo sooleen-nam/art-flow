@@ -1355,7 +1355,14 @@ function getFeedback(features) {
 
 function analyzeAndUpdateScore() {
   const features = extractFeatures();
-  emotionScore = calculateEmotionScore(features);
+  const raw = calculateEmotionScore(features);
+  // 1단계: 붓질에 비례해 조금씩만 오름 (최대 35%)
+  if (currentStep === 1) {
+    const strokeProgress = Math.min(1, S.stats.strokeCount / 30);
+    emotionScore = Math.round(raw * strokeProgress * 0.35);
+  } else {
+    emotionScore = raw;
+  }
   updateScoreDisplay();
 
   // 전 단계 AI 튜터 피드백 (쿨다운 있음)
