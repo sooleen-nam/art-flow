@@ -3,94 +3,510 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>이렇게 그려볼까요? — 아트플로우</title>
+<title>사용 가이드 — 아트플로우</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="stylesheet" href="style.css">
+<script src="i18n.js"></script>
+<style>
+/* ── 가이드 레이아웃 ── */
+.guide-page {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+}
+.guide-hero {
+  background: linear-gradient(135deg, #12121e 0%, #1e1230 60%, #12121e 100%);
+  padding: 56px 24px 44px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.guide-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 60% 40%, rgba(124,110,247,.18) 0%, transparent 70%),
+              radial-gradient(ellipse at 20% 70%, rgba(240,98,146,.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+.guide-hero-tag {
+  display: inline-block;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 30px;
+  color: rgba(255,255,255,.75);
+  font-size: .75rem; font-weight: 700;
+  padding: 5px 14px; margin-bottom: 18px;
+  letter-spacing: .05em;
+}
+.guide-hero-title {
+  font-size: clamp(1.6rem, 6vw, 2.4rem);
+  font-weight: 900; color: #fff;
+  line-height: 1.25; margin-bottom: 12px;
+}
+.guide-hero-title span {
+  background: linear-gradient(90deg, #a78bfa, #f06292, #fbbf24);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.guide-hero-sub {
+  color: rgba(255,255,255,.55);
+  font-size: .92rem; line-height: 1.6;
+}
+
+/* ── 섹션 ── */
+.guide-body {
+  flex: 1;
+  padding: 0 16px 60px;
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* 번호 단계 헤더 */
+.guide-step {
+  margin-top: 40px;
+}
+.guide-step-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 14px;
+}
+.guide-step-num {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; font-size: .95rem; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.guide-step-title {
+  font-size: 1.08rem; font-weight: 900; color: var(--text);
+}
+.guide-step-subtitle {
+  font-size: .8rem; color: var(--text2); font-weight: 600; margin-top: 2px;
+}
+
+/* 카드 */
+.guide-card {
+  background: var(--bg2);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 20px 20px;
+  margin-bottom: 12px;
+}
+.guide-card-row {
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.guide-card-icon {
+  font-size: 1.6rem; flex-shrink: 0; line-height: 1;
+  margin-top: 2px;
+}
+
+.guide-card-label {
+  font-size: .9rem; font-weight: 800; color: var(--text);
+  margin-bottom: 4px;
+}
+.guide-card-desc {
+  font-size: .82rem; color: var(--text2); line-height: 1.65;
+}
+
+/* 감정 태그 리스트 */
+.guide-emotion-list {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 12px;
+}
+.guide-emotion-chip {
+  padding: 5px 14px; border-radius: 30px;
+  font-size: .78rem; font-weight: 700;
+  color: rgba(255,255,255,.95);
+  display: inline-flex; align-items: center; gap: 5px;
+}
+
+/* 음악 테이블 */
+.guide-music-list {
+  margin-top: 10px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.guide-music-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg3); border-radius: 12px;
+}
+.guide-music-chip {
+  font-size: .72rem; font-weight: 800;
+  padding: 3px 10px; border-radius: 20px;
+  color: #fff; flex-shrink: 0; min-width: 52px; text-align: center;
+}
+.guide-music-name {
+  font-size: .82rem; font-weight: 700; color: var(--text);
+}
+.guide-music-desc {
+  font-size: .75rem; color: var(--text2);
+}
+
+/* 도구 그리드 */
+.guide-tool-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-top: 10px;
+}
+.guide-tool-card {
+  background: var(--bg3); border-radius: 12px;
+  padding: 12px 14px;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.guide-tool-icon { font-size: 1.2rem; flex-shrink: 0; }
+.guide-tool-label { font-size: .82rem; font-weight: 800; color: var(--text); }
+.guide-tool-desc  { font-size: .74rem; color: var(--text2); line-height: 1.5; margin-top: 2px; }
+
+/* 팁 박스 */
+.guide-tip {
+  background: linear-gradient(135deg, rgba(124,110,247,.08), rgba(240,98,146,.06));
+  border: 1.5px solid rgba(124,110,247,.2);
+  border-radius: 14px; padding: 16px 18px;
+  margin-top: 10px;
+  font-size: .82rem; color: var(--text2); line-height: 1.7;
+}
+.guide-tip strong { color: var(--accent); }
+
+/* CTA */
+.guide-cta {
+  text-align: center; padding: 40px 20px 0;
+}
+.guide-cta p {
+  font-size: .88rem; color: var(--text2); margin-bottom: 18px;
+}
+
+/* 토글 바 */
+.guide-topbar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky; top: 0; z-index: 10;
+}
+.guide-topbar-back {
+  background: none; border: none; cursor: pointer;
+  font-size: 1rem; color: var(--text2); padding: 4px;
+}
+.guide-topbar h2 {
+  font-size: 1rem; font-weight: 800; color: var(--text);
+}
+
+@media (max-width: 500px) {
+  .guide-tool-grid { grid-template-columns: 1fr; }
+  .guide-hero { padding: 44px 20px 36px; }
+}
+</style>
 </head>
 <body>
 
 <div class="guide-page">
-  <div class="page-topbar">
-    <button class="topbar-back" onclick="location.href='choosing_mind.html'">◀︎</button>
-    <h2>이렇게 그려볼까요?</h2>
+
+  <!-- 상단 네비 -->
+  <div class="guide-topbar">
+    <button class="guide-topbar-back" onclick="history.back()">◀︎</button>
+    <h2 id="topbar-title">사용 가이드</h2>
+  </div>
+
+  <!-- 히어로 -->
+  <div class="guide-hero">
+    <div class="guide-hero-tag">HOW TO USE</div>
+    <div class="guide-hero-title">
+      <span>아트플로우</span>와 함께<br>마음을 그려요
+    </div>
+    <p class="guide-hero-sub">
+      같은 그림도 내 마음에 따라 다르게 완성돼요.<br>
+      6가지 핵심 기능으로 감정 몰입 드로잉을 경험해보세요.
+    </p>
   </div>
 
   <div class="guide-body">
-    <div class="compare-panels">
-      <div class="compare-panel">
-        <div class="compare-label">원본</div>
-        <div class="compare-img-wrap">
-          <img class="compare-img" id="compare-img-original" alt="원본">
+
+    <!-- STEP 1 마음 선택 -->
+    <div class="guide-step">
+      <div class="guide-step-header">
+        <div class="guide-step-num">1</div>
+        <div>
+          <div class="guide-step-title">마음 선택하기</div>
+          <div class="guide-step-subtitle">오늘의 감정을 고르면 드로잉이 달라져요</div>
         </div>
-        <div class="compare-palette" id="compare-palette-original"></div>
       </div>
-      <div class="compare-panel">
-        <div class="compare-label" id="compare-emotion-label">마음 예시</div>
-        <div class="compare-img-wrap">
-          <img class="compare-img" id="compare-img-emotion" alt="마음 버전">
-          <div class="compare-img-overlay" id="compare-img-overlay"></div>
+      <div class="guide-card">
+        <div class="guide-card-row">
+          <div class="guide-card-icon">🎨</div>
+          <div class="guide-card-text">
+            <div class="guide-card-label">5가지 감정 중 1가지를 선택하세요</div>
+            <div class="guide-card-desc">
+              선택 순간부터 "오늘 나는 어떤 마음인가"를 스스로 인식하게 됩니다.<br>
+              감정에 따라 추천 색 팔레트, 드로잉 가이드, 음악이 모두 달라져요.
+            </div>
+          </div>
         </div>
-        <div class="compare-palette" id="compare-palette-emotion"></div>
+        <div class="guide-emotion-list" id="emotion-chips"></div>
       </div>
     </div>
-    <div class="compare-hints" id="compare-hints"></div>
-  </div>
 
-  <div class="guide-footer">
-    <button class="btn btn-primary" onclick="location.href='canvas_drawing.html'">그리기 시작</button>
+    <!-- STEP 2 마음 색팔레트 -->
+    <div class="guide-step">
+      <div class="guide-step-header">
+        <div class="guide-step-num">2</div>
+        <div>
+          <div class="guide-step-title">마음 색팔레트</div>
+          <div class="guide-step-subtitle">색을 고르는 것 자체가 감정 표현의 첫 행동</div>
+        </div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-row">
+          <div class="guide-card-icon">🖌️</div>
+          <div class="guide-card-text">
+            <div class="guide-card-label">감정에 맞는 추천 색 8가지가 자동 제공</div>
+            <div class="guide-card-desc">
+              즐거움은 밝고 화사한 색, 편안함은 부드러운 파스텔, 자신감은 선명하고 강렬한 색으로 구성됩니다.<br>
+              기본 색상과 커스텀 컬러 피커를 함께 사용할 수 있어요.
+            </div>
+          </div>
+        </div>
+        <div class="guide-tip">
+          <strong>💡 팁</strong> — 추천 색을 주로 사용할수록 마음 점수가 더 빠르게 채워집니다!
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 AI 실시간 코칭 -->
+    <div class="guide-step">
+      <div class="guide-step-header">
+        <div class="guide-step-num">3</div>
+        <div>
+          <div class="guide-step-title">AI 실시간 코칭</div>
+          <div class="guide-step-subtitle">그리는 동안 AI 마음튜터가 즉시 안내해줘요</div>
+        </div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-row">
+          <div class="guide-card-icon">🤖</div>
+          <div class="guide-card-text">
+            <div class="guide-card-label">7가지 지표를 실시간으로 분석</div>
+            <div class="guide-card-desc">
+              속도 · 굵기 · 색 다양성 · 패턴 등을 분석해 감정 방향에 맞는 짧은 피드백을 말풍선으로 제공합니다.
+              '틀렸다' 없이, '이렇게 하면 더 좋아!' 형태로 긍정적으로 코칭해요.
+            </div>
+          </div>
+        </div>
+        <div class="guide-tool-grid">
+          <div class="guide-tool-card">
+            <div class="guide-tool-icon">⚡</div>
+            <div>
+              <div class="guide-tool-label">속도 감지</div>
+              <div class="guide-tool-desc">너무 빠르거나 느리면 알려줘요</div>
+            </div>
+          </div>
+          <div class="guide-tool-card">
+            <div class="guide-tool-icon">🎨</div>
+            <div>
+              <div class="guide-tool-label">색 매칭</div>
+              <div class="guide-tool-desc">추천 색을 잘 쓰고 있는지 확인해요</div>
+            </div>
+          </div>
+          <div class="guide-tool-card">
+            <div class="guide-tool-icon">✏️</div>
+            <div>
+              <div class="guide-tool-label">선 굵기</div>
+              <div class="guide-tool-desc">감정에 맞는 압력인지 체크해요</div>
+            </div>
+          </div>
+          <div class="guide-tool-card">
+            <div class="guide-tool-icon">🌀</div>
+            <div>
+              <div class="guide-tool-label">패턴 감지</div>
+              <div class="guide-tool-desc">무늬·점·선을 얼마나 넣었는지 확인해요</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 마음 표현 게이지 -->
+    <div class="guide-step">
+      <div class="guide-step-header">
+        <div class="guide-step-num">4</div>
+        <div>
+          <div class="guide-step-title">마음 표현 게이지</div>
+          <div class="guide-step-subtitle">게임처럼 채우며 자연스럽게 감정 조율</div>
+        </div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-row">
+          <div class="guide-card-icon">📊</div>
+          <div class="guide-card-text">
+            <div class="guide-card-label">상단 바에서 실시간 % 확인</div>
+            <div class="guide-card-desc">
+              선택한 감정과의 표현 적합도를 0~100%로 실시간 측정합니다.
+              2단계(채우기)는 <strong>60% 이상</strong>이 되어야 다음 단계로 넘어갈 수 있어요.
+            </div>
+          </div>
+        </div>
+        <div class="guide-tip">
+          <strong>3단계 구성</strong> — ① 스케치 따라 그리기 → ② 마음색으로 채우기 → ③ 자유롭게 꾸미기
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 마음 음악 -->
+    <div class="guide-step">
+      <div class="guide-step-header">
+        <div class="guide-step-num">5</div>
+        <div>
+          <div class="guide-step-title">마음 음악</div>
+          <div class="guide-step-subtitle">감정에 맞는 클래식으로 몰입감 UP</div>
+        </div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-row">
+          <div class="guide-card-icon">🎵</div>
+          <div class="guide-card-text">
+            <div class="guide-card-label">좌측 🎵 버튼으로 ON/OFF</div>
+            <div class="guide-card-desc">
+              그리는 동안 선택한 감정에 어울리는 클래식 음악이 잔잔하게 흘러나옵니다.<br>
+              음악이 더해지면 감정이 더 깊이 느껴지고, 그리는 동안 집중력이 높아져요.
+            </div>
+          </div>
+        </div>
+        <div class="guide-music-list">
+          <div class="guide-music-item">
+            <div class="guide-music-chip" style="background:linear-gradient(135deg,#FFD93D,#FFADAD)">즐거움</div>
+            <div><div class="guide-music-name">비발디 — 사계 "봄"</div><div class="guide-music-desc">경쾌하고 활기찬 바이올린 선율</div></div>
+          </div>
+          <div class="guide-music-item">
+            <div class="guide-music-chip" style="background:linear-gradient(135deg,#74B9FF,#b8e0d2)">편안함</div>
+            <div><div class="guide-music-name">사티 — 짐노페디 1번</div><div class="guide-music-desc">잔잔하고 부드러운 피아노</div></div>
+          </div>
+          <div class="guide-music-item">
+            <div class="guide-music-chip" style="background:linear-gradient(135deg,#0984E3,#00B894)">자신감</div>
+            <div><div class="guide-music-name">베토벤 — 교향곡 5번</div><div class="guide-music-desc">힘차고 웅장한 오케스트라</div></div>
+          </div>
+          <div class="guide-music-item">
+            <div class="guide-music-chip" style="background:linear-gradient(135deg,#fd79a8,#fdcb6e)">호기심</div>
+            <div><div class="guide-music-name">바흐 — 첼로 모음곡 1번</div><div class="guide-music-desc">탐구적이고 리드미컬한 첼로</div></div>
+          </div>
+          <div class="guide-music-item">
+            <div class="guide-music-chip" style="background:linear-gradient(135deg,#e07888,#60a8c8)">설레임</div>
+            <div><div class="guide-music-name">쇼팽 — 녹턴 Op.9 No.2</div><div class="guide-music-desc">로맨틱하고 서정적인 피아노</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6 결과 공유 -->
+    <div class="guide-step">
+      <div class="guide-step-header">
+        <div class="guide-step-num">6</div>
+        <div>
+          <div class="guide-step-title">결과 공유</div>
+          <div class="guide-step-subtitle">내 마음이 담긴 그림을 저장하고 공유해요</div>
+        </div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-card-row">
+          <div class="guide-card-icon">🖼️</div>
+          <div class="guide-card-text">
+            <div class="guide-card-label">완성 그림 + 마음 분석 결과 제공</div>
+            <div class="guide-card-desc">
+              완성 후 마음 점수, 감정 해석 문구, 응원 메시지를 확인할 수 있어요.<br>
+              PNG로 저장하거나 공유 메시지를 복사해 친구에게 보낼 수 있습니다.
+            </div>
+          </div>
+        </div>
+        <div class="guide-tool-grid">
+          <div class="guide-tool-card">
+            <div class="guide-tool-icon">📷</div>
+            <div>
+              <div class="guide-tool-label">PNG 저장</div>
+              <div class="guide-tool-desc">결과 카드 전체를 이미지로 저장</div>
+            </div>
+          </div>
+          <div class="guide-tool-card">
+            <div class="guide-tool-icon">📋</div>
+            <div>
+              <div class="guide-tool-label">메시지 복사</div>
+              <div class="guide-tool-desc">SNS 공유용 텍스트 자동 생성</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 드로잉 도구 -->
+    <div class="guide-step">
+      <div class="guide-step-header">
+        <div class="guide-step-num" style="background:var(--bg3);color:var(--text2);">🛠</div>
+        <div>
+          <div class="guide-step-title">드로잉 도구</div>
+          <div class="guide-step-subtitle">그릴 때 사용할 수 있는 도구들</div>
+        </div>
+      </div>
+      <div class="guide-tool-grid">
+        <div class="guide-tool-card">
+          <div class="guide-tool-icon">🖌️</div>
+          <div>
+            <div class="guide-tool-label">붓 굵기</div>
+            <div class="guide-tool-desc">좌측 슬라이더로 1~40px 조절</div>
+          </div>
+        </div>
+        <div class="guide-tool-card">
+          <div class="guide-tool-icon">🩹</div>
+          <div>
+            <div class="guide-tool-label">지우개</div>
+            <div class="guide-tool-desc">실수한 부분만 부드럽게 제거</div>
+          </div>
+        </div>
+        <div class="guide-tool-card">
+          <div class="guide-tool-icon">🔍</div>
+          <div>
+            <div class="guide-tool-label">줌 / 팬</div>
+            <div class="guide-tool-desc">확대·축소 후 두 손가락으로 이동</div>
+          </div>
+        </div>
+        <div class="guide-tool-card">
+          <div class="guide-tool-icon">👁️</div>
+          <div>
+            <div class="guide-tool-label">스케치 숨기기</div>
+            <div class="guide-tool-desc">점선 도안을 켜고 끌 수 있어요</div>
+          </div>
+        </div>
+        <div class="guide-tool-card">
+          <div class="guide-tool-icon">🔄</div>
+          <div>
+            <div class="guide-tool-label">처음부터</div>
+            <div class="guide-tool-desc">캔버스 전체 초기화</div>
+          </div>
+        </div>
+        <div class="guide-tool-card">
+          <div class="guide-tool-icon">🎵</div>
+          <div>
+            <div class="guide-tool-label">마음 음악</div>
+            <div class="guide-tool-desc">감정 맞춤 클래식 ON/OFF</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="guide-cta">
+      <p>준비됐나요? 지금 바로 그림을 그려봐요 🎨</p>
+      <button class="btn btn-primary" onclick="location.href='choosing_drawing.html'">그리러 가기</button>
+    </div>
+
   </div>
 </div>
 
-<script>if(performance.getEntriesByType("navigation")[0]?.type==="reload"){location.replace("landing.html");}</script>
 <script src="data.js"></script>
 <script>
-const artwork = getArtwork();
-const emotion = getEmotion();
-if (!artwork || !emotion) location.href = 'choosing_drawing.html';
-
-function initGuide() {
-  const emotionImg = artwork.emotionImages?.[emotion.id];
-
-  document.getElementById('compare-img-original').src = artwork.imageUrl;
-
-  if (emotionImg) {
-    document.getElementById('compare-img-emotion').src = emotionImg.url;
-    document.getElementById('compare-img-overlay').style.background = 'none';
-    document.getElementById('compare-palette-emotion').innerHTML =
-      emotionImg.palette.map(c =>
-        `<div class="compare-palette-dot" style="background:${c}"></div>`
-      ).join('');
-  } else if (emotion.exampleImg) {
-    document.getElementById('compare-img-emotion').src = emotion.exampleImg;
-    document.getElementById('compare-img-overlay').style.background = 'none';
-    document.getElementById('compare-palette-emotion').innerHTML =
-      artwork.layers.map((l, i) => {
-        const c = emotion.transform(l.color, i);
-        return `<div class="compare-palette-dot" style="background:${c}" title="${l.name}"></div>`;
-      }).join('');
-  } else {
-    document.getElementById('compare-img-emotion').src = artwork.imageUrl;
-    document.getElementById('compare-img-overlay').style.background = emotion.gradient;
-    document.getElementById('compare-palette-emotion').innerHTML =
-      artwork.layers.map((l, i) => {
-        const c = emotion.transform(l.color, i);
-        return `<div class="compare-palette-dot" style="background:${c}" title="${l.name}"></div>`;
-      }).join('');
-  }
-
-  document.getElementById('compare-emotion-label').textContent = `${emotion.icon} ${emotion.name} 예시`;
-
-  document.getElementById('compare-palette-original').innerHTML =
-    artwork.layers.map(l =>
-      `<div class="compare-palette-dot" style="background:${l.color}" title="${l.name}"></div>`
-    ).join('');
-
-  document.getElementById('compare-hints').innerHTML = `
-    <div class="compare-hint-chip">🤖 ${emotion.tutorMsg}</div>
-  `;
-}
-
-initGuide();
+/* 감정 칩 렌더 */
+EMOTIONS.forEach(e => {
+  const chip = document.createElement('span');
+  chip.className = 'guide-emotion-chip';
+  chip.style.background = e.gradient;
+  chip.textContent = tEmotion(e.id);
+  document.getElementById('emotion-chips').appendChild(chip);
+});
 </script>
 </body>
 </html>
