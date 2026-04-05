@@ -804,7 +804,7 @@ function init() {
   S.palette  = emotionImg
     ? emotionImg.palette
     : artwork.layers.map((l, i) => emotion.transform(l.color, i));
-  S.color    = S.palette[0];
+  S.color    = '#000000';
   const dot = document.getElementById('current-color-dot');
   if (dot) dot.style.background = S.color;
   S.brushSize = emotion.defaultBrush;
@@ -1193,21 +1193,23 @@ function calculateEmotionScore(features) {
 function getFeedback(features) {
   const rule = EMOTION_RULES[emotion.id];
   if (!rule) return null;
-  if (features.colorMatch < 0.4)
-    return '추천 색을 더 써보면 더 좋아요! 🎨';
+  if (currentStep === 2) {
+    if (features.colorMatch < 0.4)
+      return '추천 색을 더 써봐! 🎨';
+    if (features.areaFill < 0.3)
+      return '빈 공간을 더 채워봐! 🖌️';
+  }
   if (emotion.id === 'energy' && features.speed < 0.6)
-    return '조금 더 빠르게 그려볼까요? ⚡';
+    return '조금 더 빠르게 그려봐! ⚡';
   if (emotion.id === 'calm' && features.speed > 0.5)
-    return '천천히 그려보면 더 좋아요 🌊';
+    return '천천히 그려봐~ 선이 더 예뻐질거야 🌊';
   if (emotion.id === 'confidence' && features.thickness < 0.5)
-    return '선에 힘을 더 줘볼까요? 💪';
+    return '선에 힘을 더 줘봐! 굵을수록 좋아 💪';
   if (emotion.id === 'curiosity' && features.colorVariety < 0.5)
-    return '다양한 색을 더 써봐요! 🔮';
-  if (features.pattern < 0.3 && currentStep === 3)
-    return `${emotion.patternHint}을 그려보면 더 멋져요! ✨`;
-  if (features.areaFill < 0.2)
-    return '빈 공간을 더 채워볼까요? 🖌️';
-  return null; // null이면 기존 coaching 메시지 사용
+    return '다양한 색을 더 써봐! 🔮';
+  if (currentStep === 3 && features.pattern < 0.3)
+    return `${emotion.patternHint}을 그려봐! 더 멋져질거야 ✨`;
+  return null;
 }
 
 function analyzeAndUpdateScore() {
@@ -1215,13 +1217,11 @@ function analyzeAndUpdateScore() {
   emotionScore = calculateEmotionScore(features);
   updateScoreDisplay();
 
-  // step 2/3에서 피드백 메시지 (쿨다운 있음)
-  if (currentStep >= 2) {
-    const fb = getFeedback(features);
-    if (fb && Date.now() - S.stats.lastAlertAt > 6000) {
-      addBubble(fb);
-      S.stats.lastAlertAt = Date.now();
-    }
+  // 전 단계 AI 튜터 피드백 (쿨다운 있음)
+  const fb = getFeedback(features);
+  if (fb && Date.now() - S.stats.lastAlertAt > 6000) {
+    addBubble(fb);
+    S.stats.lastAlertAt = Date.now();
   }
 }
 
@@ -1243,28 +1243,23 @@ let currentStep = 1;
 const STEPS = [
   {
     title: '① 스케치 따라 그리기',
-    desc: '점선 스케치를 보며 원하는 색으로 따라 그려봐요.',
+    desc: '점선 스케치를 따라 그려보세요.',
     btnLabel: '다음 단계 →',
     hint: '',
-    canNext: () => true, // 언제든 넘어갈 수 있음
+    canNext: () => true,
   },
   {
     title: () => `② ${emotion.name} 채우기`,
-    desc: () => `추천 색으로 자유롭게 채워봐요.\n${emotion.name}이 ${emotionScore}% 채워졌어요!`,
+    desc: '추천 마음색으로 자유롭게 채워봐요.',
     btnLabel: '다음 단계 →',
-    hint: () => {
-      const f = extractFeatures();
-      if (f.colorMatch < 0.4) return '추천 색을 더 써봐요! 🎨';
-      if (f.areaFill < 0.3) return '빈 공간을 더 채워봐요! 🖌️';
-      return '충분히 채워졌어요! 다음으로 가요 ✨';
-    },
+    hint: () => `${emotion.name}이 60% 채워져야 넘어갈 수 있어요!`,
     canNext: () => { const f = extractFeatures(); return f.colorMatch > 0.4 && f.areaFill > 0.3; },
   },
   {
     title: () => `③ ${emotion.name} 꾸미기`,
-    desc: `원하는 무늬를 자유롭게 그려 넣어봐요.\n${emotion.patternHint}을 추가해보세요!`,
+    desc: () => `${emotion.patternHint}을 그려서 자유롭게 꾸며봐요.`,
     btnLabel: '완성하기 🎉',
-    hint: () => { const f = extractFeatures(); return f.pattern > 0.3 ? '패턴이 잘 표현됐어요! ✨' : `${emotion.patternHint}을 그려보세요!`; },
+    hint: '',
     canNext: () => true,
   },
 ];
