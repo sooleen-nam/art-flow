@@ -109,27 +109,58 @@ function initResult() {
     img.src = resultDataUrl;
   }
 
-  // 피드백 텍스트 (i18n)
-  const colorCount = stats.usedColorCount;
-  const detailDic  = t('result.detail');
-  const detailKeys = {
-    joy:        colorCount >= 3         ? 'many' : 'few',
-    calm:       stats.avgSpeed < 0.15   ? 'slow' : 'fast',
-    confidence: stats.brushSize >= 8    ? 'big'  : 'small',
-    curiosity:  colorCount >= 4         ? 'many' : 'few',
-    love:       stats.usedColorCount >= 3 ? 'many' : 'few',
+  // ── 점수 구간별 생성형 결과 해석 ──
+  const RESULT_MSG = {
+    joy: [
+      { main: '즐거움을 그리기 시작했어요!', detail: '더 밝고 경쾌한 선, 노랑·연핑크 색을 더 써보면 즐거움이 훨씬 잘 담길 거예요.', cheer: '조금만 더 신나게 그려봐요! 할 수 있어요 🌟' },
+      { main: '즐거운 마음이 그림에 스며들기 시작했어요!', detail: '밝은 색을 더 과감하게 쓰고, 점이나 별 모양을 더 넣어보면 더 빛날 거예요.', cheer: '잘하고 있어요! 더 신나게 도전해봐요 ✨' },
+      { main: '즐거움이 그림 곳곳에 넘쳐흘러요!', detail: '다양한 색과 경쾌한 선이 즐거운 마음을 훌륭하게 표현했어요.', cheer: '정말 밝고 신나는 그림이에요! 멋져요 🎉' },
+      { main: '그림 전체가 즐거움으로 가득 빛나고 있어요!', detail: '생동감 넘치는 색감과 경쾌한 선이 기쁨을 완벽하게 담아냈어요.', cheer: '최고로 신나는 그림 탄생! 최고예요 🏆' },
+    ],
+    calm: [
+      { main: '편안함을 느끼려고 노력했어요!', detail: '조금 더 천천히, 부드러운 곡선으로 그려보면 차분함이 더 잘 표현돼요.', cheer: '천천히, 차근차근 다시 해봐요 🌿' },
+      { main: '차분한 마음이 조금씩 그림에 스며들고 있어요!', detail: '속도를 더 늦추고 여백을 살리면 편안함이 한층 깊어질 거예요.', cheer: '잘 하고 있어요! 더 여유롭게 🌊' },
+      { main: '부드럽고 평화로운 마음이 그림에 잘 담겼어요!', detail: '천천히 그린 선들이 보는 사람의 마음도 편안하게 해줘요.', cheer: '마음이 따뜻해지는 그림이에요 💙' },
+      { main: '그림에서 깊고 조용한 평화가 느껴져요!', detail: '부드러운 색감과 여유로운 흐름이 완벽한 편안함을 만들었어요.', cheer: '마음이 고요해지는 최고의 그림이에요 🌸' },
+    ],
+    confidence: [
+      { main: '자신감을 키우는 중이에요!', detail: '더 두껍고 또렷한 선으로 그려보면 당당한 마음이 더 잘 표현돼요.', cheer: '할 수 있어요! 더 힘차게 도전해봐요 💪' },
+      { main: '힘찬 마음이 그림에서 느껴지기 시작해요!', detail: '선을 더 과감하게 긋고 강한 색을 써보면 더 당당해질 거예요.', cheer: '점점 더 자신감 있게! 잘하고 있어요 🔥' },
+      { main: '당당하고 힘찬 자신감이 그림에 넘쳐요!', detail: '또렷한 선과 강렬한 색이 자신감을 멋지게 표현했어요.', cheer: '정말 당당한 그림이에요! 훌륭해요 ⚡' },
+      { main: '그림 전체에서 강하고 당당한 에너지가 뿜어져 나와요!', detail: '힘 있는 선과 선명한 색감이 완벽한 자신감을 담아냈어요.', cheer: '최고로 당당한 작품이에요! 대단해요 🏆' },
+    ],
+    curiosity: [
+      { main: '새로운 것을 탐구하기 시작했어요!', detail: '더 다양한 색과 불규칙한 선을 써보면 호기심이 더 잘 표현돼요.', cheer: '더 자유롭게 탐험해봐요! 🔍' },
+      { main: '자유로운 탐구심이 그림에서 느껴지기 시작해요!', detail: '더 다양한 색과 패턴을 시도해볼수록 더 재미있어질 거예요.', cheer: '계속 탐험해봐요! 잘하고 있어요 🌈' },
+      { main: '그림 곳곳에서 호기심 가득한 에너지가 느껴져요!', detail: '다채로운 색과 자유로운 선이 탐구하는 마음을 잘 담아냈어요.', cheer: '정말 흥미로운 그림이에요! 멋져요 ✨' },
+      { main: '그림 전체가 놀라운 탐구와 상상력으로 가득해요!', detail: '다양한 색과 자유로운 표현이 호기심을 완벽하게 펼쳐냈어요.', cheer: '상상력 최고의 작품! 최고예요 🚀' },
+    ],
+    love: [
+      { main: '설레는 마음을 그리기 시작했어요!', detail: '더 부드럽고 따뜻한 색으로 그려보면 설레임이 더 잘 느껴질 거예요.', cheer: '조금 더 따뜻하게, 할 수 있어요 💕' },
+      { main: '따뜻하고 설레는 마음이 그림에 조금씩 담기고 있어요!', detail: '더 부드러운 선과 따뜻한 색을 써보면 더 예뻐질 거예요.', cheer: '잘하고 있어요! 더 사랑스럽게 🌸' },
+      { main: '그림에서 따뜻하고 설레는 마음이 전해져요!', detail: '부드러운 색감과 따뜻한 선이 설레임을 예쁘게 담아냈어요.', cheer: '정말 따뜻한 그림이에요! 사랑스러워요 💖' },
+      { main: '그림 전체에서 사랑스럽고 설레는 감정이 넘쳐흘러요!', detail: '따뜻한 색감과 부드러운 선이 설레임을 완벽하게 표현했어요.', cheer: '가장 아름다운 마음의 그림이에요 🌹' },
+    ],
   };
-  const detailVariant = detailKeys[emotion.id];
-  const detail = detailDic[emotion.id]?.[detailVariant] || t('result.fallbackDetail');
+
+  function getScoreTier(score) {
+    if (score <= 40) return 0;
+    if (score <= 65) return 1;
+    if (score <= 85) return 2;
+    return 3;
+  }
+
+  const tier = getScoreTier(emotionScore);
+  const msg  = RESULT_MSG[emotion.id]?.[tier] || RESULT_MSG.joy[1];
 
   // 점수 문구
   document.getElementById('rc-score').textContent = t('end.scoreText', eName, emotionScore);
 
-  document.getElementById('rc-main').textContent   = t('result.main')[emotion.id] || emotion.resultMain;
-  document.getElementById('rc-detail').textContent = detail;
+  document.getElementById('rc-main').textContent   = msg.main;
+  document.getElementById('rc-detail').textContent = msg.detail;
 
   // 응원 문구
-  document.getElementById('rc-cheer').textContent = t('result.cheer')[emotion.id] || t('result.fallbackCheer');
+  document.getElementById('rc-cheer').textContent = msg.cheer;
 
   // 팔레트 계산 후 애니메이션
   const emotionImg = artwork.emotionImages?.[emotion.id];
