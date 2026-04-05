@@ -107,9 +107,9 @@ function initResult() {
     curiosity:  colorCount >= 4
                   ? '다채로운 색과 자유로운 선이 호기심 가득한 세계를 표현했어요 🔮'
                   : '불규칙하고 탐구적인 선이 개성 있는 그림을 만들었어요 🌀',
-    energy:     stats.avgSpeed > 0.3
-                  ? '빠르고 역동적인 선이 넘치는 활기를 그대로 담아냈어요 🔥'
-                  : '힘차고 에너지 넘치는 느낌이 그림에 가득해요 ⚡',
+    love:       stats.usedColorCount >= 3
+                  ? '따뜻한 색과 부드러운 선이 설레는 마음을 가득 담아냈어요 💕'
+                  : '포근하고 설레는 분위기가 그림 곳곳에서 느껴져요 🌸',
   };
   const detail = detailMap[emotion.id] || '마음을 담아 완성한 멋진 그림이에요 ✨';
 
@@ -125,7 +125,7 @@ function initResult() {
     calm:       `오늘 하루도 편안하고 포근한 시간이 함께하길 바라요 🌊`,
     confidence: `오늘 하루도 자신 있게, 당당하게 빛나길 응원해요! 💪`,
     curiosity:  `오늘 하루도 새로운 발견으로 가득한 하루가 되길 바라요! 🔮`,
-    energy:     `오늘 하루도 활기차고 에너지 넘치는 하루가 되길 바라요! 🔥`,
+    love:       `오늘 하루도 설레고 따뜻한 순간들로 가득하길 바라요! 💕`,
   };
   document.getElementById('rc-cheer').textContent = cheerMap[emotion.id] || `오늘 하루도 멋진 하루가 되길 바라요! ✨`;
 

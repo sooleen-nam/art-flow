@@ -1134,7 +1134,7 @@ const EMOTION_RULES = {
   calm:       { speed:[0.1,0.4], pressure:[0.1,0.4], thickness:[0.2,0.4], colorVariety:[0.2,0.5], colorMatch:[0.6,1.0], pattern:[0.2,0.5], areaFill:[0.3,0.7], core:'speed' },
   confidence: { speed:[0.3,0.6], pressure:[0.6,1.0], thickness:[0.6,1.0], colorVariety:[0.3,0.6], colorMatch:[0.6,1.0], pattern:[0.4,0.8], areaFill:[0.5,1.0], core:'pressure' },
   curiosity:  { speed:[0.2,0.9], pressure:[0.2,0.9], thickness:[0.2,0.9], colorVariety:[0.7,1.0], colorMatch:[0.3,1.0], pattern:[0.6,1.0], areaFill:[0.3,1.0], core:'colorVariety' },
-  energy:     { speed:[0.7,1.0], pressure:[0.5,0.9], thickness:[0.5,0.9], colorVariety:[0.6,1.0], colorMatch:[0.5,1.0], pattern:[0.5,1.0], areaFill:[0.5,1.0], core:'speed' },
+  love:       { speed:[0.2,0.7], pressure:[0.2,0.6], thickness:[0.3,0.6], colorVariety:[0.5,1.0], colorMatch:[0.6,1.0], pattern:[0.6,1.0], areaFill:[0.4,0.9], core:'pattern' },
 };
 
 const WEIGHTS = {
@@ -1215,8 +1215,10 @@ function getFeedback(features) {
     if (features.areaFill < 0.3)
       return '빈 공간을 더 채워봐! 🖌️';
   }
-  if (emotion.id === 'energy' && features.speed < 0.6)
-    return '조금 더 빠르게 그려봐! ⚡';
+  if (emotion.id === 'love' && features.pattern < 0.5)
+    return '하트나 부드러운 무늬를 넣어볼까? 💕';
+  if (emotion.id === 'love' && features.colorVariety < 0.5)
+    return '따뜻한 색을 더 써봐! 더 설레는 느낌이 날 거야 🌸';
   if (emotion.id === 'calm' && features.speed > 0.5)
     return '천천히 그려봐~ 선이 더 예뻐질거야 🌊';
   if (emotion.id === 'confidence' && features.thickness < 0.5)
@@ -1272,7 +1274,7 @@ const STEPS = [
       calm:       '추천 마음색으로 부드럽고 느긋하게 채워봐요!',
       confidence: '추천 마음색으로 또렷하고 당당하게 채워봐요!',
       curiosity:  '추천 마음색으로 고정관념에서 벗어나 채워봐요!',
-      energy:     '추천 마음색으로 에너지 넘치게 채워봐요!',
+      love:       '추천 마음색으로 설레고 따뜻하게 채워봐요!',
     }[emotion.id] || '추천 마음색으로 자유롭게 채워봐요!'),
     btnLabel: '다음 단계 →',
     hint: () => `${emotion.name}이 60% 이상 채워져야<br>넘어갈 수 있어요!`,
