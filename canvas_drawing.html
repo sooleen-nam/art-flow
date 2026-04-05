@@ -241,24 +241,40 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   animation: bob 3.5s ease-in-out infinite;
   pointer-events:auto;
 }
-/* 모바일: 줌 컨트롤 바로 위, 하단 중앙 */
+/* 모바일: 우측 하단, 말풍선은 왼쪽 */
 @media (max-width:600px) {
   .tutor-overlay {
     top: auto;
-    bottom: 58px;   /* zoom-controls 높이(~42px) + 여백 */
-    right: 50%;
-    transform: translateX(50%);
-    align-items: center;
+    bottom: 58px;
+    right: 14px;
+    transform: none;
+    align-items: flex-end;
+    flex-direction: row-reverse;  /* 아바타 오른쪽, 말풍선 왼쪽 */
+    gap: 8px;
     display: flex !important;
   }
-  .tutor-overlay .tutor-float { animation: none; }
-  .tutor-avatar-wrap { display: none; }   /* 캐릭터 이미지 숨기고 말풍선만 */
-  .tutor-bubbles {
-    width: calc(100vw - 40px) !important;
-    max-width: 340px;
-    align-items: center;
+  .tutor-overlay .tutor-float {
+    animation: none;
+    flex-direction: row-reverse;
+    align-items: flex-end;
+    gap: 8px;
   }
-  .t-bubble { text-align: center; border-radius: 16px; font-size:.8rem; }
+  .tutor-avatar-wrap {
+    width: 48px; height: 48px;
+    flex-shrink: 0;
+    display: flex !important;
+  }
+  .tutor-live { top: 2px; right: 2px; width: 10px; height: 10px; }
+  .tutor-bubbles {
+    width: auto !important;
+    max-width: calc(100vw - 100px);
+    align-items: flex-end;
+  }
+  .t-bubble {
+    text-align: left;
+    border-radius: 16px 16px 16px 4px;  /* 왼쪽 말풍선 꼬리 */
+    font-size: .78rem;
+  }
 }
 
 /* ── 우측 도구 컬럼 ── */
@@ -440,12 +456,16 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
     direction: ltr !important;
     width: 70px !important;
     height: 20px !important;
-    -webkit-appearance: slider-horizontal;
-    appearance: auto;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    outline: none; border: none;
+    cursor: pointer;
+    position: relative; z-index: 2;
   }
   #brush-slider::-webkit-slider-runnable-track {
-    background: var(--bg3);
-    height: 4px; border-radius: 2px;
+    background: linear-gradient(to right, #c4b5fd, var(--accent));
+    height: 5px; border-radius: 3px;
   }
   #brush-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -453,7 +473,17 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
     border-radius: 50%;
     background: var(--accent);
     margin-top: -7px;
-    box-shadow: 0 2px 6px rgba(124,110,247,.4);
+    box-shadow: 0 2px 6px rgba(124,110,247,.5);
+    border: 2px solid #fff;
+  }
+  #brush-slider::-moz-range-track {
+    background: linear-gradient(to right, #c4b5fd, var(--accent));
+    height: 5px; border-radius: 3px;
+  }
+  #brush-slider::-moz-range-thumb {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--accent); border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(124,110,247,.5);
   }
   .brush-taper { display: none; }
   .tool-btn { width:34px; height:34px; border-radius:10px; flex-shrink:0; }
@@ -712,8 +742,9 @@ function init() {
   requestAnimationFrame(() => {
     const area = document.getElementById('canvas-area');
     const isMobile = window.innerWidth <= 600;
+    // 모바일: 튜터 말풍선 영역(~80px) + 줌컨트롤(~50px) 겹침 방지
     const SIZE = isMobile
-      ? Math.max(200, Math.min(area.clientWidth - 12, area.clientHeight - 12))
+      ? Math.max(200, Math.min(area.clientWidth - 16, area.clientHeight - 140))
       : Math.max(240, Math.min(area.clientWidth - 24, area.clientHeight - 24, 520));
 
     const stack = document.getElementById('canvas-stack');
