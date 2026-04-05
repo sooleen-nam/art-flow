@@ -60,6 +60,14 @@ function initGuide() {
       emotionImg.palette.map(c =>
         `<div class="compare-palette-dot" style="background:${c}"></div>`
       ).join('');
+  } else if (emotion.exampleImg) {
+    document.getElementById('compare-img-emotion').src = emotion.exampleImg;
+    document.getElementById('compare-img-overlay').style.background = 'none';
+    document.getElementById('compare-palette-emotion').innerHTML =
+      artwork.layers.map((l, i) => {
+        const c = emotion.transform(l.color, i);
+        return `<div class="compare-palette-dot" style="background:${c}" title="${l.name}"></div>`;
+      }).join('');
   } else {
     document.getElementById('compare-img-emotion').src = artwork.imageUrl;
     document.getElementById('compare-img-overlay').style.background = emotion.gradient;
