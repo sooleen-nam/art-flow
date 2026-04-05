@@ -51,10 +51,10 @@ const ARTWORKS = [
     locked: false,
     emotionImages: {
       joy:        { url: 'bird_즐거움.png',  palette: ['#f5c842','#f5783a','#5cc068','#5a9fd4','#f5a87a'] },
-      calm:       { url: 'bird_편안함.png',  palette: ['#f4a7b9','#b8d8e8','#f5d78a','#e8e4f0','#c8c8d0'] },
+      calm:       { url: 'bird_편안함.png',  palette: ['#7aaa7a','#a8c898','#5a8060','#bea860','#b8c8b0'] },
       confidence: { url: 'bird_자신감.png',  palette: ['#2563cc','#1a3f9a','#f5a823','#4a7fd4','#7aacee'] },
       curiosity:  { url: 'bird_호기심.png',  palette: ['#7b3fb5','#9b5fd0','#4ac8d4','#f5a823','#b07ad8'] },
-      love:       { url: 'bird_설레임.png',   palette: ['#ff6b9d','#ffb3cc','#ff9eb5','#ffd6e7','#ff85a1'] },
+      love:       { url: 'bird_설레임.png',   palette: ['#e07888','#e89ca8','#60a8c8','#84c4c8','#e0b4bc'] },
     },
     layers: [
       { name: '하늘 배경',    color: '#a8d8ea' },
@@ -239,8 +239,8 @@ const EMOTIONS = [
     lineHint: '부드럽고 둥근 선',
     patternHint: '하트, 꽃, 별',
     feel: '설레고 따뜻한 느낌',
-    color: '#ff6b9d',
-    gradient: 'linear-gradient(135deg,#ff6b9d,#ffb3cc)',
+    color: '#e07888',
+    gradient: 'linear-gradient(135deg,#e07888,#60a8c8)',
     transform: (c) => shiftColor(c, { h: +10, s: +20, l: +5 }),
     defaultBrush: 7,
     coaching: [
