@@ -1475,48 +1475,111 @@ function confirmFinish() {
 }
 
 /* ────────────────────────────────── 마음 음악 */
+// YouTube video IDs (공개 클래식, 광고 최소화 playlist 없음)
 const MUSIC_MAP = {
-  joy:        'https://upload.wikimedia.org/wikipedia/commons/f/f7/Vivaldi_Spring_mvt_1_Allegro_-_John_Harrison_violin.ogg',
-  calm:       'https://upload.wikimedia.org/wikipedia/commons/e/e5/ErikSatieGymnopedie1.ogg',
-  confidence: 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Beethoven_Symphony_No._5_in_C_minor%2C_Op._67%2C_i._Allegro_con_brio.ogg',
-  curiosity:  'https://upload.wikimedia.org/wikipedia/commons/2/25/Bach-Cello-Suite-1-Courante.ogg',
-  love:       'https://upload.wikimedia.org/wikipedia/commons/6/6d/Chopin_Nocturne_Op._9_No._2_B-flat_minor.ogg',
+  joy:        'GRxofEmo3HA',   // Vivaldi - Spring
+  calm:       '4y33h81phKU',   // Satie - Gymnopédie No.1
+  confidence: '_4IRMYuE1hI',   // Beethoven - Symphony No.5
+  curiosity:  'mGQLXRTl3Z0',   // Bach - Cello Suite No.1
+  love:       '9E6b3swbnWg',   // Chopin - Nocturne Op.9 No.2
 };
 
-let musicAudio = null;
+let ytPlayer = null;
 let musicPlaying = false;
+let ytReady = false;
 
-function initMusic() {
-  const src = MUSIC_MAP[emotion.id];
-  if (!src) return;
-  musicAudio = new Audio(src);
-  musicAudio.loop   = true;
-  musicAudio.volume = 0.28;
-  musicAudio.preload = 'auto';
+// YouTube IFrame API 로드
+(function loadYTApi() {
+  if (window.YT) { ytReady = true; return; }
+  const tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+})();
+
+window.onYouTubeIframeAPIReady = function() {
+  ytReady = true;
+};
+
+function createYTPlayer(videoId, onReady) {
+  // 숨겨진 iframe 컨테이너
+  let wrap = document.getElementById('yt-music-wrap');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'yt-music-wrap';
+    wrap.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;';
+    document.body.appendChild(wrap);
+    const div = document.createElement('div');
+    div.id = 'yt-player';
+    wrap.appendChild(div);
+  }
+  ytPlayer = new YT.Player('yt-player', {
+    videoId,
+    playerVars: { autoplay: 1, loop: 1, playlist: videoId, controls: 0, disablekb: 1 },
+    events: {
+      onReady: (e) => { e.target.setVolume(28); onReady && onReady(); },
+      onStateChange: (e) => {
+        // 재생 중이면 아이콘 유지
+        if (e.data === YT.PlayerState.PLAYING) {
+          musicPlaying = true;
+          setMusicBtn(true);
+        }
+      },
+    },
+  });
+}
+
+function setMusicBtn(on) {
+  const btn  = document.getElementById('btn-music');
+  const icon = document.getElementById('music-icon');
+  btn.classList.toggle('active', on);
+  btn.style.background = on ? emotion.gradient : '';
+  btn.style.border     = on ? 'none' : '';
+  icon.textContent = on ? '🔊' : '🎵';
 }
 
 function toggleMusic() {
-  if (!musicAudio) initMusic();
-  if (!musicAudio) return;
+  const btn = document.getElementById('btn-music');
 
   if (musicPlaying) {
-    musicAudio.pause();
+    // 정지
+    if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
     musicPlaying = false;
-    document.getElementById('btn-music').classList.remove('active');
-    document.getElementById('music-icon').textContent = '🎵';
-  } else {
-    musicAudio.play().then(() => {
-      musicPlaying = true;
-      document.getElementById('btn-music').classList.add('active');
-      document.getElementById('music-icon').textContent = '🔊';
-    }).catch(() => {
-      // 자동재생 차단 등 무시
-    });
+    setMusicBtn(false);
+    return;
   }
+
+  // 재생
+  if (ytPlayer && ytPlayer.playVideo) {
+    ytPlayer.playVideo();
+    musicPlaying = true;
+    setMusicBtn(true);
+    return;
+  }
+
+  // 첫 생성
+  if (!ytReady) {
+    // API 아직 미로드 → 잠시 후 재시도
+    btn.textContent = '⏳';
+    const wait = setInterval(() => {
+      if (ytReady) {
+        clearInterval(wait);
+        document.getElementById('music-icon').textContent = '🎵';
+        toggleMusic();
+      }
+    }, 300);
+    return;
+  }
+
+  const videoId = MUSIC_MAP[emotion.id];
+  if (!videoId) return;
+  createYTPlayer(videoId, () => {
+    musicPlaying = true;
+    setMusicBtn(true);
+  });
 }
 
 // 페이지 떠날 때 음악 정지
-window.addEventListener('pagehide', () => { if (musicAudio) musicAudio.pause(); });
+window.addEventListener('pagehide', () => { if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo(); });
 
 init();
 </script>
