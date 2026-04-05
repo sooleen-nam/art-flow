@@ -667,10 +667,10 @@ body { animation: fadeUp 0.35s ease; }
   max-width: 440px; width: 100%;
   border: 1px solid var(--border);
 }
-.result-card .rc-score { font-size: 1.05rem; font-weight: 900; margin-bottom: 8px; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.result-card .rc-main { font-size: 1rem; font-weight: 700; margin-bottom: 6px; color: var(--text); }
-.result-card .rc-detail { font-size: 0.85rem; color: var(--text2); line-height: 1.6; margin-bottom: 10px; }
-.result-card .rc-cheer { font-size: 0.85rem; color: var(--text2); line-height: 1.6; font-style: italic; }
+.result-card .rc-main { font-size: 1rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+.result-card .rc-score,
+.result-card .rc-detail,
+.result-card .rc-cheer { font-size: 0.85rem; color: var(--text2); line-height: 1.7; }
 .result-actions {
   display: flex; flex-wrap: nowrap; gap: 8px;
   justify-content: center; width: 100%;
