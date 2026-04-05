@@ -1027,14 +1027,19 @@ function onDraw(e) {
   ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(p.x, p.y); ctx.stroke();
   lx = p.x; ly = p.y; lmt = now;
   renderComposite();
+  // 드로잉 중 실시간 스코어 업데이트 (50px 이동할 때마다)
+  if (!S.erasing && strokeDist > 0 && strokeDist % 50 < dist + 1) {
+    const elapsed = Math.max(Date.now() - strokeStartTime, 1);
+    evalStrokeScore(strokeDist / elapsed, S.brushSize, S.color);
+  }
 }
 function endDraw() {
-  if (!drawing) return; // startDraw가 호출되지 않은 경우 무시
+  if (!drawing) return;
   drawing = false;
-  const elapsed = Date.now() - strokeStartTime;
-  // 의미 있는 획만 평가: 최소 20px 이동 + 최소 80ms 지속
-  if (!S.erasing && strokeDist > 20 && elapsed > 80) {
-    const spd = strokeDist / elapsed; // px/ms
+  const elapsed = Math.max(Date.now() - strokeStartTime, 1);
+  // 임계값을 낮춰 모바일 짧은 획도 평가
+  if (!S.erasing && strokeDist > 5) {
+    const spd = strokeDist / elapsed;
     evalStrokeScore(spd, S.brushSize, S.color);
   }
   if (S.layerCtxs[S.activeLayerIdx]) S.layerCtxs[S.activeLayerIdx].globalCompositeOperation = 'source-over';
