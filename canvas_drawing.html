@@ -262,12 +262,15 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   position:absolute; top:14px; right:14px; z-index:200;
   display:flex; flex-direction:column; align-items:flex-end;
   pointer-events:none;
+  user-select:none;
 }
 .tutor-overlay .tutor-float {
   display:flex; flex-direction:column; align-items:center; gap:4px;
   animation: bob 3.5s ease-in-out infinite;
   pointer-events:auto;
+  cursor:grab;
 }
+.tutor-overlay .tutor-float:active { cursor:grabbing; }
 /* 모바일: 우측 하단, 말풍선은 왼쪽 */
 @media (max-width:600px) {
   .tutor-overlay {
@@ -314,7 +317,15 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   box-shadow:0 6px 24px rgba(0,0,0,0.13);
   border:1.5px solid var(--border);
   pointer-events:auto;
+  user-select:none;
 }
+.step-drag-handle {
+  position:absolute; top:6px; left:50%; transform:translateX(-50%);
+  width:32px; height:4px; border-radius:2px;
+  background:rgba(0,0,0,0.15);
+  cursor:grab;
+}
+.step-drag-handle:active { cursor:grabbing; }
 .step-track {
   display:flex; align-items:center; gap:6px; margin-bottom:12px;
 }
@@ -728,6 +739,7 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
       </div>
       <!-- 단계 패널 -->
       <div class="step-panel" id="step-panel">
+        <div class="step-drag-handle" id="step-drag-handle"></div>
         <div class="step-track">
           <div class="step-dot active" id="sdot-1" onclick="goToStep(1)">1</div>
           <div class="step-line" id="sline-1"></div>
@@ -1667,6 +1679,67 @@ setTimeout(() => {
     setTimeout(() => tip.style.display = 'none', 400);
   }, 3000);
 }, 5000);
+
+/* ── 드래그 이동 ── */
+function makeDraggable(el, handleEl) {
+  let startX, startY, startLeft, startTop;
+
+  function getPos(e) {
+    return e.touches ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+                     : { x: e.clientX, y: e.clientY };
+  }
+
+  function onStart(e) {
+    const p = getPos(e);
+    const rect = el.getBoundingClientRect();
+    const parent = el.offsetParent.getBoundingClientRect();
+    startX = p.x;
+    startY = p.y;
+    startLeft = rect.left - parent.left;
+    startTop  = rect.top  - parent.top;
+    // position을 top/left 기반으로 전환
+    el.style.bottom = 'auto';
+    el.style.right  = 'auto';
+    el.style.left   = startLeft + 'px';
+    el.style.top    = startTop  + 'px';
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('mouseup',   onEnd);
+    document.addEventListener('touchend',  onEnd);
+    e.preventDefault();
+  }
+
+  function onMove(e) {
+    const p = getPos(e);
+    const dx = p.x - startX;
+    const dy = p.y - startY;
+    const parent = el.offsetParent.getBoundingClientRect();
+    const maxL = parent.width  - el.offsetWidth;
+    const maxT = parent.height - el.offsetHeight;
+    el.style.left = Math.max(0, Math.min(maxL, startLeft + dx)) + 'px';
+    el.style.top  = Math.max(0, Math.min(maxT, startTop  + dy)) + 'px';
+    if (e.cancelable) e.preventDefault();
+  }
+
+  function onEnd() {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('mouseup',   onEnd);
+    document.removeEventListener('touchend',  onEnd);
+  }
+
+  handleEl.addEventListener('mousedown',  onStart);
+  handleEl.addEventListener('touchstart', onStart, { passive: false });
+}
+
+makeDraggable(
+  document.getElementById('step-panel'),
+  document.getElementById('step-drag-handle')
+);
+makeDraggable(
+  document.querySelector('.tutor-overlay'),
+  document.querySelector('.tutor-float')
+);
 </script>
 </body>
 </html>
