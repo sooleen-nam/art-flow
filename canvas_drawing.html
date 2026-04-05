@@ -230,7 +230,7 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   cursor:pointer; border-radius:12px;
 }
 
-/* ── AI 튜터 플로팅 오버레이 (캔버스 우측 상단) ── */
+/* ── AI 튜터 플로팅 오버레이 (캔버스 우측 상단 / 모바일: 줌 컨트롤 위) ── */
 .tutor-overlay {
   position:absolute; top:14px; right:14px; z-index:200;
   display:flex; flex-direction:column; align-items:flex-end;
@@ -240,6 +240,25 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   display:flex; flex-direction:column; align-items:center; gap:4px;
   animation: bob 3.5s ease-in-out infinite;
   pointer-events:auto;
+}
+/* 모바일: 줌 컨트롤 바로 위, 하단 중앙 */
+@media (max-width:600px) {
+  .tutor-overlay {
+    top: auto;
+    bottom: 58px;   /* zoom-controls 높이(~42px) + 여백 */
+    right: 50%;
+    transform: translateX(50%);
+    align-items: center;
+    display: flex !important;
+  }
+  .tutor-overlay .tutor-float { animation: none; }
+  .tutor-avatar-wrap { display: none; }   /* 캐릭터 이미지 숨기고 말풍선만 */
+  .tutor-bubbles {
+    width: calc(100vw - 40px) !important;
+    max-width: 340px;
+    align-items: center;
+  }
+  .t-bubble { text-align: center; border-radius: 16px; font-size:.8rem; }
 }
 
 /* ── 우측 도구 컬럼 ── */
@@ -442,8 +461,6 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   .current-color-dot { width:26px; height:26px; flex-shrink:0; }
   /* 캔버스 영역 패딩 축소 */
   .canvas-area { padding: 6px; }
-  /* 튜터 오버레이 숨김 */
-  .tutor-overlay { display: none; }
   /* 3. 스케치 숨기기 버튼 - 줄바꿈 방지 */
   .zoom-controls {
     padding: 3px 5px; gap: 3px; bottom: 8px;
