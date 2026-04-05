@@ -280,21 +280,21 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 /* ── 단계 패널 ── */
 .step-panel {
   position:absolute; top:50%; right:14px; transform:translateY(-50%); z-index:200;
-  width:156px;
-  background:rgba(255,255,255,0.96);
-  border-radius:16px;
-  padding:12px 12px 10px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.12);
-  border:1px solid var(--border);
+  width:180px;
+  background:rgba(255,255,255,0.97);
+  border-radius:20px;
+  padding:16px 14px 14px;
+  box-shadow:0 6px 24px rgba(0,0,0,0.13);
+  border:1.5px solid var(--border);
   pointer-events:auto;
 }
 .step-track {
-  display:flex; align-items:center; gap:4px; margin-bottom:10px;
+  display:flex; align-items:center; gap:6px; margin-bottom:12px;
 }
 .step-dot {
-  width:22px; height:22px; border-radius:50%;
+  width:28px; height:28px; border-radius:50%;
   border:2px solid var(--border);
-  font-size:.62rem; font-weight:800; color:var(--text2);
+  font-size:.75rem; font-weight:900; color:var(--text2);
   display:flex; align-items:center; justify-content:center;
   flex-shrink:0; transition:all .25s;
   cursor:default;
@@ -302,30 +302,30 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 .step-dot.done { background:var(--accent); border-color:var(--accent); color:#fff; }
 .step-dot.reachable { cursor:pointer; }
 .step-dot.reachable:hover { opacity:.75; transform:scale(1.1); }
-.step-dot.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); border-color:transparent; color:#fff; box-shadow:0 0 0 3px rgba(124,110,247,.2); }
-.step-line { flex:1; height:2px; background:var(--border); border-radius:1px; }
+.step-dot.active { background:linear-gradient(135deg,var(--accent),var(--accent2)); border-color:transparent; color:#fff; box-shadow:0 0 0 4px rgba(124,110,247,.2); }
+.step-line { flex:1; height:3px; background:var(--border); border-radius:2px; }
 .step-line.done { background:var(--accent); }
 .step-body {}
 .step-title {
-  font-size:.78rem; font-weight:900; color:var(--text);
-  margin-bottom:3px;
+  font-size:.92rem; font-weight:900; color:var(--text);
+  margin-bottom:5px;
 }
 .step-desc {
-  font-size:.68rem; color:var(--text2); line-height:1.5; margin-bottom:8px;
+  font-size:.78rem; color:var(--text2); line-height:1.6; margin-bottom:10px;
 }
 .step-next-btn {
-  width:100%; padding:7px 0;
+  width:100%; padding:9px 0;
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   color:#fff; border:none; border-radius:20px;
-  font-size:.72rem; font-weight:700; cursor:pointer;
+  font-size:.82rem; font-weight:700; cursor:pointer;
   transition:opacity .15s, transform .15s;
 }
 .step-next-btn:disabled { opacity:.35; pointer-events:none; }
 .step-next-btn:active { transform:scale(.97); }
 .step-score-hint {
-  font-size:.62rem; color:var(--accent); font-weight:700;
-  text-align:center; margin-bottom:4px; min-height:14px;
-  line-height:1.5;
+  font-size:.72rem; color:var(--accent); font-weight:700;
+  text-align:center; margin-bottom:6px; min-height:16px;
+  line-height:1.6;
 }
 
 /* 모바일: 단계 패널 하단 우측 */
@@ -1267,7 +1267,7 @@ const STEPS = [
       energy:     '추천 마음색으로 에너지 넘치게 채워봐요!',
     }[emotion.id] || '추천 마음색으로 자유롭게 채워봐요!'),
     btnLabel: '다음 단계 →',
-    hint: () => `${emotion.name}이 60% 이상 채워져<br>넘어갈 수 있어요!`,
+    hint: () => `${emotion.name}이 60% 이상 채워져야<br>넘어갈 수 있어요!`,
     canNext: () => emotionScore >= 60,
   },
   {
