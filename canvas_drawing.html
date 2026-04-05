@@ -899,8 +899,8 @@ function renderComposite() {
   compositeCtx.fillStyle = '#fff'; compositeCtx.fillRect(0, 0, sz, sz);
   // 단계별 레이어 순서대로 합성
   S.stepLayerCanvases.forEach(c => compositeCtx.drawImage(c, 0, 0));
-  // 도안 선을 맨 위에 multiply로 합성
-  if (outlineImg) {
+  // 도안 선을 맨 위에 multiply로 합성 (스케치가 보이는 상태일 때만)
+  if (outlineImg && outlineVisible) {
     compositeCtx.save();
     compositeCtx.globalCompositeOperation = 'multiply';
     compositeCtx.globalAlpha = 0.85;
