@@ -364,28 +364,70 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 }
 
 @media (max-width:700px) {
-  .left-panel { width:64px; }
-  .tutor-bubbles { width:160px; }
-  .pal-dot { width:26px; height:26px; }
   .score-header { padding:6px 10px; gap:8px; }
   #sh-thumb { width:36px; height:36px; }
   #sh-bar-text { font-size:.78rem; }
   .sh-pct { font-size:.82rem; min-width:28px; }
   .sh-finish { padding:7px 12px; font-size:.75rem; }
 }
-@media (max-width:480px) {
-  .left-panel { width:54px; }
-  .palette-dots { gap:5px; padding:2px 0; }
-  .pal-dot { width:22px; height:22px; }
-  .tool-btn { width:34px; height:34px; border-radius:10px; }
+@media (max-width:600px) {
+  /* 좌측 패널 → 하단 가로 바로 전환 */
+  .draw-body { flex-direction: column; }
+  .left-panel {
+    width: 100% !important;
+    height: auto;
+    flex-direction: row;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    justify-content: center;
+    align-items: center;
+    padding: 8px 12px;
+    gap: 10px;
+    flex-shrink: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .lp-section {
+    padding: 0;
+    border-bottom: none;
+    border-right: 1px solid var(--border);
+    padding-right: 10px;
+  }
+  .lp-section:last-child { border-right: none; padding-right: 0; }
+  .palette-dots {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .pal-dot { width: 26px; height: 26px; }
+  .lp-tools {
+    flex-direction: row;
+    padding: 0;
+    border-top: none;
+    gap: 8px;
+    align-items: center;
+  }
+  .brush-wrap {
+    height: 26px; width: 80px;
+    flex-direction: row;
+    align-items: center;
+  }
+  #brush-slider {
+    writing-mode: horizontal-tb;
+    direction: ltr;
+    width: 80px; height: 20px;
+  }
+  .brush-taper { display: none; }
+  .tool-btn { width:36px; height:36px; border-radius:10px; }
   .tool-btn img { width:18px; height:18px; }
-  .brush-wrap { height:60px; }
-  #brush-slider { height:60px; }
-  .tutor-overlay { display:none; }
-  .tutor-bubbles { width:140px; }
-  .zoom-controls { padding:3px 5px; gap:3px; }
+  /* 캔버스 영역 패딩 축소 */
+  .canvas-area { padding: 6px; }
+  /* 튜터 오버레이 숨김 (공간 확보) */
+  .tutor-overlay { display: none; }
+  /* 줌 컨트롤 */
+  .zoom-controls { padding:3px 5px; gap:3px; bottom:8px; }
   .zoom-btn { width:28px; height:28px; font-size:.85rem; }
-  #zoom-label { width:36px; font-size:.65rem; }
+  #zoom-label { width:34px; font-size:.62rem; }
+  #btn-outline { font-size:.6rem; padding:0 6px; }
 }
 </style>
 </head>
@@ -620,7 +662,10 @@ function init() {
   // 캔버스 크기
   requestAnimationFrame(() => {
     const area = document.getElementById('canvas-area');
-    const SIZE = Math.max(240, Math.min(area.clientWidth - 24, area.clientHeight - 24, 520));
+    const isMobile = window.innerWidth <= 600;
+    const SIZE = isMobile
+      ? Math.max(200, Math.min(area.clientWidth - 12, area.clientHeight - 12))
+      : Math.max(240, Math.min(area.clientWidth - 24, area.clientHeight - 24, 520));
 
     const stack = document.getElementById('canvas-stack');
     stack.style.width = stack.style.height = SIZE + 'px';
