@@ -69,7 +69,7 @@ const ARTWORKS = [
     name: '봄꽃',
     artist: '58세 김지원',
     imageUrl: 'flower.jpg',
-    outlineUrl: 'flower.coloring.png',
+    outlineUrl: 'flower.coloring.dashed.png',
     difficulty: { label: '중', color: '#4CAF82' },
     locked: false,
     emotionImages: {
