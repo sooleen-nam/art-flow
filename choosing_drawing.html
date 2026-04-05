@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>그림 고르기 — 아트플로우</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="stylesheet" href="style.css">
@@ -61,7 +64,7 @@
 </div>
 
 <script>if(performance.getEntriesByType("navigation")[0]?.type==="reload"){location.replace("landing.html");}</script>
-<script src="i18n.js"></script>
+<script src="i18n.js?v=2"></script>
 <script src="data.js"></script>
 <script>
 sessionStorage.removeItem('artworkId');
@@ -89,7 +92,7 @@ function initSelect() {
       <img class="artwork-img" src="${a.imageUrl}" alt="${tArtwork(a.id)}" loading="lazy" style="${a.locked ? 'filter:brightness(0.6)' : ''}">
       <div class="artwork-info">
         <div class="artwork-name">${tArtwork(a.id)}</div>
-        <div class="artwork-artist">${tArtist(a.id)}</div>
+        ${['bird','flower','grandma'].includes(a.id) ? '' : `<div class="artwork-artist">${tArtist(a.id)}</div>`}
         <div class="artwork-palette-row">
           <div class="artwork-palette">${dots}</div>
           <div class="artwork-difficulty" style="background:${diff.color}22; color:${diff.color};">

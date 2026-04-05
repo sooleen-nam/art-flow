@@ -87,6 +87,41 @@ const I18N = {
     'scribble.msg':'대충 그리고 있는 것 같아요 😅<br>천천히, 정성껏 그려봐요!',
     'scribble.reset':'다시 그릴게요!',
     'scribble.continue':'계속 그릴게요',
+    'draw.musicTooltip':'마음 음악을 눌러보세요!<br>더 깊이 감정을 몰입할 수 있어요!',
+    'time.fmt':(m,s)=>m>0?`${m}분 ${s}초`:`${s}초`,
+    'end.scoreTimeText':(timeStr,eName,score)=>`오늘 ${timeStr} 동안 ${eName} ${score}% 채워졌어요!`,
+    'result.tiers':{
+      joy:[
+        {main:'즐거움을 그리기 시작했어요!',detail:'더 밝고 경쾌한 선, 노랑·연핑크 색을 더 써보면 즐거움이 훨씬 잘 담길 거예요.',cheer:'조금만 더 신나게 그려봐요! 할 수 있어요 🌟'},
+        {main:'즐거운 마음이 그림에 스며들기 시작했어요!',detail:'밝은 색을 더 과감하게 쓰고, 점이나 별 모양을 더 넣어보면 더 빛날 거예요.',cheer:'잘하고 있어요! 더 신나게 도전해봐요 ✨'},
+        {main:'즐거움이 그림 곳곳에 넘쳐흘러요!',detail:'다양한 색과 경쾌한 선이 즐거운 마음을 훌륭하게 표현했어요.',cheer:'정말 밝고 신나는 그림이에요! 멋져요 🎉'},
+        {main:'그림 전체가 즐거움으로 가득 빛나고 있어요!',detail:'생동감 넘치는 색감과 경쾌한 선이 기쁨을 완벽하게 담아냈어요.',cheer:'최고로 신나는 그림 탄생! 최고예요 🏆'},
+      ],
+      calm:[
+        {main:'편안함을 느끼려고 노력했어요!',detail:'조금 더 천천히, 부드러운 곡선으로 그려보면 차분함이 더 잘 표현돼요.',cheer:'천천히, 차근차근 다시 해봐요 🌿'},
+        {main:'차분한 마음이 조금씩 그림에 스며들고 있어요!',detail:'속도를 더 늦추고 여백을 살리면 편안함이 한층 깊어질 거예요.',cheer:'잘 하고 있어요! 더 여유롭게 🌊'},
+        {main:'부드럽고 평화로운 마음이 그림에 잘 담겼어요!',detail:'천천히 그린 선들이 보는 사람의 마음도 편안하게 해줘요.',cheer:'마음이 따뜻해지는 그림이에요 💙'},
+        {main:'그림에서 깊고 조용한 평화가 느껴져요!',detail:'부드러운 색감과 여유로운 흐름이 완벽한 편안함을 만들었어요.',cheer:'마음이 고요해지는 최고의 그림이에요 🌸'},
+      ],
+      confidence:[
+        {main:'자신감을 키우는 중이에요!',detail:'더 두껍고 또렷한 선으로 그려보면 당당한 마음이 더 잘 표현돼요.',cheer:'할 수 있어요! 더 힘차게 도전해봐요 💪'},
+        {main:'힘찬 마음이 그림에서 느껴지기 시작해요!',detail:'선을 더 과감하게 긋고 강한 색을 써보면 더 당당해질 거예요.',cheer:'점점 더 자신감 있게! 잘하고 있어요 🔥'},
+        {main:'당당하고 힘찬 자신감이 그림에 넘쳐요!',detail:'또렷한 선과 강렬한 색이 자신감을 멋지게 표현했어요.',cheer:'정말 당당한 그림이에요! 훌륭해요 ⚡'},
+        {main:'그림 전체에서 강하고 당당한 에너지가 뿜어져 나와요!',detail:'힘 있는 선과 선명한 색감이 완벽한 자신감을 담아냈어요.',cheer:'최고로 당당한 작품이에요! 대단해요 🏆'},
+      ],
+      curiosity:[
+        {main:'새로운 것을 탐구하기 시작했어요!',detail:'더 다양한 색과 불규칙한 선을 써보면 호기심이 더 잘 표현돼요.',cheer:'더 자유롭게 탐험해봐요! 🔍'},
+        {main:'자유로운 탐구심이 그림에서 느껴지기 시작해요!',detail:'더 다양한 색과 패턴을 시도해볼수록 더 재미있어질 거예요.',cheer:'계속 탐험해봐요! 잘하고 있어요 🌈'},
+        {main:'그림 곳곳에서 호기심 가득한 에너지가 느껴져요!',detail:'다채로운 색과 자유로운 선이 탐구하는 마음을 잘 담아냈어요.',cheer:'정말 흥미로운 그림이에요! 멋져요 ✨'},
+        {main:'그림 전체가 놀라운 탐구와 상상력으로 가득해요!',detail:'다양한 색과 자유로운 표현이 호기심을 완벽하게 펼쳐냈어요.',cheer:'상상력 최고의 작품! 최고예요 🚀'},
+      ],
+      love:[
+        {main:'설레는 마음을 그리기 시작했어요!',detail:'더 부드럽고 따뜻한 색으로 그려보면 설레임이 더 잘 느껴질 거예요.',cheer:'조금 더 따뜻하게, 할 수 있어요 💕'},
+        {main:'따뜻하고 설레는 마음이 그림에 조금씩 담기고 있어요!',detail:'더 부드러운 선과 따뜻한 색을 써보면 더 예뻐질 거예요.',cheer:'잘하고 있어요! 더 사랑스럽게 🌸'},
+        {main:'그림에서 따뜻하고 설레는 마음이 전해져요!',detail:'부드러운 색감과 따뜻한 선이 설레임을 예쁘게 담아냈어요.',cheer:'정말 따뜻한 그림이에요! 사랑스러워요 💖'},
+        {main:'그림 전체에서 사랑스럽고 설레는 감정이 넘쳐흘러요!',detail:'따뜻한 색감과 부드러운 선이 설레임을 완벽하게 표현했어요.',cheer:'가장 아름다운 마음의 그림이에요 🌹'},
+      ],
+    },
   },
 
   en: {
@@ -162,6 +197,41 @@ const I18N = {
     'scribble.msg':'Looks like you\'re rushing 😅<br>Take it slow and draw with care!',
     'scribble.reset':'Let me redo it!',
     'scribble.continue':'Keep going',
+    'draw.musicTooltip':'Try the mood music!<br>It helps you feel your emotions more deeply!',
+    'time.fmt':(m,s)=>m>0?`${m}m ${s}s`:`${s}s`,
+    'end.scoreTimeText':(timeStr,eName,score)=>`${eName} filled ${score}% in ${timeStr} today!`,
+    'result.tiers':{
+      joy:[
+        {main:'Joy is just starting to show!',detail:'Try brighter strokes and more yellow or pink — joy will shine through even more.',cheer:'Keep going, you can make it more exciting! 🌟'},
+        {main:'Joyful energy is beginning to fill your drawing!',detail:'Be bolder with bright colors and add dots or stars — it will glow even more!',cheer:'You\'re doing great! Keep it up ✨'},
+        {main:'Joy is overflowing from every corner!',detail:'Varied colors and lively strokes captured your joyful spirit wonderfully.',cheer:'Such a bright and fun drawing! Amazing 🎉'},
+        {main:'Your whole drawing is shining with joy!',detail:'Vibrant colors and lively strokes perfectly captured pure happiness.',cheer:'The most joyful drawing ever! You\'re the best 🏆'},
+      ],
+      calm:[
+        {main:'You tried to find calmness!',detail:'Try drawing slower with softer curves — tranquility will show through more.',cheer:'Take your time and try again 🌿'},
+        {main:'A calm feeling is slowly flowing into your drawing!',detail:'Slow down a bit more and let white space breathe — peace will deepen.',cheer:'You\'re doing well! Stay relaxed 🌊'},
+        {main:'A soft, peaceful mind shows beautifully in your drawing!',detail:'Your gentle strokes bring a sense of calm to everyone who sees it.',cheer:'Such a heart-warming drawing 💙'},
+        {main:'A deep, quiet peace flows from your drawing!',detail:'Soft colors and a flowing rhythm created perfect tranquility.',cheer:'The most serene drawing ever 🌸'},
+      ],
+      confidence:[
+        {main:'You\'re building your confidence!',detail:'Try thicker, bolder lines — your confident spirit will come through more.',cheer:'You can do it! Go for it with more energy 💪'},
+        {main:'A strong energy is starting to show in your drawing!',detail:'Draw lines more boldly and use stronger colors — confidence will grow.',cheer:'Getting more confident every stroke! 🔥'},
+        {main:'Bold, confident energy radiates from your drawing!',detail:'Clear lines and strong colors beautifully expressed your confidence.',cheer:'Such a bold drawing! Fantastic ⚡'},
+        {main:'Powerful, unstoppable energy bursts from every stroke!',detail:'Strong lines and vivid colors perfectly captured your confidence.',cheer:'The most powerful masterpiece! Incredible 🏆'},
+      ],
+      curiosity:[
+        {main:'You\'re starting to explore something new!',detail:'Try more varied colors and irregular lines — curiosity will shine through more.',cheer:'Explore more freely! 🔍'},
+        {main:'A free, curious spirit is emerging in your drawing!',detail:'More colors and patterns you try, the more interesting it becomes.',cheer:'Keep exploring! You\'re doing great 🌈'},
+        {main:'Curious energy fills every corner of your drawing!',detail:'Varied colors and free strokes beautifully captured your exploratory spirit.',cheer:'Such a fascinating drawing! Wonderful ✨'},
+        {main:'Your whole drawing is filled with wonder and imagination!',detail:'Diverse colors and free expression perfectly unleashed your curiosity.',cheer:'The most imaginative work of all! The best 🚀'},
+      ],
+      love:[
+        {main:'You\'re starting to draw with fluttering love!',detail:'Try softer, warmer colors — the feeling of love will come through more.',cheer:'A little warmer — you can do it 💕'},
+        {main:'Warm, fluttering feelings are flowing into your drawing!',detail:'Softer lines and warmer colors will make it even more beautiful.',cheer:'You\'re doing great! More love 🌸'},
+        {main:'Warm, loving feelings shine from your drawing!',detail:'Soft colors and warm strokes beautifully captured the fluttering feeling.',cheer:'Such a warm and lovely drawing! 💖'},
+        {main:'Loving, fluttering emotions overflow from every corner!',detail:'Warm colors and gentle strokes perfectly expressed the feeling of love.',cheer:'The most beautiful heart-felt drawing 🌹'},
+      ],
+    },
   },
 
   ja: {
@@ -237,6 +307,41 @@ const I18N = {
     'scribble.msg':'雑に描いているみたいだよ 😅<br>ゆっくり、丁寧に描いてみよう！',
     'scribble.reset':'もう一度描く！',
     'scribble.continue':'このまま続ける',
+    'draw.musicTooltip':'マインドミュージックを試してみよう！<br>より深く感情に没入できます！',
+    'time.fmt':(m,s)=>m>0?`${m}分${s}秒`:`${s}秒`,
+    'end.scoreTimeText':(timeStr,eName,score)=>`今日 ${timeStr} の間に${eName}が${score}%満たされました！`,
+    'result.tiers':{
+      joy:[
+        {main:'喜びが少し描かれ始めました！',detail:'明るい色使いや黄色・ピンクをもっと使うと、喜びがより伝わりますよ。',cheer:'もっと楽しく描いてみよう！できるよ 🌟'},
+        {main:'楽しい気持ちが絵に少しずつ染み込んでいます！',detail:'明るい色をもっと大胆に使って、点や星を加えると輝きが増しますよ。',cheer:'よくやってます！もっと楽しく ✨'},
+        {main:'喜びが絵のあちこちに溢れています！',detail:'多彩な色と軽やかな線が楽しい気持ちを見事に表現しましたよ。',cheer:'とっても明るくて楽しい絵！素敵です 🎉'},
+        {main:'絵全体が喜びで輝いています！',detail:'生き生きとした色使いと軽やかな線が喜びを完璧に捉えました。',cheer:'一番楽しい絵が誕生！最高だよ 🏆'},
+      ],
+      calm:[
+        {main:'安らぎを感じようと頑張りました！',detail:'ゆっくり、柔らかい曲線で描くと穏やかさがより伝わりますよ。',cheer:'ゆっくり、少しずつやってみよう 🌿'},
+        {main:'穏やかな気持ちが少しずつ絵に染み込んでいます！',detail:'もう少しゆっくり描いて余白を活かすと安らぎが深まりますよ。',cheer:'よくできてます！もっとゆったりと 🌊'},
+        {main:'柔らかく穏やかな気持ちが絵によく表れています！',detail:'ゆっくりと描かれた線が見る人の心も和ませてくれますよ。',cheer:'心が温かくなる絵です 💙'},
+        {main:'絵から深く静かな平和が感じられます！',detail:'柔らかな色と穏やかな流れが完璧な安らぎを生み出しました。',cheer:'心が静まる最高の絵です 🌸'},
+      ],
+      confidence:[
+        {main:'自信を育てています！',detail:'もっと太くてはっきりした線で描くと自信がよく表れますよ。',cheer:'できる！もっと力強く挑戦してみよう 💪'},
+        {main:'力強い気持ちが絵に感じられ始めました！',detail:'もっと大胆に線を引いて強い色を使うと自信が増しますよ。',cheer:'どんどん自信がついてきた！よくやってます 🔥'},
+        {main:'堂々とした自信が絵に溢れています！',detail:'はっきりした線と力強い色が自信を見事に表現しましたよ。',cheer:'とても堂々とした絵！素晴らしい ⚡'},
+        {main:'絵全体から強くて堂々としたエネルギーが溢れています！',detail:'力強い線と鮮やかな色が完璧な自信を表現しました。',cheer:'最高に堂々とした作品！すごいです 🏆'},
+      ],
+      curiosity:[
+        {main:'新しいことを探求し始めました！',detail:'もっと多彩な色と不規則な線を使うと好奇心がより伝わりますよ。',cheer:'もっと自由に探検しよう！ 🔍'},
+        {main:'自由な探求心が絵に感じられ始めています！',detail:'色やパターンをどんどん試すほど、より楽しくなりますよ。',cheer:'探検し続けよう！よくやってます 🌈'},
+        {main:'好奇心いっぱいのエネルギーが絵のあちこちに感じられます！',detail:'多彩な色と自由な線が探求する気持ちをよく表現しましたよ。',cheer:'とても面白い絵！素敵です ✨'},
+        {main:'絵全体が驚くべき探求と想像力で満ちています！',detail:'多様な色と自由な表現が好奇心を完璧に広げました。',cheer:'想像力最高の作品！一番だよ 🚀'},
+      ],
+      love:[
+        {main:'ときめきを描き始めました！',detail:'もっと柔らかく温かい色で描くとときめきがより伝わりますよ。',cheer:'もう少し温かく、できるよ 💕'},
+        {main:'温かくときめく気持ちが絵に少しずつ溢れています！',detail:'もっと柔らかな線と温かい色を使うともっと綺麗になりますよ。',cheer:'よくやってます！もっと愛らしく 🌸'},
+        {main:'温かくときめく気持ちが絵から伝わってきます！',detail:'柔らかな色と温かい線がときめきを綺麗に表現しましたよ。',cheer:'とても温かくて素敵な絵！かわいいです 💖'},
+        {main:'ときめきと愛らしさが絵全体から溢れています！',detail:'温かな色と柔らかな線がときめきを完璧に表現しました。',cheer:'最も美しい心の絵です 🌹'},
+      ],
+    },
   },
 };
 
@@ -254,3 +359,19 @@ function tPattern(id)  { return t('pattern.' + id); }
 function tArtwork(id)  { return t('artwork.' + id); }
 function tArtist(id)   { return t('artist.'  + id); }
 function tDiff(label)  { return t('diff.'    + label) || label; }
+
+/* ── 캐시 무효화: i18n.js가 새로 로드될 때 하드코딩된 요소 강제 번역 ── */
+document.addEventListener('DOMContentLoaded', function() {
+  // 음악 말풍선 (canvas_drawing.html이 구버전으로 캐시되어 있는 경우 대비)
+  const musicTooltip = document.getElementById('music-tooltip');
+  if (musicTooltip) {
+    const tipSpan = document.getElementById('music-tooltip-text');
+    if (tipSpan) {
+      tipSpan.innerHTML = t('draw.musicTooltip');
+    } else {
+      const tail = musicTooltip.querySelector('#music-tooltip-tail');
+      musicTooltip.innerHTML = t('draw.musicTooltip');
+      if (tail) musicTooltip.appendChild(tail);
+    }
+  }
+});
