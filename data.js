@@ -163,8 +163,8 @@ const EMOTIONS = [
     lineHint: '둥글고 경쾌한 선',
     patternHint: '점, 작은 별, 반짝임',
     feel: '밝고 신나는 느낌',
-    color: '#FFD600',
-    gradient: 'linear-gradient(135deg,#FF8F00,#FFD600,#FFF176)',
+    color: '#FFD54F',
+    gradient: 'linear-gradient(135deg,#FFF9C4,#FFD54F,#FFCCBC)',
     transform: (c) => shiftColor(c, { s: +30, l: +15 }),
     defaultBrush: 5,
     coaching: [
@@ -183,8 +183,8 @@ const EMOTIONS = [
     lineHint: '부드러운 곡선, 느린 흐름',
     patternHint: '물결, 구름 형태',
     feel: '차분하고 안정된 느낌',
-    color: '#7BC67E',
-    gradient: 'linear-gradient(135deg,#1B5E20,#43A047,#A5D6A7)',
+    color: '#AED581',
+    gradient: 'linear-gradient(135deg,#DCEDC8,#AED581,#B2EBF2)',
     transform: (c) => shiftColor(c, { s: -25, l: +18 }),
     defaultBrush: 4,
     coaching: [
@@ -204,8 +204,8 @@ const EMOTIONS = [
     lineHint: '또렷하고 힘 있는 선',
     patternHint: '반복 선, 강조 라인',
     feel: '힘있고 당당한 느낌',
-    color: '#EF5350',
-    gradient: 'linear-gradient(135deg,#B71C1C,#E53935,#FF8A80)',
+    color: '#EF9A9A',
+    gradient: 'linear-gradient(135deg,#FFCCBC,#EF9A9A,#FF8A65)',
     transform: (c) => shiftColor(c, { h: +40, s: +35, l: -8 }),
     defaultBrush: 8,
     coaching: [
@@ -225,8 +225,8 @@ const EMOTIONS = [
     lineHint: '불규칙 선, 점선',
     patternHint: '작은 점, 짧은 선 반복',
     feel: '자유롭고 탐구적인 느낌',
-    color: '#B39DDB',
-    gradient: 'linear-gradient(135deg,#4527A0,#7E57C2,#D1C4E9)',
+    color: '#CE93D8',
+    gradient: 'linear-gradient(135deg,#EDE7F6,#CE93D8,#9FA8DA)',
     transform: (c, i) => shiftColor(c, { h: (i * 60) % 180 - 90, s: +20 }),
     defaultBrush: 4,
     coaching: [
@@ -247,7 +247,7 @@ const EMOTIONS = [
     patternHint: '하트, 꽃, 별',
     feel: '설레고 따뜻한 느낌',
     color: '#F48FB1',
-    gradient: 'linear-gradient(135deg,#AD1457,#F06292,#FFCDD2)',
+    gradient: 'linear-gradient(135deg,#FCE4EC,#F48FB1,#E1BEE7)',
     transform: (c) => shiftColor(c, { h: +10, s: +20, l: +5 }),
     defaultBrush: 7,
     coaching: [
