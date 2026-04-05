@@ -279,7 +279,7 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 
 /* ── 단계 패널 ── */
 .step-panel {
-  position:absolute; top:14px; left:14px; z-index:200;
+  position:absolute; top:50%; right:14px; transform:translateY(-50%); z-index:200;
   width:156px;
   background:rgba(255,255,255,0.96);
   border-radius:16px;
@@ -324,11 +324,11 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
   text-align:center; margin-bottom:4px; min-height:14px;
 }
 
-/* 모바일: 단계 패널 하단 좌측 */
+/* 모바일: 단계 패널 하단 우측 */
 @media (max-width:600px) {
   .step-panel {
     position:fixed;
-    top:auto; left:10px;
+    top:auto; right:10px; transform:none;
     bottom:58px;
     width:140px;
     padding:10px;
