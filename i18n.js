@@ -31,7 +31,7 @@ const I18N = {
     /* 그림 선택 */
     'choose.pageTitle':'어떤 그림을 그릴까요?',
     'choose.emotionTitle':'어떤 마음으로 그리고 싶나요?',
-    'choose.emotionSub':'마음에 따라 <strong>드로잉 가이드</strong>와 <strong>색 팔레트</strong>, <strong>배경 음악</strong>이 달라져요!',
+    'choose.emotionSub':'마음에 따라 <strong>드로잉 가이드</strong>와 <strong>색 팔레트</strong>, 흘러나오는 <strong>마음 음악</strong>이 달라져요.',
     'choose.confirmBtn':'이 마음으로 그릴래요',
     'choose.compareTitle':'이렇게 그려볼까요?',
     'choose.original':'원본','choose.exampleSuffix':' 예시','choose.startBtn':'그리기 시작 ',
