@@ -46,7 +46,7 @@ const ARTWORKS = [
     name: '창 밖에 앉은 작은 새',
     artist: '7세 이로운',
     imageUrl: 'bird.jpg',
-    outlineUrl: 'bird.coloring.jpg',
+    outlineUrl: 'bird.coloring.dashed.png',
     difficulty: { label: '하', color: '#F4C542' },
     locked: false,
     emotionImages: {
