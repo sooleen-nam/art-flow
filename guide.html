@@ -25,7 +25,7 @@
         <div class="compare-palette" id="compare-palette-original"></div>
       </div>
       <div class="compare-panel">
-        <div class="compare-label" id="compare-emotion-label">마음 버전</div>
+        <div class="compare-label" id="compare-emotion-label">마음 예시</div>
         <div class="compare-img-wrap">
           <img class="compare-img" id="compare-img-emotion" alt="마음 버전">
           <div class="compare-img-overlay" id="compare-img-overlay"></div>
@@ -70,7 +70,7 @@ function initGuide() {
       }).join('');
   }
 
-  document.getElementById('compare-emotion-label').textContent = `${emotion.icon} ${emotion.name} 버전`;
+  document.getElementById('compare-emotion-label').textContent = `${emotion.icon} ${emotion.name} 예시`;
 
   document.getElementById('compare-palette-original').innerHTML =
     artwork.layers.map(l =>
