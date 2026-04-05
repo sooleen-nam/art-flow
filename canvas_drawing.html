@@ -74,47 +74,47 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 
 /* ── 상단: 감정 스코어 헤더 ── */
 .score-header {
-  display: flex; align-items: center; gap: 12px;
-  padding: 8px 16px;
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 20px;
   background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
   flex-shrink: 0;
 }
 #sh-thumb {
-  width: 44px; height: 44px; border-radius: 10px;
+  width: 54px; height: 54px; border-radius: 12px;
   object-fit: cover; flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  box-shadow: 0 3px 10px rgba(0,0,0,.15);
 }
 .sh-bar-wrap { flex:1; min-width:0; }
 .sh-bar-label {
-  display: flex; justify-content: space-between;
-  margin-bottom: 4px;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 7px;
 }
 #sh-bar-text {
-  font-size: .88rem; font-weight:900; letter-spacing:.02em;
+  font-size: 1.05rem; font-weight:900; letter-spacing:.02em;
   background: linear-gradient(90deg, var(--accent), var(--accent2), #f472b6);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.sh-bar-hint { font-size:.6rem; font-weight:600; color:var(--text2); }
+.sh-bar-hint { font-size:.68rem; font-weight:600; color:var(--text2); }
 .sh-bar-track {
-  height: 10px; background: var(--bg3);
-  border-radius: 5px; overflow: hidden;
+  height: 16px; background: var(--bg3);
+  border-radius: 8px; overflow: hidden;
 }
 .sh-bar-fill {
-  height:100%; border-radius:5px; width:0%;
+  height:100%; border-radius:8px; width:0%;
   transition: width .7s cubic-bezier(.32,.72,0,1);
   position: relative;
 }
 .sh-bar-fill::after {
   content:''; position:absolute; inset:0;
-  background: linear-gradient(90deg,rgba(255,255,255,.25) 0%,transparent 100%);
+  background: linear-gradient(90deg,rgba(255,255,255,.30) 0%,transparent 100%);
 }
-.sh-pct { font-size:.95rem; font-weight:900; flex-shrink:0; min-width:36px; text-align:right; }
+.sh-pct { font-size:1.2rem; font-weight:900; flex-shrink:0; min-width:46px; text-align:right; }
 .sh-finish {
   background:linear-gradient(135deg,var(--accent),var(--accent2));
-  color:#fff; border:none; border-radius:20px;
-  padding:9px 18px; font-size:.82rem; font-weight:700;
+  color:#fff; border:none; border-radius:22px;
+  padding:11px 20px; font-size:.92rem; font-weight:700;
   cursor:pointer; flex-shrink:0; white-space:nowrap;
 }
 
@@ -486,11 +486,12 @@ body { overflow: hidden; font-family: 'Pretendard', sans-serif; }
 }
 
 @media (max-width:700px) {
-  .score-header { padding:6px 10px; gap:8px; }
-  #sh-thumb { width:36px; height:36px; }
-  #sh-bar-text { font-size:.78rem; }
-  .sh-pct { font-size:.82rem; min-width:28px; }
-  .sh-finish { padding:7px 12px; font-size:.75rem; }
+  .score-header { padding:8px 12px; gap:10px; }
+  #sh-thumb { width:44px; height:44px; }
+  #sh-bar-text { font-size:.88rem; }
+  .sh-bar-track { height:13px; }
+  .sh-pct { font-size:1rem; min-width:36px; }
+  .sh-finish { padding:9px 14px; font-size:.82rem; }
 }
 @media (max-width:600px) {
   /* 좌측 패널 → 하단 가로 바로 전환 */
