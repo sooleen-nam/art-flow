@@ -129,7 +129,7 @@ function openEmotionSheet() {
     item.style.filter = e.locked ? 'brightness(0.55) saturate(0.7)' : 'none';
     item.onclick = () => e.locked ? alert('PRO 전용 마음이에요 🔒\n업그레이드하면 더 다양한 마음으로 그릴 수 있어요!') : selectEmotion(e.id);
     item.innerHTML = `
-      <img src="${e.name}.png" alt="${e.name}" style="width:48px;height:48px;object-fit:contain;${e.id==='joy'?'filter:drop-shadow(0 0 1.5px rgba(0,0,0,0.35));':''}">
+      <img src="${e.img || (e.name + ".png")}" alt="${e.name}" style="width:48px;height:48px;object-fit:contain;${e.id==='joy'?'filter:drop-shadow(0 0 1.5px rgba(0,0,0,0.35));':''}">
       <div class="emotion-item-text">
         <span class="ei-name">${e.name}${e.locked ? ' <span style="font-size:.55rem;background:linear-gradient(135deg,#fbbf24,#f97316);color:#fff;padding:2px 5px;border-radius:8px;font-weight:900;margin-left:3px;">PRO</span>' : ''}</span>
       </div>

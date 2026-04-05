@@ -171,7 +171,7 @@ const EMOTIONS = [
   {
     id: 'calm',
     tutorMsg: 'AI 마음튜터가 천천히 차분한 마음으로 그릴 수 있도록 실시간으로 도와줄게요',
-    name: '편안함', icon: '',
+    name: '편안함', icon: '', img: 'bird_편안함.png',
     desc: '부드러운 곡선으로 천천히<br>차분하고 안정된 마음을 연습해요',
     lineHint: '부드러운 곡선, 느린 흐름',
     patternHint: '물결, 구름 형태',
@@ -190,7 +190,7 @@ const EMOTIONS = [
   },
   {
     id: 'confidence',
-    locked: true,
+    locked: false,
     tutorMsg: 'AI 마음튜터가 힘차고 당당한 마음으로 그릴 수 있도록 실시간으로 도와줄게요',
     name: '자신감', icon: '',
     desc: '또렷하고 힘 있는 선으로<br>힘있고 당당한 마음을 연습해요',
@@ -211,7 +211,7 @@ const EMOTIONS = [
   },
   {
     id: 'curiosity',
-    locked: true,
+    locked: false,
     tutorMsg: 'AI 마음튜터가 자유롭고 상상하는 마음으로 그리도록 실시간으로 도와줄게요',
     name: '호기심', icon: '',
     desc: '불규칙한 선과 다양한 색으로<br>자유롭고 탐구적인 마음을 연습해요',
@@ -232,7 +232,7 @@ const EMOTIONS = [
   },
   {
     id: 'love',
-    locked: true,
+    locked: false,
     tutorMsg: 'AI 마음튜터가 설레는 마음으로 그릴 수 있도록 실시간으로 도와줄게요',
     name: '설레임', icon: '',
     desc: '부드럽고 따뜻한 선으로<br>설레는 마음을 담아요',
