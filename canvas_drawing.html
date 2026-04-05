@@ -1031,87 +1031,46 @@ function onDraw(e) {
 function endDraw() {
   if (!drawing) return;
   drawing = false;
-  const elapsed = Math.max(Date.now() - strokeStartTime, 1);
-  // 임계값을 낮춰 모바일 짧은 획도 평가
-  if (!S.erasing && strokeDist > 5) {
-    const spd = strokeDist / elapsed;
-    evalStrokeScore(spd, S.brushSize, S.color);
-  }
+  if (strokeDist > 5) analyzeAndUpdateScore();
   if (S.layerCtxs[S.activeLayerIdx]) S.layerCtxs[S.activeLayerIdx].globalCompositeOperation = 'source-over';
 }
 
-/* ────────────────────────────────── 감정 스코어 */
-// 팔레트 색상에 가까운 색인지 확인 (색거리 기준)
-function isEmotionColor(hex) {
-  const palette = S.palette;
-  if (!palette || !palette.length) return true;
-  const c = hexToRgb(hex);
-  for (const p of palette) {
-    const pc = hexToRgb(p);
-    const d = Math.sqrt((c.r-pc.r)**2 + (c.g-pc.g)**2 + (c.b-pc.b)**2);
-    if (d < 90) return true;
-  }
-  return false;
-}
+/* ────────────────────────────────── 감정 스코어 (캔버스 픽셀 분석 기반) */
+function analyzeAndUpdateScore() {
+  if (!compositeCanvas) return;
+  const w = compositeCanvas.width;
+  const h = compositeCanvas.height;
+  let imageData;
+  try { imageData = compositeCtx.getImageData(0, 0, w, h); } catch(e) { return; }
 
-// 획 1개의 특성(속도·붓크기·색)을 평가해 emotionScore를 증감
-function evalStrokeScore(spd, brush, color) {
-  let delta = 0;
-  const colorOk = isEmotionColor(color);
+  const data = imageData.data;
+  const palRgb = S.palette.map(p => hexToRgb(p));
 
-  // 획 1개당 최대 +4 / 최소 -4
-  // 조건을 잘 맞추면 25~30획에 100%, 잘못 그리면 줄어듦
-  switch (emotion.id) {
+  // 성능 위해 8픽셀마다 샘플링
+  const STEP = 8;
+  let sampled = 0, painted = 0, toneMatch = 0;
 
-    case 'joy': // 둥글고 경쾌한 선 / 노랑·연핑크·민트 / 밝고 신나는
-      // 속도: 중간 속도가 경쾌함 (너무 느리거나 너무 빠르면 감소)
-      delta += (spd > 0.08 && spd < 0.50) ? 2 : (spd <= 0.04 || spd >= 0.80) ? -2 : 0;
-      // 붓: 중소형 (크면 경쾌하지 않음)
-      delta += (brush >= 3 && brush <= 12) ? 1 : (brush > 20) ? -2 : -1;
-      // 색: 감정 팔레트 색이면 +, 아니면 -
-      delta += colorOk ? 1 : -1;
-      break;
-
-    case 'calm': // 부드럽고 느린 곡선 / 파스텔 톤 / 차분하고 안정된
-      // 속도: 느릴수록 좋음, 빠르면 강하게 감소
-      delta += spd < 0.05 ? 3 : spd < 0.10 ? 1 : spd < 0.20 ? -1 : -3;
-      // 붓: 작은~중간 (큰 붓은 차분하지 않음)
-      delta += brush <= 6 ? 2 : brush <= 10 ? 0 : -2;
-      // 색: 파스텔 팔레트 색 필수
-      delta += colorOk ? 1 : -2;
-      break;
-
-    case 'confidence': // 또렷하고 힘 있는 선 / 선명한 파랑·초록 / 힘있고 당당한
-      // 붓: 굵을수록 자신감 (작은 붓은 소심함)
-      delta += brush >= 14 ? 3 : brush >= 9 ? 1 : brush >= 5 ? -1 : -3;
-      // 속도: 너무 느리면 자신 없어 보임, 너무 빠르면 산만함
-      delta += (spd > 0.08 && spd < 0.60) ? 1 : -2;
-      // 색
-      delta += colorOk ? 1 : -1;
-      break;
-
-    case 'curiosity': // 불규칙 선·점선 / 작은 점·짧은 선 반복 / 자유롭고 탐구적
-      // 붓: 작은 붓으로 다양한 점과 선 (작을수록 탐구적)
-      delta += brush <= 8 ? 2 : brush <= 14 ? 0 : -2;
-      // 속도: 탐색적 속도 (너무 빠르거나 느리지 않게)
-      delta += (spd > 0.05 && spd < 0.45) ? 1 : -1;
-      // 색: 다양한 색 사용 핵심 — 팔레트 색이면 +, 아니면 중립
-      delta += colorOk ? 2 : 0;
-      // 색 변화 보너스 (다양한 색 써야 호기심)
-      delta += S.stats.usedColors.size >= 3 ? 1 : S.stats.usedColors.size === 1 ? -1 : 0;
-      break;
-
-    case 'energy': // 빠르고 리듬감 있는 선 / 튀는 점·확산 / 에너지 넘치고 역동적
-      // 속도: 빠를수록 좋음, 느리면 강하게 감소
-      delta += spd > 0.45 ? 3 : spd > 0.25 ? 1 : spd > 0.10 ? -1 : -3;
-      // 붓: 굵을수록 에너지 (작은 붓은 소극적)
-      delta += brush >= 12 ? 2 : brush >= 7 ? 0 : -2;
-      // 색: 강렬한 팔레트 색
-      delta += colorOk ? 1 : -1;
-      break;
+  for (let i = 0; i < data.length; i += 4 * STEP) {
+    sampled++;
+    const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+    // 배경(흰색/투명) 스킵
+    if (a < 20 || (r > 240 && g > 240 && b > 240)) continue;
+    painted++;
+    // 감정 팔레트 색과 가까운 픽셀 카운트 (색 거리 80 이내)
+    for (const pc of palRgb) {
+      if (Math.sqrt((r-pc.r)**2 + (g-pc.g)**2 + (b-pc.b)**2) < 80) { toneMatch++; break; }
+    }
   }
 
-  emotionScore = Math.max(0, Math.min(100, emotionScore + delta));
+  // 커버리지 점수: 캔버스의 50% 이상 칠하면 만점
+  const coverageRatio = painted / Math.max(sampled, 1);
+  const coverageScore = Math.min(100, (coverageRatio / 0.50) * 100);
+
+  // 톤 점수: 칠해진 픽셀 중 감정 색 비율
+  const toneScore = painted > 30 ? Math.min(100, (toneMatch / painted) * 100) : 0;
+
+  // 최종: 커버리지 50% + 톤 50%
+  emotionScore = Math.round(coverageScore * 0.50 + toneScore * 0.50);
   updateScoreDisplay();
 }
 
@@ -1124,7 +1083,6 @@ function updateScoreDisplay() {
   if (hint) hint.textContent = '';
 }
 
-// 리셋 시 스코어도 초기화
 function updateScore() { updateScoreDisplay(); }
 
 /* ────────────────────────────────── AI 코치 (Claude API) */
